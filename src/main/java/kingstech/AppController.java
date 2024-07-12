@@ -15,10 +15,8 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 public class AppController implements Initializable {
 
@@ -38,8 +36,6 @@ public class AppController implements Initializable {
     private PreparedStatement prepare;
     private ResultSet result;
 
-    private double x = 0;
-    private double y = 0;
 
     public void loginAdmin() {
         String sql = "SELECT * FROM admin WHERE username = ? and password = ?";
@@ -76,18 +72,9 @@ public class AppController implements Initializable {
                     Parent root = FXMLLoader.load(getClass().getResource("dashboard.fxml"));
                     Stage stage = new Stage();
                     Scene scene = new Scene(root);
-
-                    root.setOnMousePressed((MouseEvent event) -> {
-                        x = event.getSceneX();
-                        y = event.getSceneY();
-                    });
-
-                    root.setOnMouseDragged((MouseEvent event) -> {
-                        stage.setX(event.getScreenX() - x);
-                        stage.setY(event.getScreenY() - y);
-                    });
-
-                    stage.initStyle(StageStyle.TRANSPARENT);
+                    stage.setTitle("College of Hopes, Arts and Sciences - Dashboard");
+                    stage.setMinWidth(1100);
+                    stage.setMinHeight(650);
                     stage.setScene(scene);
                     stage.show();
                 } else {
@@ -103,12 +90,8 @@ public class AppController implements Initializable {
         }
     }
 
-    public void close() {
-        System.exit(0);
-    }
-
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Initialization code if needed
+       //
     }
 }
