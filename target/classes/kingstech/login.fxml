@@ -9,23 +9,17 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.effect.Blend?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="640.0" spacing="20.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="kingstech.PrimaryController">
+<HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="640.0" spacing="20.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="kingstech.AppController">
    <children>
       <StackPane prefHeight="400.0" prefWidth="350.0" styleClass="left-form" stylesheets="@styles.css">
          <children>
             <VBox alignment="CENTER" spacing="10">
-            <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@pics/icons8-graduation-cap-100.png" />
-               </image>
-            </ImageView>
+               <FontAwesomeIconView fill="#faf8f8" glyphName="GRADUATION_CAP" size="150" />
             <Label alignment="CENTER" prefHeight="52.0" prefWidth="350.0" text="COHAS BEPANDA" textFill="WHITE">
                <font>
                   <Font name="Script MT Bold" size="30.0" />
@@ -66,7 +60,7 @@
                   <VBox.margin>
                      <Insets left="15.0" right="15.0" />
                   </VBox.margin></PasswordField>
-               <Button fx:id="login" mnemonicParsing="false" styleClass="login" stylesheets="@styles.css" text="Login" textFill="WHITE">
+               <Button fx:id="login" mnemonicParsing="false" onAction="#loginAdmin" styleClass="login" stylesheets="@styles.css" text="Login" textFill="WHITE">
                   <font>
                      <Font size="15.0" />
                   </font>
