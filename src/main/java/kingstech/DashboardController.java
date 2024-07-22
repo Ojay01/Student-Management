@@ -311,6 +311,12 @@ public class DashboardController implements Initializable {
     private AnchorPane home_form;
 
     @FXML
+    private AnchorPane female_form;
+
+    @FXML
+    private AnchorPane male_form;
+
+    @FXML
     private SplitPane settings_form;
 
     @FXML
@@ -742,7 +748,7 @@ public class DashboardController implements Initializable {
         String academicYear = null;
 
         // Retrieve academic year from the settings table
-        String sqlSettings = "SELECT academic_year FROM settings";
+        String sqlSettings = "SELECT academicYear FROM settings";
 
         Connection settingsConnection = null;
         Connection studentConnection = null;
@@ -753,7 +759,7 @@ public class DashboardController implements Initializable {
             result = prepare.executeQuery();
 
             if (result.next()) {
-                academicYear = result.getString("academic_year");
+                academicYear = result.getString("academicYear");
             }
 
             // Close the resources related to the settings query
@@ -804,7 +810,7 @@ public class DashboardController implements Initializable {
         String academicYear = null;
 
         // Retrieve academic year from the settings table
-        String sqlSettings = "SELECT academic_year FROM settings";
+        String sqlSettings = "SELECT academicYear FROM settings";
 
         try {
             Connection settingsConnection = Database.connectDb();
@@ -812,7 +818,7 @@ public class DashboardController implements Initializable {
             ResultSet result = prepare.executeQuery();
 
             if (result.next()) {
-                academicYear = result.getString("academic_year");
+                academicYear = result.getString("academicYear");
             }
 
             // Close the resources related to the settings query
@@ -849,7 +855,7 @@ public class DashboardController implements Initializable {
         String academicYear = null;
 
         // Retrieve academic year from the settings table
-        String sqlSettings = "SELECT academic_year FROM settings";
+        String sqlSettings = "SELECT academicYear FROM settings";
 
         try {
             Connection settingsConnection = Database.connectDb();
@@ -857,7 +863,7 @@ public class DashboardController implements Initializable {
             ResultSet resultSettings = prepareSettings.executeQuery();
 
             if (resultSettings.next()) {
-                academicYear = resultSettings.getString("academic_year");
+                academicYear = resultSettings.getString("academicYear");
             }
 
             // Close the resources related to the settings query
@@ -894,7 +900,7 @@ public class DashboardController implements Initializable {
         String academicYear = null;
 
         // Retrieve academic year from the settings table
-        String sqlSettings = "SELECT academic_year FROM settings";
+        String sqlSettings = "SELECT academicYear FROM settings";
 
         try {
             Connection settingsConnection = Database.connectDb();
@@ -902,7 +908,7 @@ public class DashboardController implements Initializable {
             ResultSet resultSettings = prepareSettings.executeQuery();
 
             if (resultSettings.next()) {
-                academicYear = resultSettings.getString("academic_year");
+                academicYear = resultSettings.getString("academicYear");
             }
 
             // Close the resources related to the settings query
@@ -940,7 +946,7 @@ public class DashboardController implements Initializable {
         String academicYear = null;
 
         // Retrieve academic year from the settings table
-        String sqlSettings = "SELECT academic_year FROM settings";
+        String sqlSettings = "SELECT academicYear FROM settings";
 
         try {
             Connection settingsConnection = Database.connectDb();
@@ -948,7 +954,7 @@ public class DashboardController implements Initializable {
             ResultSet resultSettings = prepareSettings.executeQuery();
 
             if (resultSettings.next()) {
-                academicYear = resultSettings.getString("academic_year");
+                academicYear = resultSettings.getString("academicYear");
             }
 
             // Close the resources related to the settings query
@@ -984,7 +990,7 @@ public class DashboardController implements Initializable {
 
     public void displaySchoolName() {
 
-        String sql = "SELECT school_name FROM settings ";
+        String sql = "SELECT schoolName FROM settings ";
 
         connect = Database.connectDb();
 
@@ -995,10 +1001,11 @@ public class DashboardController implements Initializable {
             result = prepare.executeQuery();
 
             if (result.next()) {
-                school = result.getString("school_name");
+                school = result.getString("schoolName");
             }
 
             show_SchoolName.setText(school);
+            school_name.setText(school);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -1008,7 +1015,7 @@ public class DashboardController implements Initializable {
 
     public void displaySchoolYear() {
 
-        String sql = "SELECT academic_year FROM settings ";
+        String sql = "SELECT academicYear FROM settings ";
 
         connect = Database.connectDb();
 
@@ -1019,7 +1026,7 @@ public class DashboardController implements Initializable {
             result = prepare.executeQuery();
 
             if (result.next()) {
-                school = result.getString("academic_year");
+                school = result.getString("academicYear");
             }
 
             show_AcademicYear.setText(school);
@@ -1085,7 +1092,7 @@ public class DashboardController implements Initializable {
         String academicYear = null;
 
         // Retrieve academic year from the settings table
-        String sqlSettings = "SELECT academic_year FROM settings";
+        String sqlSettings = "SELECT academicYear FROM settings";
 
         try {
             Connection settingsConnection = Database.connectDb();
@@ -1093,7 +1100,7 @@ public class DashboardController implements Initializable {
             ResultSet resultSettings = prepareSettings.executeQuery();
 
             if (resultSettings.next()) {
-                academicYear = resultSettings.getString("academic_year");
+                academicYear = resultSettings.getString("academicYear");
             }
 
             // Close the resources related to the settings query
@@ -1131,7 +1138,7 @@ public class DashboardController implements Initializable {
         String academicYear = null;
 
         // Retrieve academic year from the settings table
-        String sqlSettings = "SELECT academic_year FROM settings";
+        String sqlSettings = "SELECT academicYear FROM settings";
 
         try {
             Connection settingsConnection = Database.connectDb();
@@ -1139,7 +1146,7 @@ public class DashboardController implements Initializable {
             ResultSet resultSettings = prepareSettings.executeQuery();
 
             if (resultSettings.next()) {
-                academicYear = resultSettings.getString("academic_year");
+                academicYear = resultSettings.getString("academicYear");
             }
 
             // Close the resources related to the settings query
@@ -1175,7 +1182,7 @@ public class DashboardController implements Initializable {
     public void homeDisplayTotalEnrolledChart() {
         home_totalEnrolledChart.getData().clear();
 
-        String sqlSettings = "SELECT academic_year FROM settings";
+        String sqlSettings = "SELECT academicYear FROM settings";
 
         try {
             Connection settingsConnection = Database.connectDb();
@@ -1184,7 +1191,7 @@ public class DashboardController implements Initializable {
 
             String academicYear = null;
             if (settingsResult.next()) {
-                academicYear = settingsResult.getString("academic_year");
+                academicYear = settingsResult.getString("academicYear");
             }
 
             // Close the resources related to the settings query
@@ -1226,7 +1233,7 @@ public class DashboardController implements Initializable {
     public void homeDisplayFemaleEnrolledChart() {
         home_totalFemaleChart.getData().clear();
 
-        String sqlSettings = "SELECT academic_year FROM settings";
+        String sqlSettings = "SELECT academicYear FROM settings";
 
         try {
             Connection settingsConnection = Database.connectDb();
@@ -1235,7 +1242,7 @@ public class DashboardController implements Initializable {
 
             String academicYear = null;
             if (settingsResult.next()) {
-                academicYear = settingsResult.getString("academic_year");
+                academicYear = settingsResult.getString("academicYear");
             }
 
             // Close the resources related to the settings query
@@ -1277,7 +1284,7 @@ public class DashboardController implements Initializable {
     public void homeDisplayEnrolledMaleChart() {
         home_totalMaleChart.getData().clear();
 
-        String sqlSettings = "SELECT academic_year FROM settings";
+        String sqlSettings = "SELECT academicYear FROM settings";
 
         try {
             Connection settingsConnection = Database.connectDb();
@@ -1286,7 +1293,7 @@ public class DashboardController implements Initializable {
 
             String academicYear = null;
             if (settingsResult.next()) {
-                academicYear = settingsResult.getString("academic_year");
+                academicYear = settingsResult.getString("academicYear");
             }
 
             // Close the resources related to the settings query
@@ -1381,13 +1388,13 @@ public class DashboardController implements Initializable {
     }
 
     private String getAcademicYearFromSettings() {
-        String sqlSettings = "SELECT academic_year FROM settings";
+        String sqlSettings = "SELECT academicYear FROM settings";
         try (Connection settingsConnection = Database.connectDb();
                 PreparedStatement settingsPrepare = settingsConnection.prepareStatement(sqlSettings);
                 ResultSet settingsResult = settingsPrepare.executeQuery()) {
 
             if (settingsResult.next()) {
-                return settingsResult.getString("academic_year");
+                return settingsResult.getString("academicYear");
             }
 
         } catch (SQLException e) {
@@ -3977,25 +3984,9 @@ public class DashboardController implements Initializable {
                 Parent root = FXMLLoader.load(getClass().getResource("login.fxml"));
                 Stage stage = new Stage();
                 Scene scene = new Scene(root);
-
-                root.setOnMousePressed((MouseEvent event) -> {
-                    x = event.getSceneX();
-                    y = event.getSceneY();
-                });
-
-                root.setOnMouseDragged((MouseEvent event) -> {
-                    stage.setX(event.getScreenX() - x);
-                    stage.setY(event.getScreenY() - y);
-
-                    stage.setOpacity(.8);
-                });
-
-                root.setOnMouseReleased((MouseEvent event) -> {
-                    stage.setOpacity(1);
-                });
-
-                stage.initStyle(StageStyle.TRANSPARENT);
-
+                stage.setTitle("College of Hopes, Arts and Sciences");
+                stage.setMinWidth(660);
+                stage.setMinHeight(480);
                 stage.setScene(scene);
                 stage.show();
 
@@ -4010,8 +4001,9 @@ public class DashboardController implements Initializable {
     }
 
     public void displayUsername() {
-        username.setText(getData.username);
+        username.setText(getData.username.toUpperCase());
     }
+    
 
     public void displaySchoolName(settingsData settingsData) {
         show_SchoolName.setText(settingsData.getSchoolName());
@@ -4026,11 +4018,14 @@ public class DashboardController implements Initializable {
 
     public void addClasses(ActionEvent event) {
         class_sectionAdd_form.setVisible(true);
+        addClass_form.setVisible(false);
     }
 
     public void switchForm(ActionEvent event) {
         if (event.getSource() == home_btn) {
             home_form.setVisible(true);
+            main_form.setVisible(true);
+            female_form.setVisible(true);
             addStudents_form.setVisible(false);
             all_students_form.setVisible(false);
             marksheet_form.setVisible(false);
@@ -4061,6 +4056,7 @@ public class DashboardController implements Initializable {
 
         } else if (event.getSource() == addStudents_btn) {
             home_form.setVisible(false);
+            main_form.setVisible(false);
             addStudents_form.setVisible(true);
             all_students_form.setVisible(false);
             marksheet_form.setVisible(false);
@@ -4097,6 +4093,7 @@ public class DashboardController implements Initializable {
 
         } else if (event.getSource() == all_students_btn) {
             home_form.setVisible(false);
+            main_form.setVisible(false);
             addStudents_form.setVisible(false);
             all_students_form.setVisible(true);
             marksheet_form.setVisible(false);
@@ -4123,6 +4120,7 @@ public class DashboardController implements Initializable {
 
         } else if (event.getSource() == marksheet_btn) {
             home_form.setVisible(false);
+            main_form.setVisible(false);
             addStudents_form.setVisible(false);
             all_students_form.setVisible(false);
             marksheet_form.setVisible(true);
@@ -4149,6 +4147,7 @@ public class DashboardController implements Initializable {
 
         } else if (event.getSource() == manageClass_btn) {
             home_form.setVisible(false);
+            main_form.setVisible(false);
             addStudents_form.setVisible(false);
             all_students_form.setVisible(false);
             marksheet_form.setVisible(false);
@@ -4173,6 +4172,7 @@ public class DashboardController implements Initializable {
 
         } else if (event.getSource() == setting_btn) {
             home_form.setVisible(false);
+            main_form.setVisible(false);
             addStudents_form.setVisible(false);
             all_students_form.setVisible(false);
             marksheet_form.setVisible(false);
@@ -4200,6 +4200,7 @@ public class DashboardController implements Initializable {
 
         } else if (event.getSource() == finance_btn) {
             home_form.setVisible(false);
+            main_form.setVisible(false);
             addStudents_form.setVisible(false);
             all_students_form.setVisible(false);
             marksheet_form.setVisible(false);
@@ -4229,6 +4230,7 @@ public class DashboardController implements Initializable {
 
         } else if (event.getSource() == teacher_btn) {
             home_form.setVisible(false);
+            main_form.setVisible(false);
             addStudents_form.setVisible(false);
             all_students_form.setVisible(false);
             marksheet_form.setVisible(false);
@@ -4406,7 +4408,7 @@ public class DashboardController implements Initializable {
 
     private String[] getSchoolInfoFromSettings() {
         String[] schoolInfo = new String[4]; // Index 0: School Name, Index 1: Logo Path
-        String sqlSettings = "SELECT school_name, logo, principal, address FROM settings";
+        String sqlSettings = "SELECT schoolName, logo, principal, address FROM settings";
 
         try {
             Connection settingsConnection = Database.connectDb();
@@ -4414,7 +4416,7 @@ public class DashboardController implements Initializable {
             ResultSet settingsResult = settingsPrepare.executeQuery();
 
             if (settingsResult.next()) {
-                schoolInfo[0] = settingsResult.getString("school_name");
+                schoolInfo[0] = settingsResult.getString("schoolName");
                 schoolInfo[1] = settingsResult.getString("logo");
                 schoolInfo[2] = settingsResult.getString("principal");
                 schoolInfo[3] = settingsResult.getString("address");
@@ -5544,79 +5546,59 @@ public class DashboardController implements Initializable {
     }
 
     public void saveSettings() {
-        String selectData = "SELECT * FROM settings WHERE school_name = ?";
-        String updateData = "UPDATE settings SET principal = ?, address = ?, academic_year = ? WHERE school_name = ?";
-        String insertData = "INSERT INTO settings (school_name, principal, address,  academic_year) VALUES (?, ?, ?, ?)";
-
-        connect = Database.connectDb();
-
-        try {
+        String selectData = "SELECT * FROM settings WHERE schoolName = ?";
+        String updateData = "UPDATE settings SET principal = ?, address = ?, academicYear = ? WHERE schoolName = ?";
+        String insertData = "INSERT INTO settings (schoolName, principal, address, academicYear) VALUES (?, ?, ?, ?)";
+    
+        try (Connection connect = Database.connectDb()) {
             Alert alert;
-
+    
             if (school_year.getSelectionModel().getSelectedItem() == null) {
-
                 alert = new Alert(AlertType.ERROR);
                 alert.setTitle("Error Message");
                 alert.setHeaderText(null);
-                alert.setContentText("Please Select your current school year");
+                alert.setContentText("Please select your current school year");
                 alert.showAndWait();
             } else {
-                prepare = connect.prepareStatement(selectData);
-                prepare.setString(1, school_name.getText());
-                ResultSet resultSet = prepare.executeQuery();
-
-                if (resultSet.next()) {
-                    // The record already exists, perform an update
-                    prepare = connect.prepareStatement(updateData);
-                    prepare.setString(1, principal.getText());
-                    prepare.setString(2, address.getText());
-                    // String uri = getData.path;
-                    // uri = uri.replace("\\", "\\\\");
-                    // prepare.setString(3, uri); // Set photo to empty for now, modify as needed
-                    prepare.setString(3, (String) school_year.getSelectionModel().getSelectedItem());
-                    prepare.setString(4, school_name.getText());
-                    prepare.executeUpdate();
-
-                    alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle("Information Message");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Successfully Updated!");
-                    alert.showAndWait();
-                } else {
-                    // The record doesn't exist, perform an insert
-                    prepare = connect.prepareStatement(insertData);
-                    prepare.setString(1, school_name.getText());
-                    prepare.setString(2, principal.getText());
-                    prepare.setString(3, address.getText());
-                    // String uri = getData.path;
-                    // uri = uri.replace("\\", "\\\\");
-                    // prepare.setString(4, uri); // Set photo to empty for now, modify as needed
-                    prepare.setString(4, (String) school_year.getSelectionModel().getSelectedItem());
-                    prepare.executeUpdate();
-
-                    alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle("Information Message");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Successfully Saved!");
-                    alert.showAndWait();
+                try (PreparedStatement selectStmt = connect.prepareStatement(selectData)) {
+                    selectStmt.setString(1, school_name.getText());
+                    try (ResultSet resultSet = selectStmt.executeQuery()) {
+                        if (resultSet.next()) {
+                            // The record already exists, perform an update
+                            try (PreparedStatement updateStmt = connect.prepareStatement(updateData)) {
+                                updateStmt.setString(1, principal.getText());
+                                updateStmt.setString(2, address.getText());
+                                updateStmt.setString(3, (String) school_year.getSelectionModel().getSelectedItem());
+                                updateStmt.setString(4, school_name.getText());
+                                updateStmt.executeUpdate();
+                            }
+                            alert = new Alert(AlertType.INFORMATION);
+                            alert.setTitle("Information Message");
+                            alert.setHeaderText(null);
+                            alert.setContentText("Successfully Updated!");
+                            alert.showAndWait();
+                        } else {
+                            // The record doesn't exist, perform an insert
+                            try (PreparedStatement insertStmt = connect.prepareStatement(insertData)) {
+                                insertStmt.setString(1, school_name.getText());
+                                insertStmt.setString(2, principal.getText());
+                                insertStmt.setString(3, address.getText());
+                                insertStmt.setString(4, (String) school_year.getSelectionModel().getSelectedItem());
+                                insertStmt.executeUpdate();
+                            }
+                            alert = new Alert(AlertType.INFORMATION);
+                            alert.setTitle("Information Message");
+                            alert.setHeaderText(null);
+                            alert.setContentText("Successfully Saved!");
+                            alert.showAndWait();
+                        }
+                    }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (prepare != null) {
-                    prepare.close();
-                }
-                if (connect != null) {
-                    connect.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
-
     public void recordDailyTotalPaid() {
         // Get the current date
         LocalDate currentDate = LocalDate.now();

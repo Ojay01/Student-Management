@@ -9,7 +9,6 @@ public class teacherData {
     private Integer phone_number;
     private String academic_year;
     private String subject;
-    // private String course;
     private String origin;
     private String gender;
     private Double scholarship;
@@ -18,10 +17,6 @@ public class teacherData {
     private Integer salary;
     private Double firstSem;
     private Double secondSem;
-    private Double other_fees;
-    private String class_name;
-    // private String firstName;
-    private String section;
     private Integer school_fees;
     private Boolean A1;
     private Boolean A2;
@@ -34,31 +29,12 @@ public class teacherData {
     private String name;
     private String contact;
     private Integer totalStudents;
-    // private int totalStudents;
     private Integer hours;
     private Integer period;
     private Integer age;
-    private Integer totalStudentsOwing;
     private Integer totalScienceStudents;
     private Integer totalArtsStudents;
-    private Integer totalCommercialStudents;
 
-
-
-    // public teacherData(Integer school_fees, String name, String academic_year, Boolean A1, Boolean A2, Boolean B1, Boolean B2, Boolean Arts, Boolean Science, Boolean Commercial, Boolean C, String class_name) {
-    //     this.school_fees = school_fees;
-    //     this.academic_year = academic_year;
-    //     this.class_name = class_name;
-    //     this.A1 = A1;
-    //     this.A2 = A2;
-    //     this.B1 = B1;
-    //     this.C = C;
-    //     this.B2 = B2;
-    //     this.Arts = Arts;
-    //     this.Commercial = Commercial;
-    //     this.Science = Science;
-    //     this.class_name = class_name;
-    // }
 
     // MAKE SURE THAT SAME DATATYPE THAT YOU WILL PUT THERE 
     public teacherData(String name, Integer age, String gender, String contact,   Integer hours, Integer period, String subject, String origin, Integer national_id, Integer salary, Integer id, String category ) {
@@ -94,23 +70,6 @@ public class teacherData {
 
     
 
-    // public teacherData(Integer school_fees, String class_name, String academic_year, String section, Integer totalStudents, Integer totalExpected, Integer totalPaid, Integer totalOwing, Integer totalStudentsOwing ) {
-    //     this.school_fees = school_fees;
-    //     this.class_name = class_name;
-    //     this.academic_year = academic_year;
-    //     this.section = section;
-    //     this.totalStudents = totalStudents;
-    //     this.totalExpected = totalExpected;
-    //     this.totalPaid = totalPaid;
-    //     this.totalOwing = totalOwing;
-    //     this.totalStudentsOwing = totalStudentsOwing;
-    //     // this.totalArtsStudents = totalArtsStudents;
-    //     // this.totalScienceStudents = totalScienceStudents;
-    //     // this.totalCommercialStudents = totalCommercialStudents;
-    
-        
-    // }
-    
 
     public Integer getSchoolFees() {
         return school_fees;
@@ -163,10 +122,6 @@ public class teacherData {
     public String getCategory() {
         return category;
     }
-
-    // public String getLastName() {
-    //     return lastName;
-    // }
 
     public String getName(){
         return name;
@@ -237,9 +192,6 @@ public class teacherData {
         return secondSem;
     }
 
-    public Double getOtherFees() {
-        return other_fees;
-    }
 
     // PLEASE FOLLOW ME IF THE VARS ARE THE SAME TO ME 
 }
