@@ -17,6 +17,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import java.awt.Toolkit;
 
 public class AppController implements Initializable {
 
@@ -36,7 +37,6 @@ public class AppController implements Initializable {
     private PreparedStatement prepare;
     private ResultSet result;
 
-
     public void loginAdmin() {
         String sql = "SELECT * FROM admin WHERE username = ? and password = ?";
 
@@ -52,6 +52,7 @@ public class AppController implements Initializable {
             result = prepare.executeQuery();
 
             if (username.getText().isEmpty() || password.getText().isEmpty()) {
+                Toolkit.getDefaultToolkit().beep();
                 alert = new Alert(AlertType.ERROR);
                 alert.setTitle("Error Message");
                 alert.setHeaderText(null);
@@ -78,6 +79,7 @@ public class AppController implements Initializable {
                     stage.setScene(scene);
                     stage.show();
                 } else {
+                    Toolkit.getDefaultToolkit().beep();
                     alert = new Alert(AlertType.ERROR);
                     alert.setTitle("Error Message");
                     alert.setHeaderText(null);
@@ -87,6 +89,14 @@ public class AppController implements Initializable {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (result != null) result.close();
+                if (prepare != null) prepare.close();
+                if (connect != null) connect.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -887,42 +887,42 @@
                                                             <Font name="Bodoni MT Bold" size="20.0" />
                                                          </font>
                                                       </Label>
-                                                      <TextField fx:id="teacher_name" layoutX="72.0" layoutY="6.0" prefHeight="25.0" prefWidth="355.0" promptText="Teacher's name" styleClass="textfield" stylesheets="@dashboard.css" AnchorPane.leftAnchor="77.0" AnchorPane.rightAnchor="1.0" />
-                                                      <Label layoutX="14.0" layoutY="42.0" text="Date of Birth: ">
+                                                      <TextField fx:id="teacher_name" layoutX="150.4" layoutY="3.0" prefHeight="32.0" prefWidth="262.0" promptText="Teacher's name" styleClass="textfield" stylesheets="@dashboard.css" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="22.0" />
+                                                      <Label layoutX="14.0" layoutY="42.0" prefHeight="35.0" prefWidth="118.0" text="Date of Birth: ">
                                                          <font>
                                                             <Font name="Bodoni MT Bold" size="20.0" />
                                                          </font>
                                                       </Label>
-                                                      <DatePicker fx:id="teachers_dob" layoutX="142.0" layoutY="42.0" />
-                                                      <Label layoutX="19.0" layoutY="77.0" text="Gender:">
+                                                      <DatePicker fx:id="teachers_dob" layoutX="150.0" layoutY="42.0" prefHeight="34.0" prefWidth="180.0" />
+                                                      <Label layoutX="11.0" layoutY="86.0" prefHeight="34.0" prefWidth="64.0" text="Gender:">
                                                          <font>
                                                             <Font name="Bodoni MT Bold" size="20.0" />
                                                          </font>
                                                       </Label>
-                                                      <ComboBox fx:id="addteacher_gender" layoutX="94.0" layoutY="77.0" prefWidth="150.0" promptText="sex" />
-                                                      <TextField fx:id="teacher_id" layoutX="142.0" layoutY="111.0" prefHeight="25.0" prefWidth="284.0" promptText="ID Number" styleClass="textfield" stylesheets="@dashboard.css" />
-                                                      <Label layoutX="8.0" layoutY="111.0" text="National ID No:">
+                                                      <ComboBox fx:id="addteacher_gender" layoutX="151.0" layoutY="86.0" prefHeight="34.0" prefWidth="150.0" promptText="sex" />
+                                                      <TextField fx:id="teacher_id" layoutX="151.0" layoutY="135.0" prefHeight="34.0" prefWidth="270.0" promptText="ID Number" styleClass="textfield" stylesheets="@dashboard.css" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="22.0" />
+                                                      <Label layoutX="14.0" layoutY="136.0" prefHeight="32.0" prefWidth="130.0" text="National ID No:">
                                                          <font>
                                                             <Font name="Bodoni MT Bold" size="20.0" />
                                                          </font>
                                                       </Label>
-                                                      <TextField fx:id="teacher_origin" layoutX="92.0" layoutY="152.0" prefHeight="25.0" prefWidth="331.0" promptText="Sub Division of Origin" styleClass="textfield" stylesheets="@dashboard.css" />
-                                                      <Label layoutX="20.0" layoutY="152.0" text="Origin:">
+                                                      <TextField fx:id="teacher_origin" layoutX="150.0" layoutY="183.0" prefHeight="34.0" prefWidth="272.0" promptText="Sub Division of Origin" styleClass="textfield" stylesheets="@dashboard.css" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="22.0" />
+                                                      <Label layoutX="14.0" layoutY="184.0" prefHeight="33.0" prefWidth="58.0" text="Origin:">
                                                          <font>
                                                             <Font name="Bodoni MT Bold" size="20.0" />
                                                          </font>
                                                       </Label>
-                                                      <Label layoutX="15.0" layoutY="188.0" text="Subject:">
+                                                      <Label layoutX="14.0" layoutY="226.0" prefHeight="32.0" prefWidth="78.0" text="Subjects:">
                                                          <font>
                                                             <Font name="Bodoni MT Bold" size="20.0" />
                                                          </font>
                                                       </Label>
-                                                      <TextField fx:id="teacher_subject" layoutX="87.0" layoutY="188.0" prefHeight="25.0" prefWidth="331.0" promptText="Teacher's Subject" styleClass="textfield" stylesheets="@dashboard.css" />
-                                                      <Button fx:id="add_teacher_btn" layoutX="151.0" layoutY="274.0" mnemonicParsing="false" onAction="#addTeacher" prefHeight="36.0" prefWidth="130.0" styleClass="add-btn" stylesheets="@dashboard.css" text="Add Teacher">
+                                                      <TextField fx:id="teacher_subject" layoutX="151.0" layoutY="225.0" prefHeight="34.0" prefWidth="269.0" promptText="Teacher's Subject" styleClass="textfield" stylesheets="@dashboard.css" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="22.0" />
+                                                      <Button fx:id="add_teacher_btn" layoutX="151.0" layoutY="361.0" mnemonicParsing="false" onAction="#addTeacher" prefHeight="46.0" prefWidth="153.0" styleClass="add-btn" stylesheets="@dashboard.css" text="Add Teacher" AnchorPane.leftAnchor="151.20000000000002" AnchorPane.rightAnchor="129.00000000000003">
                                                          <graphic>
                                                             <FontAwesomeIconView fill="WHITE" glyphName="PLUS" />
                                                          </graphic></Button>
-                                                      <Button fx:id="Admins_btn" layoutX="15.0" layoutY="364.0" mnemonicParsing="false" onAction="#Admins" prefHeight="36.0" prefWidth="107.0" stylesheets="@dashboard.css" text="Admins">
+                                                      <Button fx:id="Admins_btn" layoutX="18.0" layoutY="431.0" mnemonicParsing="false" onAction="#Admins" prefHeight="48.0" prefWidth="107.0" stylesheets="@dashboard.css" text="Admins" AnchorPane.leftAnchor="16.000000000000043">
                                                          <styleClass>
                                                             <String fx:value="add-btn" />
                                                             <String fx:value="update-btn" />
@@ -931,16 +931,16 @@
                                                             <FontAwesomeIconView fill="WHITE" glyphName="DOWNLOAD" />
                                                          </graphic>
                                                       </Button>
-                                                      <Button fx:id="teachers_btn" layoutX="146.0" layoutY="364.0" mnemonicParsing="false" onAction="#allTeachers" prefHeight="36.0" prefWidth="107.0" styleClass="clear-btn" stylesheets="@dashboard.css" text="Teachers">
+                                                      <Button fx:id="teachers_btn" layoutX="146.4" layoutY="431.0" mnemonicParsing="false" onAction="#allTeachers" prefHeight="46.0" prefWidth="121.0" styleClass="clear-btn" stylesheets="@dashboard.css" text="Teachers" AnchorPane.leftAnchor="146.0">
                                                          <graphic>
                                                             <FontAwesomeIconView fill="WHITE" glyphName="DOWNLOAD" />
                                                          </graphic></Button>
-                                                      <Button fx:id="All_btn" layoutX="287.0" layoutY="364.0" mnemonicParsing="false" onAction="#Staff" prefHeight="36.0" prefWidth="107.0" styleClass="add-btn" stylesheets="@dashboard.css" text="All">
+                                                      <Button fx:id="All_btn" layoutX="294.4" layoutY="431.0" mnemonicParsing="false" onAction="#Staff" prefHeight="46.0" prefWidth="112.0" styleClass="add-btn" stylesheets="@dashboard.css" text="All" AnchorPane.leftAnchor="294.0" AnchorPane.rightAnchor="28.0">
                                                          <graphic>
                                                             <FontAwesomeIconView fill="WHITE" glyphName="DOWNLOAD" />
                                                          </graphic></Button>
-                                                      <TextField fx:id="teacher_number" layoutX="148.0" layoutY="224.0" prefHeight="25.0" prefWidth="270.0" promptText="Teacher's Number" styleClass="textfield" stylesheets="@dashboard.css" />
-                                                      <Label layoutX="15.0" layoutY="224.0" text="Phone Number:">
+                                                      <TextField fx:id="teacher_number" layoutX="151.0" layoutY="275.0" prefHeight="34.0" prefWidth="270.0" promptText="Teacher's Number" styleClass="textfield" stylesheets="@dashboard.css" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="22.0" />
+                                                      <Label layoutX="15.0" layoutY="278.0" prefHeight="38.0" prefWidth="129.0" text="Phone Number:">
                                                          <font>
                                                             <Font name="Bodoni MT Bold" size="20.0" />
                                                          </font>
@@ -949,7 +949,7 @@
                                                 </AnchorPane>
                                               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                                                    <children>
-                                                      <TableView fx:id="teachers_tableView" layoutX="7.0" layoutY="33.0" prefHeight="480.0" prefWidth="436.0" stylesheets="@dashboard.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="33.0">
+                                                      <TableView fx:id="teachers_tableView" layoutX="7.0" layoutY="33.0" onMouseClicked="#teacherSelect" prefHeight="480.0" prefWidth="436.0" stylesheets="@dashboard.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="33.0">
                                                         <columns>
                                                           <TableColumn fx:id="teachername_col" prefWidth="280.0" text="Name" />
                                                           <TableColumn fx:id="teacherage_col" prefWidth="35.0" text="Age" />
@@ -961,7 +961,7 @@
                                                         </columns>
                                                       </TableView>
                                                       <FontAwesomeIconView glyphName="SEARCH" layoutX="60.0" layoutY="18.0" scaleX="2.0" scaleY="2.0" scaleZ="2.0" wrappingWidth="63.515045166015625" />
-                                                      <TextField fx:id="teacher_search" layoutX="24.0" layoutY="2.0" prefHeight="30.0" prefWidth="201.0" promptText="search" styleClass="search" stylesheets="@dashboard.css" AnchorPane.topAnchor="0.0" />
+                                                      <TextField fx:id="teacher_search" layoutX="24.0" layoutY="2.0" onAction="#teacherSearch" onKeyPressed="#teacherSearch" prefHeight="30.0" prefWidth="240.0" promptText="search" styleClass="search" stylesheets="@dashboard.css" AnchorPane.topAnchor="0.0" />
                                                    </children>
                                                 </AnchorPane>
                                             </items>
@@ -999,93 +999,93 @@
                                                 <String fx:value="shadow" />
                                              </styleClass>
                                              <children>
-                                                <Label layoutX="23.0" layoutY="14.0" text="Name:" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="10.0">
+                                                <Label layoutX="50.4" layoutY="8.8" prefHeight="33.0" prefWidth="76.0" text="Name:" AnchorPane.leftAnchor="50.0" AnchorPane.topAnchor="9.0">
                                                    <font>
                                                       <Font name="Lucida Fax Demibold" size="20.0" />
                                                    </font>
                                                 </Label>
-                                                <TextField fx:id="updateteacher_name" layoutX="99.0" layoutY="9.0" prefHeight="30.0" prefWidth="410.0" promptText="Update Name" styleClass="textfield" AnchorPane.topAnchor="10.0">
+                                                <TextField fx:id="updateteacher_name" layoutX="233.0" layoutY="8.8" prefHeight="38.0" prefWidth="357.0" promptText="Update Name" styleClass="textfield" AnchorPane.leftAnchor="232.80000000000007" AnchorPane.rightAnchor="276.6" AnchorPane.topAnchor="9.0">
                                                    <font>
                                                       <Font name="System Bold" size="15.0" />
                                                    </font>
                                                 </TextField>
-                                                <Label layoutX="20.0" layoutY="46.0" text="Subjects:">
+                                                <Label layoutX="45.0" layoutY="68.0" prefHeight="26.0" prefWidth="107.0" text="Subjects:">
                                                    <font>
                                                       <Font name="Lucida Fax Demibold" size="20.0" />
                                                    </font>
                                                 </Label>
-                                                <TextField fx:id="updateteacher_subjects" layoutX="124.0" layoutY="46.0" prefHeight="30.0" prefWidth="385.0" promptText="Update Subjects" styleClass="textfield">
+                                                <TextField fx:id="updateteacher_subjects" layoutX="236.0" layoutY="53.0" prefHeight="40.0" prefWidth="350.0" promptText="Update Subjects" styleClass="textfield" AnchorPane.leftAnchor="232.8" AnchorPane.rightAnchor="276.8">
                                                    <font>
                                                       <Font name="System Bold" size="15.0" />
                                                    </font>
                                                 </TextField>
-                                                <TextField fx:id="updateteacher_hours" layoutX="199.0" layoutY="82.0" prefHeight="30.0" prefWidth="133.0" promptText="Update hours" styleClass="textfield">
+                                                <TextField fx:id="updateteacher_hours" layoutX="240.0" layoutY="100.0" prefHeight="34.0" prefWidth="346.0" promptText="Update hours" styleClass="textfield" AnchorPane.leftAnchor="232.8" AnchorPane.rightAnchor="276.8">
                                                    <font>
                                                       <Font name="System Bold" size="15.0" />
                                                    </font>
                                                 </TextField>
-                                                <Label layoutX="20.0" layoutY="82.0" text="Numb. of Hours:">
+                                                <Label layoutX="48.0" layoutY="107.0" prefHeight="26.0" prefWidth="189.0" text="Numb. of Hours:">
                                                    <font>
                                                       <Font name="Lucida Fax Demibold" size="20.0" />
                                                    </font>
                                                 </Label>
-                                                <TextField fx:id="updateteacher_period" layoutX="199.0" layoutY="271.0" prefHeight="31.0" prefWidth="208.0" promptText="Update Period (months)" styleClass="textfield">
+                                                <TextField fx:id="updateteacher_period" layoutX="236.0" layoutY="321.0" prefHeight="38.0" prefWidth="346.0" promptText="Update Period (months)" styleClass="textfield" AnchorPane.leftAnchor="232.8" AnchorPane.rightAnchor="280.0">
                                                    <font>
                                                       <Font name="System Bold" size="15.0" />
                                                    </font>
                                                 </TextField>
-                                                <Label layoutX="20.0" layoutY="271.0" text="Employ't Period: ">
+                                                <Label layoutX="47.0" layoutY="329.0" prefHeight="34.0" prefWidth="203.0" text="Employ't Period: ">
                                                    <font>
                                                       <Font name="Lucida Fax Demibold" size="20.0" />
                                                    </font>
                                                 </Label>
-                                                <TextField fx:id="updateteacher_salary" layoutX="99.0" layoutY="201.0" prefHeight="30.0" prefWidth="184.0" promptText="Update salary" styleClass="textfield" AnchorPane.topAnchor="201.0">
+                                                <TextField fx:id="updateteacher_salary" layoutX="233.0" layoutY="231.0" prefHeight="38.0" prefWidth="354.0" promptText="Update salary" styleClass="textfield" AnchorPane.leftAnchor="232.80000000000007" AnchorPane.rightAnchor="279.80000000000007" AnchorPane.topAnchor="231.0">
                                                    <font>
                                                       <Font name="System Bold" size="15.0" />
                                                    </font>
                                                 </TextField>
-                                                <Label layoutX="20.0" layoutY="201.0" text="Salary:" AnchorPane.topAnchor="201.0">
+                                                <Label layoutX="51.0" layoutY="235.0" text="Salary:" AnchorPane.topAnchor="235.0">
                                                    <font>
                                                       <Font name="Lucida Fax Demibold" size="20.0" />
                                                    </font>
                                                 </Label>
-                                                <Label layoutX="20.0" layoutY="235.0" text="Tel:">
+                                                <Label layoutX="48.0" layoutY="280.0" prefHeight="26.0" prefWidth="56.0" text="Tel:">
                                                    <font>
                                                       <Font name="Lucida Fax Demibold" size="20.0" />
                                                    </font>
                                                 </Label>
-                                                <TextField fx:id="updateteacher_tel" layoutX="99.0" layoutY="235.0" prefHeight="30.0" prefWidth="184.0" promptText="Update Number" styleClass="textfield">
+                                                <TextField fx:id="updateteacher_tel" layoutX="233.0" layoutY="276.0" prefHeight="36.0" prefWidth="351.0" promptText="Update Number" styleClass="textfield" AnchorPane.leftAnchor="232.8" AnchorPane.rightAnchor="280.0">
                                                    <font>
                                                       <Font name="System Bold" size="15.0" />
                                                    </font>
                                                 </TextField>
-                                                <TextField fx:id="updateteacher_origin" layoutX="124.0" layoutY="119.0" prefHeight="30.0" prefWidth="291.0" promptText="Update Origin" styleClass="textfield">
+                                                <TextField fx:id="updateteacher_origin" layoutX="236.0" layoutY="140.0" prefHeight="38.0" prefWidth="350.0" promptText="Update Origin" styleClass="textfield" AnchorPane.leftAnchor="232.8" AnchorPane.rightAnchor="276.8">
                                                    <font>
                                                       <Font name="System Bold" size="15.0" />
                                                    </font>
                                                 </TextField>
-                                                <Label layoutX="20.0" layoutY="119.0" text="Origin:">
+                                                <Label layoutX="47.0" layoutY="142.0" prefHeight="35.0" prefWidth="90.0" text="Origin:">
                                                    <font>
                                                       <Font name="Lucida Fax Demibold" size="20.0" />
                                                    </font>
                                                 </Label>
-                                                <TextField fx:id="updateteacher_natId" layoutX="107.0" layoutY="311.0" prefHeight="30.0" prefWidth="291.0" promptText="Update ID" styleClass="textfield">
+                                                <TextField fx:id="updateteacher_natId" layoutX="236.0" layoutY="367.0" prefHeight="38.0" prefWidth="347.0" promptText="Update ID" styleClass="textfield" AnchorPane.leftAnchor="232.8" AnchorPane.rightAnchor="280.0">
                                                    <font>
                                                       <Font name="System Bold" size="15.0" />
                                                    </font>
                                                 </TextField>
-                                                <Label layoutX="23.0" layoutY="311.0" text="ID No:">
+                                                <Label layoutX="47.0" layoutY="373.0" text="ID No:">
                                                    <font>
                                                       <Font name="Lucida Fax Demibold" size="20.0" />
                                                    </font>
                                                 </Label>
-                                                <Label layoutX="20.0" layoutY="160.0" text="Category:">
+                                                <Label layoutX="51.0" layoutY="185.0" prefHeight="33.0" prefWidth="111.0" text="Category:">
                                                    <font>
                                                       <Font name="Lucida Fax Demibold" size="20.0" />
                                                    </font>
                                                 </Label>
-                                                <ComboBox fx:id="updateteacher_category" layoutX="135.0" layoutY="160.0" onAction="#category" prefWidth="150.0" promptText="Category" />
-                                                <Button fx:id="updateTeacher" layoutX="253.0" layoutY="374.0" mnemonicParsing="false" onAction="#teacherUpdate" prefHeight="38.0" prefWidth="168.0" styleClass="update-btn" text="UPDATE DETAILS">
+                                                <ComboBox fx:id="updateteacher_category" layoutX="234.0" layoutY="188.0" onAction="#category" prefHeight="34.0" prefWidth="353.0" promptText="Category" AnchorPane.leftAnchor="233.60000000000002" AnchorPane.rightAnchor="279.6" />
+                                                <Button fx:id="updateTeacher" layoutX="391.0" layoutY="442.0" mnemonicParsing="false" onAction="#teacherUpdate" prefHeight="38.0" prefWidth="168.0" styleClass="update-btn" text="UPDATE DETAILS" AnchorPane.leftAnchor="391.0" AnchorPane.rightAnchor="308.00000000000006">
                                                    <graphic>
                                                       <FontAwesomeIconView fill="WHITE" glyphName="CLOUD_UPLOAD" />
                                                    </graphic></Button>

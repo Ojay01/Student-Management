@@ -62,7 +62,7 @@ import javafx.stage.Stage;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-
+import java.awt.Toolkit;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import javafx.collections.FXCollections;
@@ -988,197 +988,180 @@ public class DashboardController implements Initializable {
         }
     }
 
-    public void displaySchoolName() {
-
-        String sql = "SELECT schoolName FROM settings ";
-
+    public void displaySchoolInfo() {
+        String sql = "SELECT schoolName, principal, address, academicYear FROM settings";
+    
         connect = Database.connectDb();
-
+    
         try {
             String school = "";
-
+            String princi = "";
+            String add = "";
+            String academicYear = "";
+    
             prepare = connect.prepareStatement(sql);
             result = prepare.executeQuery();
-
+    
             if (result.next()) {
                 school = result.getString("schoolName");
+                princi = result.getString("principal");
+                add = result.getString("address");
+                academicYear = result.getString("academicYear");
             }
-
+    
             show_SchoolName.setText(school);
             school_name.setText(school);
+            principal.setText(princi);
+            address.setText(add);
+            school_year.setValue(academicYear);
+            show_principal.setText(princi);
+            show_address.setText(add);
+            show_AcademicYear.setText(academicYear);
+            classshow_AcademicYear.setText(academicYear);
+            students_year.setText(academicYear);
+            marksheet_year.setText(academicYear);
+            
 
-        } catch (Exception e) {
+    
+        } catch (SQLException e) {
             e.printStackTrace();
-        }
-
-    }
-
-    public void displaySchoolYear() {
-
-        String sql = "SELECT academicYear FROM settings ";
-
-        connect = Database.connectDb();
-
-        try {
-            String school = "";
-
-            prepare = connect.prepareStatement(sql);
-            result = prepare.executeQuery();
-
-            if (result.next()) {
-                school = result.getString("academicYear");
+        } finally {
+            try {
+                if (result != null) result.close();
+                if (prepare != null) prepare.close();
+                if (connect != null) connect.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-
-            show_AcademicYear.setText(school);
-            classshow_AcademicYear.setText(school);
-            students_year.setText(school);
-            marksheet_year.setText(school);
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-
     }
+    
+    
 
-    public void displayAddress() {
-
-        String sql = "SELECT address FROM settings ";
-
-        connect = Database.connectDb();
-
-        try {
-            String school = "";
-
-            prepare = connect.prepareStatement(sql);
-            result = prepare.executeQuery();
-
-            if (result.next()) {
-                school = result.getString("address");
-            }
-
-            show_address.setText(school);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void displayPrincipal() {
-
-        String sql = "SELECT principal FROM settings ";
-
-        connect = Database.connectDb();
-
-        try {
-            String school = "";
-
-            prepare = connect.prepareStatement(sql);
-            result = prepare.executeQuery();
-
-            if (result.next()) {
-                school = result.getString("principal");
-            }
-
-            show_principal.setText(school);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
 
     public void displayTotalOwing() {
         String academicYear = null;
-
-        // Retrieve academic year from the settings table
-        String sqlSettings = "SELECT academicYear FROM settings";
-
+        Connection settingsConnection = null;
+        PreparedStatement prepareSettings = null;
+        ResultSet resultSettings = null;
+    
         try {
-            Connection settingsConnection = Database.connectDb();
-            PreparedStatement prepareSettings = settingsConnection.prepareStatement(sqlSettings);
-            ResultSet resultSettings = prepareSettings.executeQuery();
-
+            // Retrieve academic year from the settings table
+            String sqlSettings = "SELECT academicYear FROM settings";
+            settingsConnection = Database.connectDb();
+            prepareSettings = settingsConnection.prepareStatement(sqlSettings);
+            resultSettings = prepareSettings.executeQuery();
+    
             if (resultSettings.next()) {
                 academicYear = resultSettings.getString("academicYear");
             }
-
-            // Close the resources related to the settings query
-            resultSettings.close();
-            prepareSettings.close();
-            settingsConnection.close();
-
-            if (academicYear != null) {
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (resultSettings != null) resultSettings.close();
+                if (prepareSettings != null) prepareSettings.close();
+                if (settingsConnection != null) settingsConnection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    
+        if (academicYear != null) {
+            Connection studentConnection = null;
+            PreparedStatement prepareStudent = null;
+            ResultSet resultStudent = null;
+    
+            try {
                 String sql = "SELECT SUM(amount_owing) FROM student WHERE academic_year = ?";
-
-                Connection studentConnection = Database.connectDb();
-                PreparedStatement prepareStudent = studentConnection.prepareStatement(sql);
+                studentConnection = Database.connectDb();
+                prepareStudent = studentConnection.prepareStatement(sql);
                 prepareStudent.setString(1, academicYear);
-                ResultSet resultStudent = prepareStudent.executeQuery();
-
+                resultStudent = prepareStudent.executeQuery();
+    
                 int sumAmt = 0;
                 DecimalFormat currencyFormat = new DecimalFormat("#,##0");
                 if (resultStudent.next()) {
                     sumAmt = resultStudent.getInt(1);
                 }
-
-                // Close the resources related to the student query
-                resultStudent.close();
-                prepareStudent.close();
-                studentConnection.close();
-
+    
                 students_total_owing.setText(currencyFormat.format(sumAmt));
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (resultStudent != null) resultStudent.close();
+                    if (prepareStudent != null) prepareStudent.close();
+                    if (studentConnection != null) studentConnection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
     public void homeDisplayMaleEnrolled() {
         String academicYear = null;
-
-        // Retrieve academic year from the settings table
-        String sqlSettings = "SELECT academicYear FROM settings";
-
+        Connection settingsConnection = null;
+        PreparedStatement prepareSettings = null;
+        ResultSet resultSettings = null;
+    
         try {
-            Connection settingsConnection = Database.connectDb();
-            PreparedStatement prepareSettings = settingsConnection.prepareStatement(sqlSettings);
-            ResultSet resultSettings = prepareSettings.executeQuery();
-
+            // Retrieve academic year from the settings table
+            String sqlSettings = "SELECT academicYear FROM settings";
+            settingsConnection = Database.connectDb();
+            prepareSettings = settingsConnection.prepareStatement(sqlSettings);
+            resultSettings = prepareSettings.executeQuery();
+    
             if (resultSettings.next()) {
                 academicYear = resultSettings.getString("academicYear");
             }
-
-            // Close the resources related to the settings query
-            resultSettings.close();
-            prepareSettings.close();
-            settingsConnection.close();
-
-            if (academicYear != null) {
-                String sql = "SELECT COUNT(id) FROM student WHERE gender = 'male' AND academic_year = ?";
-
-                Connection studentConnection = Database.connectDb();
-                PreparedStatement prepareStudent = studentConnection.prepareStatement(sql);
-                prepareStudent.setString(1, academicYear);
-                ResultSet resultStudent = prepareStudent.executeQuery();
-
-                int countMale = 0;
-                if (resultStudent.next()) {
-                    countMale = resultStudent.getInt("COUNT(id)");
-                }
-
-                // Close the resources related to the student query
-                resultStudent.close();
-                prepareStudent.close();
-                studentConnection.close();
-
-                home_totalMale.setText(String.valueOf(countMale));
-            }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (resultSettings != null) resultSettings.close();
+                if (prepareSettings != null) prepareSettings.close();
+                if (settingsConnection != null) settingsConnection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    
+        if (academicYear != null) {
+            Connection studentConnection = null;
+            PreparedStatement prepareStudent = null;
+            ResultSet resultStudent = null;
+    
+            try {
+                String sql = "SELECT COUNT(id) FROM student WHERE gender = 'male' AND academic_year = ?";
+                studentConnection = Database.connectDb();
+                prepareStudent = studentConnection.prepareStatement(sql);
+                prepareStudent.setString(1, academicYear);
+                resultStudent = prepareStudent.executeQuery();
+    
+                int countMale = 0;
+                if (resultStudent.next()) {
+                    countMale = resultStudent.getInt(1);
+                }
+    
+                home_totalMale.setText(String.valueOf(countMale));
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (resultStudent != null) resultStudent.close();
+                    if (prepareStudent != null) prepareStudent.close();
+                    if (studentConnection != null) studentConnection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
+    
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void homeDisplayTotalEnrolledChart() {
         home_totalEnrolledChart.getData().clear();
 
@@ -1229,7 +1212,7 @@ public class DashboardController implements Initializable {
             e.printStackTrace();
         }
     }
-
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void homeDisplayFemaleEnrolledChart() {
         home_totalFemaleChart.getData().clear();
 
@@ -1281,6 +1264,7 @@ public class DashboardController implements Initializable {
         }
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void homeDisplayEnrolledMaleChart() {
         home_totalMaleChart.getData().clear();
 
@@ -1333,7 +1317,7 @@ public class DashboardController implements Initializable {
     }
 
     public void showClassInfo(String classNameParam) {
-        connect = Database.connectDb();
+        // connect = Database.connectDb();
         try {
             String query = "SELECT * FROM class WHERE class_name = ?";
             prepare = connect.prepareStatement(query);
@@ -1403,14 +1387,14 @@ public class DashboardController implements Initializable {
         return null;
     }
 
-    private boolean newSectionsHaveValueOfZero(boolean... newSections) {
-        for (boolean sectionValue : newSections) {
-            if (!sectionValue) {
-                return true; // At least one section has value of 0
-            }
-        }
-        return false; // All new sections are selected
-    }
+    // private boolean newSectionsHaveValueOfZero(boolean... newSections) {
+    //     for (boolean sectionValue : newSections) {
+    //         if (!sectionValue) {
+    //             return true; // At least one section has value of 0
+    //         }
+    //     }
+    //     return false; // All new sections are selected
+    // }
 
     public void addClassesAdd() {
         String insertData = "INSERT INTO class"
@@ -1619,7 +1603,7 @@ public class DashboardController implements Initializable {
                 + "(student_id, name, date_of_birth, contact, amount_paid, amount_owing, gender, academic_year, status, section, class_id, other_fees, class_name, fees, first_payment_amount) "
                 + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-        connect = Database.connectDb();
+        // connect = Database.connectDb();
 
         try {
             Alert alert;
@@ -1758,7 +1742,7 @@ public class DashboardController implements Initializable {
                 }
             }
 
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
@@ -1788,7 +1772,7 @@ public class DashboardController implements Initializable {
         double scholarshipAmount = Double.parseDouble(scholarship);
 
         String updateQuery = "UPDATE student SET fees = fees - ?, amount_owing = amount_owing - ?, scholarship =  scholarship + ? WHERE id = ?";
-        connect = Database.connectDb();
+        // connect = Database.connectDb();
 
         try {
             prepare = connect.prepareStatement(updateQuery);
@@ -1935,7 +1919,7 @@ public class DashboardController implements Initializable {
                 + "', date_of_birth = '" + dob.getValue() + "'"
                 + " WHERE id = " + selectedStudentId;
 
-        connect = Database.connectDb();
+        // connect = Database.connectDb();
 
         try {
             Alert alert;
@@ -1973,29 +1957,19 @@ public class DashboardController implements Initializable {
                     return;
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public void teacherUpdate() {
-
         String updateData = "UPDATE teachers SET "
-                + "Name = '" + updateteacher_name.getText()
-                + "', category = '" + updateteacher_category.getSelectionModel().getSelectedItem()
-                + "', subdivision_of_origin = '" + updateteacher_origin.getText()
-                + "', phone_number = '" + updateteacher_tel.getText()
-                + "', Subject = '" + updateteacher_subjects.getText()
-                + "', salary = '" + updateteacher_salary.getText()
-                + "', Work_Period = '" + updateteacher_period.getText()
-                + "', national_id = '" + updateteacher_natId.getText()
-                + "', work_Load = '" + updateteacher_hours.getText() + "'"
-                + " WHERE id = " + selectedTeacherId;
-
-        connect = Database.connectDb();
-
-        try {
-            Alert alert;
+                + "Name = ?, category = ?, subdivision_of_origin = ?, phone_number = ?, "
+                + "Subject = ?, salary = ?, Work_Period = ?, national_id = ?, work_Load = ? "
+                + "WHERE id = ?";
+    
+        try (Connection connect = Database.connectDb()) {
+            // Check if any field is empty
             if (updateteacher_category.getSelectionModel().getSelectedItem() == null
                     || updateteacher_name.getText().isEmpty()
                     || updateteacher_hours.getText().isEmpty()
@@ -2005,46 +1979,72 @@ public class DashboardController implements Initializable {
                     || updateteacher_subjects.getText().isEmpty()
                     || updateteacher_tel.getText().isEmpty()
                     || updateteacher_salary.getText().isEmpty()) {
-                alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Error Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Please fill all fields");
-                alert.showAndWait();
-            } else {
-                alert = new Alert(AlertType.CONFIRMATION);
-                alert.setTitle("Confirmation Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Are you sure you want to update teacher " + updateteacher_name.getText() + "?");
-                Optional<ButtonType> option = alert.showAndWait();
-
-                if (option.get().equals(ButtonType.OK)) {
-                    statement = connect.createStatement();
-                    statement.executeUpdate(updateData);
-
-                    alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle("Information Message");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Successfully Updated!");
-                    alert.showAndWait();
-
-                    // TO UPDATE THE TABLEVIEW
+                showAlert("Error Message", "Please fill all fields", Alert.AlertType.ERROR);
+                return;
+            }
+    
+            // Validate numeric fields
+            StringBuilder errorMessage = new StringBuilder();
+            if (!updateteacher_hours.getText().matches("\\d+")) {
+                errorMessage.append("Work Load must be a number in hours.(e.g. 40) hours\n");
+            }
+            if (!updateteacher_period.getText().matches("\\d+")) {
+                errorMessage.append("Work Period must be a number in months. (e.g. 10) months\n");
+            }
+            if (!updateteacher_tel.getText().matches("\\d+")) {
+                errorMessage.append("Phone Number must be a number.(e.g. 673909858)\n");
+            }
+            if (!updateteacher_salary.getText().matches("\\d+")) {
+                errorMessage.append("Salary must be a number.(e.g. 200000) XAF\n");
+            }
+    
+            if (errorMessage.length() > 0) {
+                showAlert("Error Message", errorMessage.toString(), Alert.AlertType.ERROR);
+                return;
+            }
+    
+            // Confirm the update action
+            Toolkit.getDefaultToolkit().beep();
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Confirmation Message");
+            alert.setHeaderText(null);
+            alert.setContentText("Are you sure you want to update teacher " + updateteacher_name.getText() + "?");
+            Optional<ButtonType> option = alert.showAndWait();
+    
+            if (option.isPresent() && option.get().equals(ButtonType.OK)) {
+                try (PreparedStatement preparedStatement = connect.prepareStatement(updateData)) {
+                    // Set the parameters for the prepared statement
+                    preparedStatement.setString(1, updateteacher_name.getText());
+                    preparedStatement.setString(2, updateteacher_category.getSelectionModel().getSelectedItem());
+                    preparedStatement.setString(3, updateteacher_origin.getText());
+                    preparedStatement.setString(4, updateteacher_tel.getText());
+                    preparedStatement.setString(5, updateteacher_subjects.getText());
+                    preparedStatement.setString(6, updateteacher_salary.getText());
+                    preparedStatement.setString(7, updateteacher_period.getText());
+                    preparedStatement.setString(8, updateteacher_natId.getText());
+                    preparedStatement.setString(9, updateteacher_hours.getText());
+                    preparedStatement.setInt(10, selectedTeacherId);
+    
+                    // Execute the update
+                    preparedStatement.executeUpdate();
+    
+                    // Show success message
+                    showAlert("Success", "Successfully Updated!", Alert.AlertType.INFORMATION);
+    
+                    // Update the TableView
                     teacherShowListData();
-                    // TO CLEAR THE FIELDS
-                    // addStudentsClear();
-
-                } else {
-                    return;
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+    
 
     public void processInstallmentPayment() {
         String updatePaymentQuery = "INSERT INTO payments (student_id, payment_amount, payment_date) VALUES (?, ?, ?)";
         String updateStudentQuery = "UPDATE student SET amount_paid = amount_paid + ?, amount_owing = GREATEST(amount_owing - ?, 0) WHERE id = ?";
-        connect = Database.connectDb();
+        // connect = Database.connectDb();
 
         String payment = payments.getText();
         Double paymentAmount = Double.parseDouble(payment);
@@ -2180,7 +2180,7 @@ public class DashboardController implements Initializable {
     // }
 
     // }
-    // } catch (Exception e) {
+    // } catch (SQLException e) {
     // e.printStackTrace();
     // }
 
@@ -2235,8 +2235,7 @@ public class DashboardController implements Initializable {
             getData.path = file.getAbsolutePath();
 
         }
-    } // WHILE WE INSERT THE DATA ON STUDENT, WE SHOULD INSERT ALSO THE DATA TO
-      // STUDENT_GRADE
+    }
 
     public void addStudentsSearch() {
 
@@ -2284,139 +2283,124 @@ public class DashboardController implements Initializable {
 
     public ObservableList<teacherData> teacherListData() {
         ObservableList<teacherData> listTeachers = FXCollections.observableArrayList();
-        String academicYear = getAcademicYearFromSettings(); // Replace this with your implementation
-
+        String academicYear = getAcademicYearFromSettings();
+    
         String sql = "SELECT * FROM teachers WHERE academic_year = ?";
-
-        connect = Database.connectDb();
-
-        try {
-            teacherData teacherD;
-            prepare = connect.prepareStatement(sql);
-            prepare.setString(1, academicYear); // Set the academic year as a parameter in the query
-            result = prepare.executeQuery();
-
-            while (result.next()) {
-                teacherD = new teacherData(
-                        result.getString("name"),
-                        result.getInt("Age"),
-                        result.getString("Sex"),
-                        result.getString("phone_number"),
-                        result.getInt("work_Load"),
-                        result.getInt("Work_Period"),
-                        result.getString("Subject"),
-                        result.getString("subdivision_of_origin"),
-                        result.getInt("national_id"),
-                        result.getInt("Salary"),
-                        result.getInt("id"),
-                        result.getString("category")
-
-                // result.getString("status")
-                );
-
-                listTeachers.add(teacherD);
+    
+        try (Connection connect = Database.connectDb();
+             PreparedStatement prepare = connect.prepareStatement(sql)) {
+    
+            prepare.setString(1, academicYear);
+            try (ResultSet result = prepare.executeQuery()) {
+                while (result.next()) {
+                    teacherData teacherD = new teacherData(
+                            result.getString("name"),
+                            result.getInt("Age"),
+                            result.getString("Sex"),
+                            result.getString("phone_number"),
+                            result.getInt("work_Load"),
+                            result.getInt("Work_Period"),
+                            result.getString("Subject"),
+                            result.getString("subdivision_of_origin"),
+                            result.getInt("national_id"),
+                            result.getInt("Salary"),
+                            result.getInt("id"),
+                            result.getString("category")
+                    );
+    
+                    listTeachers.add(teacherD);
+                }
             }
-
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return listTeachers;
     }
-
-    // ... (rest of the code remains unchanged)
+    
 
     private ObservableList<teacherData> teacherListD;
 
     public void teacherShowListData() {
         teacherListD = teacherListData();
-
-        // addStudents_col_studentNum.setCellValueFactory(new
-        // PropertyValueFactory<>("id"));
-        // showClass_col_A2.setCellValueFactory(new
-        // PropertyValueFactory<>("class_name"));
+    
         teachernumber_col.setCellValueFactory(new PropertyValueFactory<>("contact"));
         teachername_col.setCellValueFactory(new PropertyValueFactory<>("name"));
         teacherperiod_col.setCellValueFactory(new PropertyValueFactory<>("period"));
         teachersex_col.setCellValueFactory(new PropertyValueFactory<>("gender"));
         teacherage_col.setCellValueFactory(new PropertyValueFactory<>("age"));
-        // showClass_col_A2.setCellValueFactory(new
-        // PropertyValueFactory<>("className"));
         teacherhours_col.setCellValueFactory(new PropertyValueFactory<>("hours"));
-
+    
         teachers_tableView.setItems(teacherListD);
-
     }
+    
 
     public void teacherSearch() {
-
         FilteredList<teacherData> filter = new FilteredList<>(teacherListD, e -> true);
-
-        teacher_search.textProperty().addListener((Observable, oldValue, newValue) -> {
-
+    
+        teacher_search.textProperty().addListener((observable, oldValue, newValue) -> {
             filter.setPredicate(predicateTeacherData -> {
-
                 if (newValue == null || newValue.isEmpty()) {
                     return true;
                 }
-
+    
                 String searchKey = newValue.toLowerCase();
-
+    
+                // Check all relevant fields for a match
                 if (predicateTeacherData.getName().toLowerCase().contains(searchKey)) {
                     return true;
-                    // } else if (predicateTeacherData.getId().toString().contains(searchKey)) {
-                    // return true;
+                } else if (String.valueOf(predicateTeacherData.getId()).contains(searchKey)) {
+                    return true;
                 } else if (predicateTeacherData.getContact().toLowerCase().contains(searchKey)) {
                     return true;
-                    // } else if
-                    // (predicateStudentData.getClassName().toLowerCase().contains(searchKey)) {
-                    // return true;
-                    // } else if
-                    // (predicateStudentData.getContact().toLowerCase().contains(searchKey)) {
-                    // return true;
                 } else if (predicateTeacherData.getGender().toLowerCase().contains(searchKey)) {
                     return true;
-                    // } else if
-                    // (predicateTeacherData.getDate_of_birth().toString().contains(searchKey)) {
-                    // return true;
-                } else {
-                    return false;
+                } else if (String.valueOf(predicateTeacherData.getSalary()).contains(searchKey)) {
+                    return true;
+                } else if (predicateTeacherData.getSubject().toLowerCase().contains(searchKey)) {
+                    return true;
                 }
+    
+                return false;
             });
         });
-
+    
         SortedList<teacherData> sortList = new SortedList<>(filter);
-
         sortList.comparatorProperty().bind(teachers_tableView.comparatorProperty());
         teachers_tableView.setItems(sortList);
-
     }
+    
 
     private String[] year = { "2023-2024", "2024-2025" };
 
+    @SuppressWarnings("unchecked")
     public void classYear() {
         List<String> academicYear = new ArrayList<>();
 
         for (String data : year) {
             academicYear.add(data);
         }
+        @SuppressWarnings("rawtypes")
         ObservableList ObList = FXCollections.observableArrayList(academicYear);
         school_year.setItems(ObList);
     }
 
     private String[] category = { "Administrator", "Staff" };
 
+    @SuppressWarnings("unchecked")
     public void category() {
         List<String> teacherCategory = new ArrayList<>();
 
         for (String data : category) {
             teacherCategory.add(data);
         }
+        @SuppressWarnings("rawtypes")
         ObservableList ObList = FXCollections.observableArrayList(teacherCategory);
         updateteacher_category.setItems(ObList);
     }
 
     private String[] genderList = { "Male", "Female" };
 
+    @SuppressWarnings("unchecked")
     public void addStudentsGenderList() {
         List<String> genderL = new ArrayList<>();
 
@@ -2424,44 +2408,45 @@ public class DashboardController implements Initializable {
             genderL.add(data);
         }
 
+        @SuppressWarnings("rawtypes")
         ObservableList ObList = FXCollections.observableArrayList(genderL);
         addStudents_gender.setItems(ObList);
         std_gender.setItems(ObList);
         addteacher_gender.setItems(ObList);
     }
 
-    private void populateAcademicYears() throws SQLException {
-        String query = "SELECT DISTINCT academic_year FROM class";
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        ObservableList<String> academicYears = FXCollections.observableArrayList();
+    // private void populateAcademicYears() throws SQLException {
+    //     String query = "SELECT DISTINCT academic_year FROM class";
+    //     Connection connection = null;
+    //     PreparedStatement preparedStatement = null;
+    //     ResultSet resultSet = null;
+    //     ObservableList<String> academicYears = FXCollections.observableArrayList();
 
-        try {
-            connection = Database.connectDb();
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+    //     try {
+    //         // connection = Database.connectDb();
+    //         preparedStatement = connect.prepareStatement(query);
+    //         resultSet = preparedStatement.executeQuery();
 
-            while (resultSet.next()) {
-                String academicYear = resultSet.getString("academic_year");
-                academicYears.add(academicYear);
-            }
+    //         while (resultSet.next()) {
+    //             String academicYear = resultSet.getString("academic_year");
+    //             academicYears.add(academicYear);
+    //         }
 
-            // Set the retrieved academic years to the ComboBox
-            addStudent_year.setItems(academicYears);
-        } finally {
-            // Close resources in a finally block to ensure they are always closed
-            if (resultSet != null) {
-                resultSet.close();
-            }
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-            if (connection != null) {
-                connection.close();
-            }
-        }
-    }
+    //         // Set the retrieved academic years to the ComboBox
+    //         addStudent_year.setItems(academicYears);
+    //     } finally {
+    //         // Close resources in a finally block to ensure they are always closed
+    //         if (resultSet != null) {
+    //             resultSet.close();
+    //         }
+    //         if (preparedStatement != null) {
+    //             preparedStatement.close();
+    //         }
+    //         if (connection != null) {
+    //             connection.close();
+    //         }
+    //     }
+    // }
 
     @FXML
     private void handleAcademicYearSelection() {
@@ -2490,8 +2475,8 @@ public class DashboardController implements Initializable {
         ObservableList<String> classNames = FXCollections.observableArrayList();
 
         try {
-            connection = Database.connectDb();
-            preparedStatement = connection.prepareStatement(query);
+            // connection = Database.connectDb();
+            preparedStatement = connect.prepareStatement(query);
             preparedStatement.setString(1, academicYear);
             resultSet = preparedStatement.executeQuery();
 
@@ -2582,8 +2567,8 @@ public class DashboardController implements Initializable {
         ObservableList<String> classSections = FXCollections.observableArrayList();
 
         try {
-            connection = Database.connectDb();
-            preparedStatement = connection.prepareStatement(query);
+            // connection = Database.connectDb();
+            preparedStatement = connect.prepareStatement(query);
             preparedStatement.setString(1, className);
             preparedStatement.setString(2, academicYear);
             resultSet = preparedStatement.executeQuery();
@@ -2669,20 +2654,20 @@ public class DashboardController implements Initializable {
         }
     }
 
-    @FXML
-    private void handleStudentSection() {
-        String selectedStudentSection = SectionRecord_Download.getValue();
-        if (selectedStudentSection == null) {
-            return;
-        }
-        // Add the logic to handle the selected section here
-        try {
+    // @FXML
+    // private void handleStudentSection() {
+    //     String selectedStudentSection = SectionRecord_Download.getValue();
+    //     if (selectedStudentSection == null) {
+    //         return;
+    //     }
+    //     // Add the logic to handle the selected section here
+    //     try {
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            // Handle any exceptions that may occur during section selection handling
-        }
-    }
+    //     } catch (SQLException e) {
+    //         e.printStackTrace();
+    //         // Handle any exceptions that may occur during section selection handling
+    //     }
+    // }
 
     private void showSectionsForClass(String className, String academicYear) throws SQLException {
         String query = "SELECT A1, A2, B1, B2, Arts, Science, Commercial, C " +
@@ -2694,8 +2679,8 @@ public class DashboardController implements Initializable {
         ObservableList<String> classSections = FXCollections.observableArrayList();
 
         try {
-            connection = Database.connectDb();
-            preparedStatement = connection.prepareStatement(query);
+            // connection = Database.connectDb();
+            preparedStatement = connect.prepareStatement(query);
             preparedStatement.setString(1, className);
             preparedStatement.setString(2, academicYear);
             resultSet = preparedStatement.executeQuery();
@@ -2806,8 +2791,8 @@ public class DashboardController implements Initializable {
         ObservableList<String> classSections = FXCollections.observableArrayList();
 
         try {
-            connection = Database.connectDb();
-            preparedStatement = connection.prepareStatement(query);
+            // connection = Database.connectDb();
+            preparedStatement = connect.prepareStatement(query);
             preparedStatement.setString(1, className);
             preparedStatement.setString(2, academicYear);
             resultSet = preparedStatement.executeQuery();
@@ -2919,7 +2904,7 @@ public class DashboardController implements Initializable {
 
         String sql = "SELECT * FROM student WHERE academic_year = ?";
 
-        connect = Database.connectDb();
+        // connect = Database.connectDb();
 
         try {
             studentData studentD;
@@ -2945,7 +2930,7 @@ public class DashboardController implements Initializable {
                 listStudents.add(studentD);
             }
 
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return listStudents;
@@ -3007,7 +2992,7 @@ public class DashboardController implements Initializable {
     }
 
     private int selectedTeacherId = -1;
-    private String selectedTeacherName = "";
+    // private String selectedTeacherName = "";
 
     public void teacherSelect() {
 
@@ -3044,13 +3029,13 @@ public class DashboardController implements Initializable {
         // dob.setValue(LocalDate.parse(String.valueOf(teacherD.getDate_of_birth())));
 
         selectedTeacherId = teacherD.getId();
-        selectedTeacherName = teacherD.getName();
+        // selectedTeacherName = teacherD.getName();
 
     }
 
-    public void Admins(ActionEvent event) {
+    public void Admins(@SuppressWarnings("exports") ActionEvent event) {
         // Get the connection to the database
-        connect = Database.connectDb();
+        // connect = Database.connectDb();
 
         try {
             String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -3209,7 +3194,7 @@ public class DashboardController implements Initializable {
 
     public void Staff(ActionEvent event) {
         // Get the connection to the database
-        connect = Database.connectDb();
+        // connect = Database.connectDb();
 
         try {
             String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -3368,7 +3353,7 @@ public class DashboardController implements Initializable {
 
     public void allTeachers(ActionEvent event) {
         // Get the connection to the database
-        connect = Database.connectDb();
+        // connect = Database.connectDb();
 
         try {
             String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -3584,7 +3569,7 @@ public class DashboardController implements Initializable {
 
     // }
     // }
-    // } catch (Exception e) {
+    // } catch (SQLException e) {
     // e.printStackTrace();
     // }
     // }
@@ -3639,7 +3624,7 @@ public class DashboardController implements Initializable {
 
     // }
 
-    // } catch (Exception e) {
+    // } catch (SQLException e) {
     // e.printStackTrace();
     // }
 
@@ -3692,7 +3677,7 @@ public class DashboardController implements Initializable {
     // }
     // }
 
-    // } catch (Exception e) {
+    // } catch (SQLException e) {
     // e.printStackTrace();
     // }
 
@@ -3725,7 +3710,7 @@ public class DashboardController implements Initializable {
     // listData.add(courseD);
     // }
 
-    // } catch (Exception e) {
+    // } catch (SQLException e) {
     // e.printStackTrace();
     // }
     // return listData;
@@ -3835,7 +3820,7 @@ public class DashboardController implements Initializable {
     // }
 
     // }// NOT WE ARE CLOSER TO THE ENDING PART :) LETS PROCEED TO DASHBOARD FORM
-    // } catch (Exception e) {
+    // } catch (SQLException e) {
     // e.printStackTrace();
     // }
     // }
@@ -3872,7 +3857,7 @@ public class DashboardController implements Initializable {
 
     // listData.add(studentD);
     // }
-    // } catch (Exception e) {
+    // } catch (SQLException e) {
     // e.printStackTrace();
     // }
     // return listData;
@@ -4005,10 +3990,6 @@ public class DashboardController implements Initializable {
     }
     
 
-    public void displaySchoolName(settingsData settingsData) {
-        show_SchoolName.setText(settingsData.getSchoolName());
-    }
-
     // // THATS IT FOR THESE VIDEOS, THANKS FOR WATCHING!! SUBSCRIBE AND TURN ON
     // NOTIFICATION
     // // TO NOTIF YOU FOR MORE UPCOMING VIDEOS THANKS FOR THE SUPPORT! : )
@@ -4016,7 +3997,7 @@ public class DashboardController implements Initializable {
         home_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
     }
 
-    public void addClasses(ActionEvent event) {
+    public void addClasses(@SuppressWarnings("exports") ActionEvent event) {
         class_sectionAdd_form.setVisible(true);
         addClass_form.setVisible(false);
     }
@@ -4184,10 +4165,7 @@ public class DashboardController implements Initializable {
             teachers_form.setVisible(false);
             updateTeacher_form.setVisible(false);
 
-            displaySchoolName();
-            displayPrincipal();
-            displayAddress();
-            displaySchoolYear();
+            displaySchoolInfo();
 
             addStudents_btn.setStyle("-fx-background-color:transparent");
             home_btn.setStyle("-fx-background-color:transparent");
@@ -4243,6 +4221,7 @@ public class DashboardController implements Initializable {
             updateTeacher_form.setVisible(false);
             getAcademicYearFromSettings();
             teacherSearch();
+            teacherShowListData();
 
             marksheet_btn.setStyle("-fx-background-color:transparent");
             addStudents_btn.setStyle("-fx-background-color:transparent");
@@ -4345,7 +4324,7 @@ public class DashboardController implements Initializable {
                 "SUM(amount_owing) AS totalOwing " +
                 "FROM student WHERE academic_year = ? GROUP BY class_id, section";
 
-        connect = Database.connectDb();
+        // connect = Database.connectDb();
 
         try {
             studentData studentF;
@@ -4374,7 +4353,7 @@ public class DashboardController implements Initializable {
                 listClass.add(studentF);
             }
 
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return listClass;
@@ -4607,7 +4586,7 @@ public class DashboardController implements Initializable {
     public void studentInvoice(ActionEvent event) {
         // int selectedStudentId = this.getSelectedStudentId();
         // Get the connection to the database
-        connect = Database.connectDb();
+        // connect = Database.connectDb();
 
         try {
             String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -4834,7 +4813,7 @@ public class DashboardController implements Initializable {
         String selectedSection = SectionRecord_Download.getValue();
 
         // Get the connection to the database
-        connect = Database.connectDb();
+        // connect = Database.connectDb();
 
         try {
             String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -5014,11 +4993,11 @@ public class DashboardController implements Initializable {
         }
     }
 
-    public void markSheet(ActionEvent event) {
+    public void markSheet(@SuppressWarnings("exports") ActionEvent event) {
         String selectedClassName = marksheet_class.getValue();
         String selectedSection = marksheet_section.getValue();
         // Get the connection to the database
-        connect = Database.connectDb();
+        // connect = Database.connectDb();
 
         try {
             String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -5340,7 +5319,7 @@ public class DashboardController implements Initializable {
                         return; // Return early if class details are not found.
                     }
                 }
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 return;
             }
@@ -5551,48 +5530,37 @@ public class DashboardController implements Initializable {
         String insertData = "INSERT INTO settings (schoolName, principal, address, academicYear) VALUES (?, ?, ?, ?)";
     
         try (Connection connect = Database.connectDb()) {
-            Alert alert;
+            // Check if any field is empty
+            if (school_name.getText().isEmpty() || principal.getText().isEmpty() || address.getText().isEmpty() || school_year.getSelectionModel().getSelectedItem() == null) {
+                showAlert("Error Message", "Please fill in all fields and select your current school year", Alert.AlertType.ERROR);
+                return;
+            }
     
-            if (school_year.getSelectionModel().getSelectedItem() == null) {
-                alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Error Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Please select your current school year");
-                alert.showAndWait();
-            } else {
-                try (PreparedStatement selectStmt = connect.prepareStatement(selectData)) {
-                    selectStmt.setString(1, school_name.getText());
-                    try (ResultSet resultSet = selectStmt.executeQuery()) {
-                        if (resultSet.next()) {
-                            // The record already exists, perform an update
-                            try (PreparedStatement updateStmt = connect.prepareStatement(updateData)) {
-                                updateStmt.setString(1, principal.getText());
-                                updateStmt.setString(2, address.getText());
-                                updateStmt.setString(3, (String) school_year.getSelectionModel().getSelectedItem());
-                                updateStmt.setString(4, school_name.getText());
-                                updateStmt.executeUpdate();
-                            }
-                            alert = new Alert(AlertType.INFORMATION);
-                            alert.setTitle("Information Message");
-                            alert.setHeaderText(null);
-                            alert.setContentText("Successfully Updated!");
-                            alert.showAndWait();
-                        } else {
-                            // The record doesn't exist, perform an insert
-                            try (PreparedStatement insertStmt = connect.prepareStatement(insertData)) {
-                                insertStmt.setString(1, school_name.getText());
-                                insertStmt.setString(2, principal.getText());
-                                insertStmt.setString(3, address.getText());
-                                insertStmt.setString(4, (String) school_year.getSelectionModel().getSelectedItem());
-                                insertStmt.executeUpdate();
-                            }
-                            alert = new Alert(AlertType.INFORMATION);
-                            alert.setTitle("Information Message");
-                            alert.setHeaderText(null);
-                            alert.setContentText("Successfully Saved!");
-                            alert.showAndWait();
+            try (PreparedStatement selectStmt = connect.prepareStatement(selectData)) {
+                selectStmt.setString(1, school_name.getText());
+                try (ResultSet resultSet = selectStmt.executeQuery()) {
+                    if (resultSet.next()) {
+                        // The record already exists, perform an update
+                        try (PreparedStatement updateStmt = connect.prepareStatement(updateData)) {
+                            updateStmt.setString(1, principal.getText());
+                            updateStmt.setString(2, address.getText());
+                            updateStmt.setString(3, (String) school_year.getSelectionModel().getSelectedItem());
+                            updateStmt.setString(4, school_name.getText());
+                            updateStmt.executeUpdate();
                         }
+                        showAlert("Success", "Successfully Updated School Details!", Alert.AlertType.INFORMATION);
+                    } else {
+                        // The record doesn't exist, perform an insert
+                        try (PreparedStatement insertStmt = connect.prepareStatement(insertData)) {
+                            insertStmt.setString(1, school_name.getText());
+                            insertStmt.setString(2, principal.getText());
+                            insertStmt.setString(3, address.getText());
+                            insertStmt.setString(4, (String) school_year.getSelectionModel().getSelectedItem());
+                            insertStmt.executeUpdate();
+                        }
+                        showAlert("Success", "Successfully Saved Settings!", Alert.AlertType.INFORMATION);
                     }
+                    displaySchoolInfo();
                 }
             }
         } catch (SQLException e) {
@@ -5605,7 +5573,7 @@ public class DashboardController implements Initializable {
 
         // Get the connection to the database
         try {
-            connect = Database.connectDb();
+            // connect = Database.connectDb();
             // Calculate the total first payments for the day
             double totalFirstPayments = calculateTotalFirstPayments(connect, currentDate);
 
@@ -5673,7 +5641,7 @@ public class DashboardController implements Initializable {
         double weeklyTotalPayments = 0.0;
 
         // Get the connection to the database
-        Connection connect = Database.connectDb();
+        // Connection connect = Database.connectDb();
 
         // Get the current date and calculate the start and end dates for the current
         // week (Monday to Sunday)
@@ -5735,7 +5703,7 @@ public class DashboardController implements Initializable {
 
     public void generateWeeklyRecordPdf() {
         // Get the connection to the database
-        Connection connect = Database.connectDb();
+        // Connection connect = Database.connectDb();
 
         // Get the current date and calculate the start and end dates for the current
         // week (Monday to Sunday)
@@ -5931,7 +5899,7 @@ public class DashboardController implements Initializable {
                 document.add(headerDiv);
                 document.add(header);
                 // Database connection
-                Connection connect = Database.connectDb();
+                // Connection connect = Database.connectDb();
 
                 String selectData = "SELECT class_name, section, amount_paid FROM student WHERE academic_year = ?";
                 try (PreparedStatement prepare = connect.prepareStatement(selectData)) {
@@ -6126,7 +6094,6 @@ public class DashboardController implements Initializable {
                 + "(Name, Sex, date_of_birth, national_id, subdivision_of_origin, Subject, phone_number, academic_year, age) "
                 + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        // Connection connection = // Obtain your database connection here
         connect = Database.connectDb();
 
         try {
@@ -6171,13 +6138,17 @@ public class DashboardController implements Initializable {
         }
     }
 
-    private void showAlert(String title, String content, AlertType alertType) {
+    private void showAlert(String title, String content, Alert.AlertType alertType) {
+        if (!title.equalsIgnoreCase("Success")) {
+            Toolkit.getDefaultToolkit().beep();
+        }
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
     }
+    
 
     private void clearFields() {
         teacher_name.clear();
@@ -6297,7 +6268,7 @@ public class DashboardController implements Initializable {
     // document.close();
 
     // System.out.println("Yearly record PDF generated successfully!");ad
-    // } catch (Exception e) {
+    // } catch (SQLException e) {
     // e.printStackTrace();
     // }
 
@@ -6305,6 +6276,54 @@ public class DashboardController implements Initializable {
     // MAKE SURE THAT THE NAME YOU GAVE TO THEM ARE DIFFERENT TO THE OTHER OKAY?
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        school_name.textProperty().addListener((observable, oldValue, newValue) -> {
+            school_name.setText(newValue.toUpperCase());
+        });
+        principal.textProperty().addListener((observable, oldValue, newValue) -> {
+            principal.setText(newValue.toUpperCase());
+        });
+        address.textProperty().addListener((observable, oldValue, newValue) -> {
+            address.setText(newValue.toUpperCase());
+        });
+        teacher_name.textProperty().addListener((observable, oldValue, newValue) -> {
+            teacher_name.setText(newValue.toUpperCase());
+        });
+        teacher_id.textProperty().addListener((observable, oldValue, newValue) -> {
+            teacher_id.setText(newValue.toUpperCase());
+        });
+        teacher_origin.textProperty().addListener((observable, oldValue, newValue) -> {
+            teacher_origin.setText(newValue.toUpperCase());
+        });
+        teacher_subject.textProperty().addListener((observable, oldValue, newValue) -> {
+            teacher_subject.setText(newValue.toUpperCase());
+        });
+        teacher_number.textProperty().addListener((observable, oldValue, newValue) -> {
+            teacher_number.setText(newValue.toUpperCase());
+        });
+        updateteacher_name.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateteacher_name.setText(newValue.toUpperCase());
+        });
+        updateteacher_subjects.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateteacher_subjects.setText(newValue.toUpperCase());
+        });
+        updateteacher_hours.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateteacher_hours.setText(newValue.toUpperCase());
+        });
+        updateteacher_origin.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateteacher_origin.setText(newValue.toUpperCase());
+        });
+        updateteacher_salary.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateteacher_salary.setText(newValue.toUpperCase());
+        });
+        updateteacher_tel.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateteacher_tel.setText(newValue.toUpperCase());
+        });
+        updateteacher_period.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateteacher_period.setText(newValue.toUpperCase());
+        });
+        updateteacher_natId.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateteacher_natId.setText(newValue.toUpperCase());
+        });
         displayUsername();
         defaultNav();
 
@@ -6325,11 +6344,8 @@ public class DashboardController implements Initializable {
         displayOwing();
         displayExpected();
         displayTotalOwing();
-        displaySchoolName();
-        displayPrincipal();
-        displayAddress();
+        displaySchoolInfo();
         teacherShowListData();
-        displaySchoolYear();
         addStudentsGenderList();
         getAcademicYearFromSettings();
         showClassListData();
