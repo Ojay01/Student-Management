@@ -233,7 +233,7 @@
                                           </CheckBox>
                                        </children>
                                     </AnchorPane>
-                                    <AnchorPane fx:id="all_students_form" layoutX="20.0" layoutY="0.8" prefHeight="589.0" prefWidth="856.0" stylesheets="@dashboard.css" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="1.0">
+                                    <AnchorPane fx:id="all_students_form" layoutX="20.0" layoutY="0.8" prefHeight="589.0" prefWidth="856.0" stylesheets="@dashboard.css" visible="false" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="1.0">
                                        <styleClass>
                                           <String fx:value="white-bg" />
                                           <String fx:value="shadow" />
@@ -241,7 +241,7 @@
                                        <children>
                                           <FontAwesomeIconView glyphName="SEARCH_PLUS" layoutX="30.0" layoutY="30.0" scaleX="2.0" scaleY="2.0" scaleZ="2.0" wrappingWidth="12.443878173828125" />
                                           <TextField fx:id="addStudents_search" layoutX="20.0" layoutY="9.0" prefHeight="34.0" prefWidth="261.0" promptText="Search" styleClass="search" stylesheets="@dashboard.css" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="10.0" />
-                                          <TableView fx:id="addStudents_tableView" layoutX="12.0" layoutY="55.0" prefHeight="467.0" prefWidth="837.0" stylesheets="@dashboard.css" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="58.0">
+                                          <TableView fx:id="addStudents_tableView" layoutX="12.0" layoutY="55.0" onMouseClicked="#addStudentsSelect" prefHeight="467.0" prefWidth="837.0" stylesheets="@dashboard.css" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="58.0">
                                             <columns>
                                               <TableColumn fx:id="addStudents_col_studentNum" prefWidth="62.666656494140625" text="Student Id" />
                                               <TableColumn fx:id="addStudents_col_firstName" prefWidth="174.66665649414062" text="Name" />
@@ -746,7 +746,7 @@
                                           </SplitPane>
                                        </children>
                                     </AnchorPane>
-                                    <AnchorPane fx:id="personal_form" layoutX="141.0" layoutY="71.0" prefHeight="555.0" prefWidth="877.0" styleClass="white-bg" stylesheets="@dashboard.css" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <AnchorPane fx:id="personal_form" layoutX="141.0" layoutY="71.0" prefHeight="555.0" prefWidth="877.0" styleClass="white-bg" stylesheets="@dashboard.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <children>
                                           <AnchorPane layoutX="11.0" layoutY="14.0" prefHeight="83.0" prefWidth="852.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                                              <styleClass>
@@ -759,7 +759,7 @@
                                                       <Font name="Poppins Bold Italic" size="40.0" />
                                                    </font>
                                                 </Label>
-                                                <Button fx:id="delete_Button" layoutX="760.0" layoutY="27.0" mnemonicParsing="false" styleClass="delete-btn" text="DELETE" AnchorPane.bottomAnchor="26.0" AnchorPane.rightAnchor="28.0" AnchorPane.topAnchor="27.0">
+                                                <Button fx:id="delete_Button" layoutX="760.0" layoutY="27.0" mnemonicParsing="false" onAction="#deleletStudent" styleClass="delete-btn" text="DELETE" AnchorPane.bottomAnchor="26.0" AnchorPane.rightAnchor="28.0" AnchorPane.topAnchor="27.0">
                                                    <graphic>
                                                       <FontAwesomeIconView fill="WHITE" glyphName="REMOVE" />
                                                    </graphic></Button>
@@ -828,7 +828,7 @@
                                           </AnchorPane>
                                           <Label fx:id="id" layoutX="32.0" layoutY="99.0" text="ID">
                                              <font>
-                                                <Font name="Bernard MT Condensed" size="18.0" />
+                                                <Font name="Times New Roman Bold Italic" size="18.0" />
                                              </font>
                                           </Label>
                                           <AnchorPane layoutX="609.0" layoutY="280.0" prefHeight="122.0" prefWidth="255.0" AnchorPane.rightAnchor="13.0">
@@ -861,6 +861,8 @@
                                                    </graphic></Button>
                                              </children>
                                           </AnchorPane>
+                                          <TextField fx:id="update_contact" alignment="CENTER" layoutX="398.0" layoutY="226.0" prefHeight="46.0" prefWidth="206.0" promptText="Student't Contact" styleClass="textfield" />
+                                          <FontAwesomeIconView glyphName="PHONE" layoutX="410.0" layoutY="255.0" scaleX="1.5" scaleY="1.5" scaleZ="1.5" wrappingWidth="15.028547286987305" />
                                        </children>
                                     </AnchorPane>
                                     <AnchorPane fx:id="teachers_form" layoutX="48.0" layoutY="48.0" prefHeight="554.0" prefWidth="877.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
