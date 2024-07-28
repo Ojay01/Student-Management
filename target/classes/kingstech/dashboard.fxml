@@ -769,7 +769,7 @@
                                                    </graphic></Button>
                                              </children>
                                           </AnchorPane>
-                                          <TableView fx:id="personaTableView" layoutX="629.0" layoutY="148.0" prefHeight="123.0" prefWidth="253.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="148.0">
+                                          <TableView fx:id="personaTableView" layoutX="629.0" layoutY="148.0" prefHeight="386.0" prefWidth="254.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="148.0">
                                             <columns>
                                               <TableColumn fx:id="date_col" prefWidth="92.33331298828125" text="Date" />
                                               <TableColumn fx:id="payment_col" prefWidth="128.66668701171875" text="Amount" />
@@ -831,7 +831,7 @@
                                                 <Font name="Times New Roman Bold Italic" size="18.0" />
                                              </font>
                                           </Label>
-                                          <AnchorPane layoutX="609.0" layoutY="280.0" prefHeight="122.0" prefWidth="255.0" AnchorPane.rightAnchor="13.0">
+                                          <AnchorPane layoutX="609.0" layoutY="280.0" prefHeight="122.0" prefWidth="255.0" visible="false" AnchorPane.rightAnchor="13.0">
                                              <styleClass>
                                                 <String fx:value="shadow" />
                                                 <String fx:value="white-bg" />

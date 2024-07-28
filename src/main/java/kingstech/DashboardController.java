@@ -1592,17 +1592,17 @@ public class DashboardController implements Initializable {
         String insertStudent = "INSERT INTO students (matricule, name, date_of_birth, contact, gender, image) VALUES (?, ?, ?, ?, ?, ?)";
         String insertEnrollment = "INSERT INTO enrollments (student_id, class_name, section, academic_year, status, scholarship, school_fees, total_fees_paid) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         String insertPayment = "INSERT INTO fees (enrollment_id, amount_paid, payment_date) VALUES (?, ?, ?)";
-
+    
         try {
             Connection connect = Database.connectDb();
             if (connect == null) {
                 showAlert("Database Error", "Database connection could not be established.", Alert.AlertType.ERROR);
                 return;
             }
-
+    
             Alert alert;
             String academicYear = getAcademicYearFromSettings();
-
+    
             if (addStudent_class.getSelectionModel().getSelectedItem() == null
                     || addStudent_section.getSelectionModel().getSelectedItem() == null
                     || addStudents_firstName.getText().isEmpty()
@@ -1611,7 +1611,7 @@ public class DashboardController implements Initializable {
                     || student_amount.getText().isEmpty()
                     || !isNumeric(student_amount.getText())
                     || !isNumeric(student_contact.getText())) {
-
+    
                 alert = new Alert(AlertType.ERROR);
                 alert.setTitle("Error Message");
                 alert.setHeaderText(null);
@@ -1620,10 +1620,10 @@ public class DashboardController implements Initializable {
                 alert.showAndWait();
                 return;
             }
-
+    
             String selectedSection = (String) addStudent_section.getSelectionModel().getSelectedItem();
             String className = (String) addStudent_class.getSelectionModel().getSelectedItem();
-
+    
             // Check if the student already exists
             String checkData = "SELECT matricule FROM students WHERE name = ?";
             try (PreparedStatement checkPrepare = connect.prepareStatement(checkData)) {
@@ -1638,15 +1638,14 @@ public class DashboardController implements Initializable {
                     return;
                 }
             }
-
+    
             // Get class_id based on selected class_name, section, and academic_year
-            String getClassIdQuery = "SELECT id, school_fees FROM class WHERE class_name = ? AND academic_year = ? AND "
+            String getClassIdQuery = "SELECT id, school_fees FROM class WHERE class_name = ? AND "
                     + selectedSection + " = 1";
             int classId = 0;
             double schoolFees = 0.0;
             try (PreparedStatement classPrepare = connect.prepareStatement(getClassIdQuery)) {
                 classPrepare.setString(1, className);
-                classPrepare.setString(2, academicYear);
                 ResultSet result = classPrepare.executeQuery();
                 if (result.next()) {
                     classId = result.getInt("id");
@@ -1657,10 +1656,17 @@ public class DashboardController implements Initializable {
                     return;
                 }
             }
-
+    
+            // Calculate amounts
+            double studentAmount = Double.parseDouble(student_amount.getText());
+            if (studentAmount > schoolFees) {
+                showAlert("Error Message", "The student amount cannot exceed the school fees.", Alert.AlertType.ERROR);
+                return;
+            }
+    
             // Generate unique matricule for the student
             String matricule = generateMatricule();
-
+    
             // Insert student record
             try (PreparedStatement studentPrepare = connect.prepareStatement(insertStudent)) {
                 studentPrepare.setString(1, matricule);
@@ -1670,13 +1676,10 @@ public class DashboardController implements Initializable {
                 studentPrepare.setString(5, (String) addStudents_gender.getSelectionModel().getSelectedItem());
                 studentPrepare.setString(6, ""); // Placeholder for image
                 studentPrepare.executeUpdate();
-
-                // Calculate amounts
-                double studentAmount = Double.parseDouble(student_amount.getText());
-                double otherAmount = other_amount.isSelected() ? 0.0 : 5000.0;
-                double amountOwing = schoolFees - studentAmount + otherAmount;
-                String status = (amountOwing <= 0) ? "completed" : "incomplete";
-
+    
+                double amountOwing = schoolFees - studentAmount;
+                String status = (amountOwing <= 0) ? "OK" : "incomplete";
+    
                 // Insert enrollment record
                 try (PreparedStatement enrollPrepare = connect.prepareStatement(insertEnrollment,
                         PreparedStatement.RETURN_GENERATED_KEYS)) {
@@ -1686,14 +1689,14 @@ public class DashboardController implements Initializable {
                     enrollPrepare.setString(4, academicYear);
                     enrollPrepare.setString(5, status);
                     enrollPrepare.setDouble(6, 0.0); // Assuming no scholarship
-                    enrollPrepare.setDouble(7, schoolFees + otherAmount); // Adjusted school fees
+                    enrollPrepare.setDouble(7, schoolFees); // Adjusted school fees
                     enrollPrepare.setDouble(8, studentAmount);
                     enrollPrepare.executeUpdate();
-
+    
                     ResultSet enrollmentKeys = enrollPrepare.getGeneratedKeys();
                     if (enrollmentKeys.next()) {
                         int enrollmentId = enrollmentKeys.getInt(1);
-
+    
                         // Insert initial payment record
                         try (PreparedStatement paymentPrepare = connect.prepareStatement(insertPayment)) {
                             paymentPrepare.setInt(1, enrollmentId);
@@ -1703,21 +1706,21 @@ public class DashboardController implements Initializable {
                         }
                     }
                 }
-
+    
                 showAlert("Information Message", "Successfully Added!", Alert.AlertType.INFORMATION);
                 clearInputFields();
                 showAllClassListData();
                 addStudentsShowListData();
-                calculateTotalFirstPayments(connect, null);
                 displayWeeklyTotalPayments();
             }
-
+    
         } catch (SQLException e) {
             e.printStackTrace();
             showAlert("Database Error", "Error occurred while adding the student: " + e.getMessage(),
                     Alert.AlertType.ERROR);
         }
     }
+    
 
     private void clearInputFields() {
         addStudents_firstName.clear();
@@ -1739,66 +1742,93 @@ public class DashboardController implements Initializable {
     }
 
     public void Scholarship() {
-        String scholarship = schorlaship.getText();
-
-        if (!isNumeric(scholarship)) {
-
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.setTitle("Error Message");
-            alert.setHeaderText(null);
-            alert.setContentText("Please enter a valid numeric scholarship amount.");
-            alert.showAndWait();
+        String scholarshipText = schorlaship.getText();
+    
+        if (!isNumeric(scholarshipText)) {
+            showAlert("Error Message", "Please enter a valid numeric scholarship amount.", Alert.AlertType.ERROR);
             return;
         }
-
-        double scholarshipAmount = Double.parseDouble(scholarship);
-
-        String updateQuery = "UPDATE students SET fees = fees - ?, amount_owing = amount_owing - ?, scholarship =  scholarship + ? WHERE id = ?";
-        // connect = Database.connectDb();
-
+    
+        double scholarshipAmount = Double.parseDouble(scholarshipText);
+    
+        String checkStatusQuery = "SELECT status, (school_fees - total_fees_paid) AS amountOwing FROM enrollments WHERE id = ?";
+        String updateQuery = "UPDATE enrollments SET school_fees = school_fees - ?, scholarship = scholarship + ? WHERE id = ?";
+        String updateStatusQuery = "UPDATE enrollments SET status = 'OK' WHERE id = ?";
+    
+        Connection connect = Database.connectDb();
+        if (connect == null) {
+            showAlert("Database Error", "Database connection could not be established.", Alert.AlertType.ERROR);
+            return;
+        }
+    
         try {
-            prepare = connect.prepareStatement(updateQuery);
-            prepare.setDouble(1, scholarshipAmount);
-            prepare.setDouble(2, scholarshipAmount);
-            prepare.setDouble(3, scholarshipAmount);
-            // Assuming you have a variable studentId that holds the student's ID
-            prepare.setInt(4, selectedStudentId);
-
-            int rowsUpdated = prepare.executeUpdate();
-
-            if (rowsUpdated > 0) {
-                // Check if the amount_owing becomes zero after scholarship
-                String checkAmountOwingQuery = "SELECT amount_owing FROM students WHERE id = ?";
-                prepare = connect.prepareStatement(checkAmountOwingQuery);
-                prepare.setInt(1, selectedStudentId);
-                ResultSet result = prepare.executeQuery();
-
-                if (result.next()) {
-                    double amountOwing = result.getDouble("amount_owing");
-                    if (amountOwing <= 0) {
-                        // Update status to "completed"
-                        String updateStatusQuery = "UPDATE students SET status = 'completed' WHERE id = ?";
-                        prepare = connect.prepareStatement(updateStatusQuery);
-                        prepare.setInt(1, selectedStudentId);
-                        prepare.executeUpdate();
+            // Start a transaction
+            connect.setAutoCommit(false);
+    
+            // Check the student's status and amount owing
+            try (PreparedStatement checkStmt = connect.prepareStatement(checkStatusQuery)) {
+                checkStmt.setInt(1, selectedStudentId);
+                try (ResultSet result = checkStmt.executeQuery()) {
+                    if (result.next()) {
+                        String status = result.getString("status");
+                        double amountOwing = result.getDouble("amountOwing");
+    
+                        if ("OK".equalsIgnoreCase(status)) {
+                            showAlert("Error Message", "Scholarship cannot be applied. The student's status is already 'OK'.", Alert.AlertType.ERROR);
+                            return;
+                        }
+    
+                        if (scholarshipAmount > amountOwing) {
+                            showAlert("Error Message", "Scholarship amount cannot be more than the amount owing.", Alert.AlertType.ERROR);
+                            return;
+                        }
+    
+                        // Apply the scholarship
+                        try (PreparedStatement updateStmt = connect.prepareStatement(updateQuery)) {
+                            updateStmt.setDouble(1, scholarshipAmount);
+                            updateStmt.setDouble(2, scholarshipAmount);
+                            updateStmt.setInt(3, selectedStudentId);
+    
+                            int rowsUpdated = updateStmt.executeUpdate();
+    
+                            if (rowsUpdated > 0) {
+                                // Check if the amount owing becomes zero after scholarship
+                                if (amountOwing - scholarshipAmount <= 0) {
+                                    try (PreparedStatement statusStmt = connect.prepareStatement(updateStatusQuery)) {
+                                        statusStmt.setInt(1, selectedStudentId);
+                                        statusStmt.executeUpdate();
+                                    }
+                                }
+    
+                                connect.commit();
+    
+                                showAlert("Information Message", "Scholarship applied successfully!", Alert.AlertType.INFORMATION);
+                            } else {
+                                connect.rollback();
+                                showAlert("Error Message", "Failed to apply scholarship. Please check the student ID.", Alert.AlertType.ERROR);
+                            }
+                        } catch (SQLException e) {
+                            connect.rollback();
+                            throw e;
+                        } finally {
+                            connect.setAutoCommit(true);
+                        }
+                    } else {
+                        showAlert("Error Message", "Student not found.", Alert.AlertType.ERROR);
                     }
                 }
-
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("Information Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Scholarship applied successfully!");
-                alert.showAndWait();
-            } else {
-
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Error Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Failed to apply scholarship. Please check the student ID.");
-                alert.showAndWait();
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            showAlert("Database Error", "Error occurred while applying scholarship: " + e.getMessage(), Alert.AlertType.ERROR);
+        } finally {
+            try {
+                if (connect != null && !connect.isClosed()) {
+                    connect.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -2210,8 +2240,7 @@ public class DashboardController implements Initializable {
             getData.path = file.getAbsolutePath();
 
         }
-    } // WHILE WE INSERT THE DATA ON STUDENT, WE SHOULD INSERT ALSO THE DATA TO
-      // STUDENT_GRADE
+    }
 
     public void addlogo() {
 
@@ -2915,7 +2944,7 @@ public class DashboardController implements Initializable {
         ObservableList<EnrollmentData> listStudents = FXCollections.observableArrayList();
         String academicYear = getAcademicYearFromSettings();
 
-        String sql = "SELECT e.id, e.class_name, e.section, e.academic_year, e.status, e.school_fees, e.total_fees_paid, e.student_id, "
+        String sql = "SELECT e.id, e.class_name, e.section, e.academic_year, e.status, e.school_fees, e.total_fees_paid, e.student_id, e.scholarship, "
                 +
                 "s.name, s.date_of_birth, s.contact, s.gender, " +
                 "e.school_fees - e.total_fees_paid AS owing " +
@@ -2945,7 +2974,7 @@ public class DashboardController implements Initializable {
                         result.getString("section"),
                         academicYear,
                         result.getString("status"),
-                        null,
+                        result.getDouble("scholarship"),
                         result.getDouble("school_fees"),
                         null,
                         null,
@@ -5277,13 +5306,12 @@ public class DashboardController implements Initializable {
         try {
             // connect = Database.connectDb();
             // Calculate the total first payments for the day
-            double totalFirstPayments = calculateTotalFirstPayments(connect, currentDate);
 
             // Calculate the total payment amounts for the day
             double totalPaymentAmounts = calculateTotalPaymentAmounts(connect, currentDate);
 
             // Calculate the total payments for the day
-            double totalPayments = totalFirstPayments + totalPaymentAmounts;
+            double totalPayments = totalPaymentAmounts;
             DecimalFormat currencyFormat = new DecimalFormat("#,##0.00");
             String TotalPayments = currencyFormat.format(totalPayments);
 
@@ -5294,32 +5322,12 @@ public class DashboardController implements Initializable {
         }
     }
 
-    private double calculateTotalFirstPayments(Connection connect, LocalDate currentDate) throws SQLException {
-        // Query to calculate the total first payments for the day
-        String query = "SELECT SUM(first_payment_amount) AS total_first_payments " +
-                "FROM students " +
-                "WHERE DATE(date) = ?";
-        double totalFirstPayments = 0.0;
 
-        try (PreparedStatement statement = connect.prepareStatement(query)) {
-            // Set the current date as the parameter in the query
-            statement.setDate(1, java.sql.Date.valueOf(currentDate));
-
-            // Execute the query and get the result
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    totalFirstPayments = resultSet.getDouble("total_first_payments");
-                }
-            }
-        }
-
-        return totalFirstPayments;
-    }
 
     private double calculateTotalPaymentAmounts(Connection connect, LocalDate currentDate) throws SQLException {
         // Query to calculate the total payment amounts for the day
         String query = "SELECT SUM(payment_amount) AS total_payment_amounts " +
-                "FROM payments " +
+                "FROM fees " +
                 "WHERE DATE(payment_date) = ?";
         double totalPaymentAmounts = 0.0;
 
