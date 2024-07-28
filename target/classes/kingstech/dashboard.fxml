@@ -38,9 +38,9 @@
                      <children>
                         <AnchorPane prefHeight="555.0" prefWidth="212.0" styleClass="nav-form" stylesheets="@dashboard.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
-                              <ImageView fitHeight="78.0" fitWidth="88.0" layoutX="64.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="463.0">
+                              <ImageView fitHeight="81.0" fitWidth="66.0" layoutX="64.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true" scaleX="1.5" scaleY="1.5" scaleZ="1.5" AnchorPane.bottomAnchor="483.0" AnchorPane.rightAnchor="79.0">
                                  <image>
-                                    <Image url="@pics/logo.png" />
+                                    <Image url="@../pics/logo.jpg" />
                                  </image>
                               </ImageView>
                               <Label alignment="CENTER" layoutX="47.0" layoutY="88.0" prefHeight="23.0" prefWidth="128.0" text="Welcome," textFill="WHITE" wrapText="true" AnchorPane.bottomAnchor="440.0">
@@ -159,31 +159,31 @@
                                                 <Font name="SansSerif Regular" size="19.0" />
                                              </font>
                                           </Label>
-                                          <ComboBox fx:id="addStudent_class" layoutX="101.0" layoutY="104.0" onAction="#handleClassSelection" prefHeight="27.0" prefWidth="119.0" promptText="Class" />
+                                          <ComboBox fx:id="addStudent_class" layoutX="164.0" layoutY="104.0" onAction="#handleClassSelection" prefHeight="27.0" prefWidth="150.0" promptText="Class" />
                                           <Label layoutX="39.0" layoutY="146.0" prefHeight="22.0" prefWidth="150.0" text="Section:">
                                              <font>
                                                 <Font name="SansSerif Regular" size="19.0" />
                                              </font>
                                           </Label>
-                                          <ComboBox fx:id="addStudent_section" layoutX="122.0" layoutY="143.0" prefHeight="27.0" prefWidth="111.0" promptText="section" />
+                                          <ComboBox fx:id="addStudent_section" layoutX="164.0" layoutY="143.0" prefHeight="27.0" prefWidth="154.0" promptText="section" />
                                           <Label layoutX="37.0" layoutY="184.0" prefHeight="22.0" prefWidth="141.0" text="Gender:">
                                              <font>
                                                 <Font name="SansSerif Regular" size="19.0" />
                                              </font>
                                           </Label>
-                                          <ComboBox fx:id="addStudents_gender" layoutX="115.0" layoutY="182.0" prefHeight="25.0" prefWidth="93.0" promptText="sex" />
+                                          <ComboBox fx:id="addStudents_gender" layoutX="166.0" layoutY="182.0" prefHeight="26.0" prefWidth="150.0" promptText="sex" />
                                           <Label layoutX="42.0" layoutY="224.0" prefHeight="22.0" prefWidth="66.0" text="Name:">
                                              <font>
                                                 <Font name="SansSerif Regular" size="19.0" />
                                              </font>
                                           </Label>
-                                          <TextField fx:id="addStudents_firstName" layoutX="108.0" layoutY="218.0" prefHeight="32.0" prefWidth="347.0" promptText="Enter Student's Full name" styleClass="textfield" stylesheets="@dashboard.css" />
+                                          <TextField fx:id="addStudents_firstName" layoutX="168.0" layoutY="219.0" prefHeight="32.0" prefWidth="347.0" promptText="Enter Student's Full name" styleClass="textfield" stylesheets="@dashboard.css" />
                                           <Label layoutX="38.0" layoutY="270.0" prefHeight="22.0" prefWidth="131.0" text="Date of Birth: ">
                                              <font>
                                                 <Font name="SansSerif Regular" size="19.0" />
                                              </font>
                                           </Label>
-                                          <DatePicker fx:id="addStudents_birth" layoutX="162.0" layoutY="262.0" prefHeight="32.0" prefWidth="177.0" promptText="D.O.B" />
+                                          <DatePicker fx:id="addStudents_birth" layoutX="172.0" layoutY="265.0" prefHeight="32.0" prefWidth="185.0" promptText="D.O.B" />
                                           <Label layoutX="45.0" layoutY="317.0" prefHeight="22.0" prefWidth="126.0" text="Amount Paid: ">
                                              <font>
                                                 <Font name="SansSerif Regular" size="19.0" />
@@ -196,7 +196,7 @@
                                              </font>
                                           </Label>
                                           <TextField fx:id="student_contact" layoutX="184.0" layoutY="360.0" prefHeight="32.0" prefWidth="179.0" promptText="Enter Student tel" styleClass="textfield" stylesheets="@dashboard.css" text="117" />
-                                          <AnchorPane layoutX="532.0" layoutY="56.0" prefHeight="286.0" prefWidth="212.0" stylesheets="@dashboard.css">
+                                          <AnchorPane layoutX="604.0" layoutY="64.0" prefHeight="286.0" prefWidth="212.0" stylesheets="@dashboard.css">
                                              <styleClass>
                                                 <String fx:value="white-bg" />
                                                 <String fx:value="shadow" />
@@ -213,7 +213,7 @@
                                                    </graphic></Button>
                                              </children>
                                           </AnchorPane>
-                                          <Button fx:id="addStudents_addBtn" alignment="CENTER" layoutX="718.0" layoutY="433.0" mnemonicParsing="false" prefHeight="49.0" prefWidth="77.0" styleClass="add-btn" stylesheets="@dashboard.css" text="ADD">
+                                          <Button fx:id="addStudents_addBtn" alignment="CENTER" layoutX="622.0" layoutY="433.0" mnemonicParsing="false" onAction="#addStudentsAdd" prefHeight="50.0" prefWidth="174.0" styleClass="add-btn" stylesheets="@dashboard.css" text="ADD">
                                              <font>
                                                 <Font name="SansSerif Bold" size="12.0" />
                                              </font>
@@ -233,7 +233,7 @@
                                           </CheckBox>
                                        </children>
                                     </AnchorPane>
-                                    <AnchorPane fx:id="all_students_form" layoutX="20.0" layoutY="0.8" prefHeight="589.0" prefWidth="856.0" stylesheets="@dashboard.css" visible="false" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="1.0">
+                                    <AnchorPane fx:id="all_students_form" layoutX="20.0" layoutY="0.8" prefHeight="589.0" prefWidth="856.0" stylesheets="@dashboard.css" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="1.0">
                                        <styleClass>
                                           <String fx:value="white-bg" />
                                           <String fx:value="shadow" />
@@ -259,7 +259,7 @@
                                                 <Font name="SansSerif Regular" size="15.0" />
                                              </font>
                                           </Label>
-                                          <ComboBox fx:id="classRecord_Download" layoutX="472.0" layoutY="11.0" prefHeight="30.0" prefWidth="94.0" promptText="Select" AnchorPane.rightAnchor="330.0" />
+                                          <ComboBox fx:id="classRecord_Download" layoutX="472.0" layoutY="11.0" onAction="#handleStudentClass" prefHeight="30.0" prefWidth="94.0" promptText="Select" AnchorPane.rightAnchor="330.0" />
                                           <Label alignment="CENTER" layoutX="566.0" layoutY="11.0" prefHeight="33.0" prefWidth="67.0" text="Section:" AnchorPane.rightAnchor="263.0">
                                              <font>
                                                 <Font name="SansSerif Regular" size="15.0" />
@@ -306,7 +306,7 @@
                                                       <TableColumn fx:id="showClass_col_StudentsOwing" prefWidth="108.0" text="Students Owing" />
                                                   </columns>
                                                 </TableView>
-                                                <TextField fx:id="class_search" layoutX="368.0" layoutY="15.0" prefHeight="41.0" prefWidth="208.0" promptText="Search Class" styleClass="search" stylesheets="@dashboard.css" />
+                                                <TextField fx:id="class_search" layoutX="366.0" layoutY="15.0" onKeyPressed="#classSearch" prefHeight="42.0" prefWidth="210.0" promptText="Search Class" styleClass="search" stylesheets="@dashboard.css" />
                                                 <FontAwesomeIconView glyphName="SEARCH_MINUS" layoutX="382.0" layoutY="37.0" scaleX="2.0" scaleY="2.0" scaleZ="2.0" text="" wrappingWidth="19.254860877990723" />
                                                 <Button fx:id="print_Demo" layoutX="593.0" layoutY="8.0" mnemonicParsing="false" onAction="#ClassRecord" prefHeight="51.0" prefWidth="132.0" styleClass="clear-btn" stylesheets="@dashboard.css" text="Download PDF" AnchorPane.rightAnchor="141.0" AnchorPane.topAnchor="8.0">
                                                    <graphic>
@@ -360,13 +360,13 @@
                                                       <Font name="Times New Roman Bold Italic" size="30.0" />
                                                    </font>
                                                 </Label>
-                                                <Label layoutX="74.0" layoutY="301.0" prefHeight="57.0" prefWidth="112.0" text="Fees:">
+                                                <Label layoutX="89.0" layoutY="335.0" prefHeight="57.0" prefWidth="112.0" text="Fees:">
                                                    <font>
                                                       <Font name="Times New Roman Bold Italic" size="30.0" />
                                                    </font>
                                                 </Label>
-                                                <TextField fx:id="enter_fees" layoutX="225.0" layoutY="318.0" prefHeight="32.0" prefWidth="250.0" promptText="120000" styleClass="textfield" />
-                                                <Button fx:id="classAdd_btn" layoutX="689.0" layoutY="319.0" mnemonicParsing="false" prefHeight="63.0" prefWidth="104.0" styleClass="add-btn" text="SAVE">
+                                                <TextField fx:id="enter_fees" layoutX="240.0" layoutY="352.0" prefHeight="32.0" prefWidth="250.0" promptText="120000" styleClass="textfield" />
+                                                <Button fx:id="classAdd_btn" layoutX="689.0" layoutY="319.0" mnemonicParsing="false" onAction="#addClassesAdd" prefHeight="63.0" prefWidth="104.0" styleClass="add-btn" text="SAVE">
                                                    <font>
                                                       <Font name="SansSerif Regular" size="12.0" />
                                                    </font>
@@ -603,7 +603,7 @@
                                                    <children>
                                                       <ImageView fx:id="school_logo" fitHeight="160.0" fitWidth="112.0" layoutX="28.0" layoutY="12.8" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="61.0" AnchorPane.leftAnchor="28.0" AnchorPane.topAnchor="13.0">
                                                          <image>
-                                                            <Image url="@../pics/logoPlaceholder.png" />
+                                                            <Image url="@../pics/logo.jpg" />
                                                          </image>
                                                       </ImageView>
                                                       <Button fx:id="addschool_logo" alignment="CENTER" layoutX="4.0" layoutY="170.0" mnemonicParsing="false" onAction="#addlogo" prefHeight="30.0" prefWidth="194.0" styleClass="insert-btn" text="UPLOAD LOGO" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0">
@@ -931,11 +931,11 @@
                                                             <FontAwesomeIconView fill="WHITE" glyphName="DOWNLOAD" />
                                                          </graphic>
                                                       </Button>
-                                                      <Button fx:id="teachers_btn" layoutX="146.4" layoutY="431.0" mnemonicParsing="false" onAction="#allTeachers" prefHeight="46.0" prefWidth="121.0" styleClass="clear-btn" stylesheets="@dashboard.css" text="Teachers" AnchorPane.leftAnchor="146.0">
+                                                      <Button fx:id="teachers_btn" layoutX="146.4" layoutY="431.0" mnemonicParsing="false" onAction="#Staff" prefHeight="46.0" prefWidth="121.0" styleClass="clear-btn" stylesheets="@dashboard.css" text="Teachers" AnchorPane.leftAnchor="146.0">
                                                          <graphic>
                                                             <FontAwesomeIconView fill="WHITE" glyphName="DOWNLOAD" />
                                                          </graphic></Button>
-                                                      <Button fx:id="All_btn" layoutX="294.4" layoutY="431.0" mnemonicParsing="false" onAction="#Staff" prefHeight="46.0" prefWidth="112.0" styleClass="add-btn" stylesheets="@dashboard.css" text="All" AnchorPane.leftAnchor="294.0" AnchorPane.rightAnchor="28.0">
+                                                      <Button fx:id="All_btn" layoutX="294.4" layoutY="431.0" mnemonicParsing="false" onAction="#allTeachers" prefHeight="46.0" prefWidth="112.0" styleClass="add-btn" stylesheets="@dashboard.css" text="All" AnchorPane.leftAnchor="294.0" AnchorPane.rightAnchor="28.0">
                                                          <graphic>
                                                             <FontAwesomeIconView fill="WHITE" glyphName="DOWNLOAD" />
                                                          </graphic></Button>
@@ -1095,7 +1095,7 @@
                                     </AnchorPane>
                                  </children>
                               </AnchorPane>
-                              <AnchorPane fx:id="main_form" layoutX="13.0" layoutY="11.0" prefHeight="534.0" prefWidth="852.0" stylesheets="@dashboard.css" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="13.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="11.0">
+                              <AnchorPane fx:id="main_form" layoutX="13.0" layoutY="11.0" prefHeight="534.0" prefWidth="852.0" stylesheets="@dashboard.css" visible="false" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="13.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="11.0">
                                  <styleClass>
                                     <String fx:value="white-bg" />
                                     <String fx:value="shadow" />
@@ -1229,13 +1229,13 @@
                                           <Font name="Tahoma" size="16.0" />
                                        </font>
                                     </Label>
-                                    <ComboBox fx:id="marksheet_class" layoutX="117.0" layoutY="62.0" onAction="#handleClassSelection" prefHeight="25.0" prefWidth="120.0" promptText="Class" />
+                                    <ComboBox fx:id="marksheet_class" layoutX="111.0" layoutY="58.0" onAction="#handleClassMarksheet" prefHeight="30.0" prefWidth="126.0" promptText="Class" />
                                     <Label layoutX="16.0" layoutY="97.0" prefHeight="34.0" prefWidth="109.0" text="Section: ">
                                        <font>
                                           <Font name="Tahoma" size="16.0" />
                                        </font>
                                     </Label>
-                                    <ComboBox fx:id="marksheet_section" layoutX="113.0" layoutY="102.0" onAction="#handleSectionSelection" prefHeight="25.0" prefWidth="126.0" promptText="Section" />
+                                    <ComboBox fx:id="marksheet_section" layoutX="113.0" layoutY="96.0" prefHeight="32.0" prefWidth="126.0" promptText="Section" />
                                     <Button fx:id="marksheet_Pdf" layoutX="33.0" layoutY="176.0" mnemonicParsing="false" prefHeight="46.0" prefWidth="191.0" styleClass="add-btn" stylesheets="@dashboard.css" text="Export PDF">
                                        <font>
                                           <Font name="Tahoma" size="15.0" />

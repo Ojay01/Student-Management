@@ -1,5 +1,5 @@
 package kingstech;
-
+import java.util.Random;
 import java.io.FileOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
-
 import javax.swing.text.StyleConstants.FontConstants;
 
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -446,13 +446,13 @@ public class DashboardController implements Initializable {
     private TableColumn<studentData, String> showClass_col_totalPaid;
 
     @FXML
-    private TableView<studentData> addStudents_tableView;
+    private TableView<EnrollmentData> addStudents_tableView;
 
     @FXML
     private TableView<studentData> sceTableView;
 
     @FXML
-    private TableView<studentData> showClass_tableView;
+    private TableView<EnrollmentData> showClass_tableView;
 
     @FXML
     private TableColumn<studentData, String> addStudents_col_studentNum;
@@ -740,6 +740,7 @@ public class DashboardController implements Initializable {
     private PreparedStatement prepare;
     private Statement statement;
     private ResultSet result;
+    private File imageFile = new File("src/main/resources/pics/logo.jpg");
     
     private Image image;
 
@@ -768,7 +769,7 @@ public class DashboardController implements Initializable {
             settingsConnection.close();
 
             if (academicYear != null) {
-                String sqlEnrolled = "SELECT COUNT(id) FROM student WHERE academic_year = ?";
+                String sqlEnrolled = "SELECT COUNT(id) FROM students WHERE academic_year = ?";
 
                 studentConnection = Database.connectDb();
                 prepare = studentConnection.prepareStatement(sqlEnrolled);
@@ -827,7 +828,7 @@ public class DashboardController implements Initializable {
             settingsConnection.close();
 
             if (academicYear != null) {
-                String sql = "SELECT COUNT(id) FROM student WHERE gender = 'female' AND academic_year = ?";
+                String sql = "SELECT COUNT(id) FROM students WHERE gender = 'female' AND academic_year = ?";
 
                 Connection studentConnection = Database.connectDb();
                 PreparedStatement prepareStudent = studentConnection.prepareStatement(sql);
@@ -872,7 +873,7 @@ public class DashboardController implements Initializable {
             settingsConnection.close();
 
             if (academicYear != null) {
-                String sql = "SELECT COUNT(id) FROM student WHERE status = 'incomplete' AND academic_year = ?";
+                String sql = "SELECT COUNT(id) FROM students WHERE status = 'incomplete' AND academic_year = ?";
 
                 Connection studentConnection = Database.connectDb();
                 PreparedStatement prepareStudent = studentConnection.prepareStatement(sql);
@@ -917,7 +918,7 @@ public class DashboardController implements Initializable {
             settingsConnection.close();
 
             if (academicYear != null) {
-                String sql = "SELECT SUM(amount_paid) FROM student WHERE academic_year = ?";
+                String sql = "SELECT SUM(amount_paid) FROM students WHERE academic_year = ?";
 
                 Connection studentConnection = Database.connectDb();
                 PreparedStatement prepareStudent = studentConnection.prepareStatement(sql);
@@ -963,7 +964,7 @@ public class DashboardController implements Initializable {
             settingsConnection.close();
 
             if (academicYear != null) {
-                String sql = "SELECT SUM(fees) FROM student WHERE academic_year = ?";
+                String sql = "SELECT SUM(fees) FROM students WHERE academic_year = ?";
 
                 Connection studentConnection = Database.connectDb();
                 PreparedStatement prepareStudent = studentConnection.prepareStatement(sql);
@@ -1073,7 +1074,7 @@ public class DashboardController implements Initializable {
             ResultSet resultStudent = null;
     
             try {
-                String sql = "SELECT SUM(amount_owing) FROM student WHERE academic_year = ?";
+                String sql = "SELECT SUM(amount_owing) FROM students WHERE academic_year = ?";
                 studentConnection = Database.connectDb();
                 prepareStudent = studentConnection.prepareStatement(sql);
                 prepareStudent.setString(1, academicYear);
@@ -1134,7 +1135,7 @@ public class DashboardController implements Initializable {
             ResultSet resultStudent = null;
     
             try {
-                String sql = "SELECT COUNT(id) FROM student WHERE gender = 'male' AND academic_year = ?";
+                String sql = "SELECT COUNT(id) FROM students WHERE gender = 'male' AND academic_year = ?";
                 studentConnection = Database.connectDb();
                 prepareStudent = studentConnection.prepareStatement(sql);
                 prepareStudent.setString(1, academicYear);
@@ -1183,7 +1184,7 @@ public class DashboardController implements Initializable {
             settingsConnection.close();
 
             if (academicYear != null) {
-                String sql = "SELECT date, COUNT(id) FROM student WHERE academic_year = ? GROUP BY date ORDER BY TIMESTAMP(date) ASC";
+                String sql = "SELECT date, COUNT(id) FROM students WHERE academic_year = ? GROUP BY date ORDER BY TIMESTAMP(date) ASC";
 
                 connect = Database.connectDb();
 
@@ -1234,7 +1235,7 @@ public class DashboardController implements Initializable {
             settingsConnection.close();
 
             if (academicYear != null) {
-                String sql = "SELECT date, COUNT(id) FROM student WHERE academic_year = ? AND gender = 'female' GROUP BY date ORDER BY TIMESTAMP(date) ASC";
+                String sql = "SELECT date, COUNT(id) FROM students WHERE academic_year = ? AND gender = 'female' GROUP BY date ORDER BY TIMESTAMP(date) ASC";
 
                 connect = Database.connectDb();
 
@@ -1286,7 +1287,7 @@ public class DashboardController implements Initializable {
             settingsConnection.close();
 
             if (academicYear != null) {
-                String sql = "SELECT date, COUNT(id) FROM student WHERE academic_year = ? AND gender = 'male' GROUP BY date ORDER BY TIMESTAMP(date) ASC";
+                String sql = "SELECT date, COUNT(id) FROM students WHERE academic_year = ? AND gender = 'male' GROUP BY date ORDER BY TIMESTAMP(date) ASC";
 
                 connect = Database.connectDb();
 
@@ -1397,20 +1398,33 @@ public class DashboardController implements Initializable {
     // }
 
     public void addClassesAdd() {
-        String insertData = "INSERT INTO class"
+        String insertData = "INSERT INTO class "
                 + "(class_name, school_fees, academic_year, A1, A2, B1, B2, Arts, Science, Commercial, C) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-        String checkData = "SELECT DISTINCT class_name, A1, A2, B1, B2, Arts, Science, Commercial, C "
-                + "FROM class WHERE class_name = ? AND academic_year = ? "
-                + "AND (A1 = 1 OR A2 = 1 OR B1 = 1 OR B2 = 1 OR Arts = 1 OR Science = 1 OR Commercial = 1 OR C = 1)";
-
-        try (Connection connect = Database.connectDb();
-                PreparedStatement checkPrepare = connect.prepareStatement(checkData);
-                PreparedStatement prepare = connect.prepareStatement(insertData)) {
-
-            Alert alert;
-
+    
+        String checkData = "SELECT DISTINCT class_name, school_fees, A1, A2, B1, B2, Arts, Science, Commercial, C "
+                + "FROM class WHERE class_name = ? AND academic_year = ?";
+    
+        String updateData = "UPDATE class SET school_fees = ?, A1 = ?, A2 = ?, B1 = ?, B2 = ?, Arts = ?, Science = ?, Commercial = ?, C = ? "
+                + "WHERE class_name = ? AND academic_year = ?";
+    
+        Connection connect = null;
+        PreparedStatement checkPrepare = null;
+        PreparedStatement prepare = null;
+        PreparedStatement updatePrepare = null;
+    
+        try {
+            connect = Database.connectDb();
+            if (connect == null) {
+                showAlert("Database Error", "Database connection could not be established.", Alert.AlertType.ERROR);
+                return;
+            }
+    
+            checkPrepare = connect.prepareStatement(checkData);
+            prepare = connect.prepareStatement(insertData);
+            updatePrepare = connect.prepareStatement(updateData);
+    
+    
             if (classes.getSelectedToggle() == null
                     || enter_fees.getText().isEmpty()
                     || (!A1_btn.isSelected()
@@ -1421,54 +1435,31 @@ public class DashboardController implements Initializable {
                             && !arts_btn.isSelected()
                             && !science_btn.isSelected()
                             && !commercial_btn.isSelected())) {
-
-                // Handle empty fields or unselected toggles
-
-                alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Error Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Please fill all blank fields");
-                alert.showAndWait();
+    
+                showAlert("Error Message", "Please fill all blank fields", Alert.AlertType.ERROR);
             } else {
-
-                // Get the academic year from the settings table
                 String academicYear = getAcademicYearFromSettings();
-
+    
                 if (academicYear == null) {
-                    // Academic year not found in the settings table
-
-                    alert = new Alert(AlertType.ERROR);
-                    alert.setTitle("Error Message");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Academic year not set in the settings table!");
-                    alert.showAndWait();
+                    showAlert("Error Message", "Academic year not set in the settings table!", Alert.AlertType.ERROR);
                 } else {
-
-                    // Check if the class for the selected academic year already exists
                     checkPrepare.setString(1, ((RadioButton) classes.getSelectedToggle()).getText());
                     checkPrepare.setString(2, academicYear);
                     ResultSet result = checkPrepare.executeQuery();
-
+    
                     if (result.next()) {
-                        // Class already exists for the selected academic year
-
+                        String existingSections = getCheckedSectionsFromResultSet(result);
                         Alert confirmationAlert = new Alert(AlertType.CONFIRMATION);
                         confirmationAlert.setTitle("Confirmation");
                         confirmationAlert.setHeaderText(null);
-
-                        String existingSections = getCheckedSectionsFromResultSet(result);
-
-                        confirmationAlert
-                                .setContentText("Class " + ((RadioButton) classes.getSelectedToggle()).getText() +
-                                        " already has sections (" + existingSections +
-                                        ") for this academic year. Do you wish to add the selected sections to it?");
-
+    
+                        confirmationAlert.setContentText("Class " + ((RadioButton) classes.getSelectedToggle()).getText() +
+                                " already has sections (" + existingSections +
+                                ") for this academic year. Do you wish to update the sections and school fees?");
+    
                         Optional<ButtonType> resultButton = confirmationAlert.showAndWait();
-
+    
                         if (resultButton.isPresent() && resultButton.get() == ButtonType.OK) {
-                            boolean insertNewRow = false;
-
-                            // Fetch the values from the ResultSet for existing sections
                             boolean existingA1 = result.getBoolean("A1");
                             boolean existingA2 = result.getBoolean("A2");
                             boolean existingB1 = result.getBoolean("B1");
@@ -1477,69 +1468,27 @@ public class DashboardController implements Initializable {
                             boolean existingScience = result.getBoolean("Science");
                             boolean existingC = result.getBoolean("C");
                             boolean existingCommercial = result.getBoolean("Commercial");
-
-                            // Check if any of the newly selected sections has a value of 0 in the existing
-                            // row
-                            if (A1_btn.isSelected() && !existingA1
-                                    || A2_btn.isSelected() && !existingA2
-                                    || B1_btn.isSelected() && !existingB1
-                                    || b2_btn.isSelected() && !existingB2
-                                    || arts_btn.isSelected() && !existingArts
-                                    || science_btn.isSelected() && !existingScience
-                                    || C_btn.isSelected() && !existingC
-                                    || commercial_btn.isSelected() && !existingCommercial) {
-                                insertNewRow = true;
-                            }
-
-                            if (insertNewRow) {
-                                // Insert a new row with the selected sections set to 1 and existing sections to
-                                // 0
-                                prepare.setString(1, ((RadioButton) classes.getSelectedToggle()).getText());
-                                prepare.setString(2, enter_fees.getText());
-                                prepare.setString(3, academicYear);
-                                // Check if each section is selected and has a value of 0 in the existing row
-                                prepare.setBoolean(4, A1_btn.isSelected() && !existingA1);
-                                prepare.setBoolean(5, A2_btn.isSelected() && !existingA2);
-                                prepare.setBoolean(6, B1_btn.isSelected() && !existingB1);
-                                prepare.setBoolean(7, b2_btn.isSelected() && !existingB2);
-                                prepare.setBoolean(8, arts_btn.isSelected() && !existingArts);
-                                prepare.setBoolean(9, science_btn.isSelected() && !existingScience);
-                                prepare.setBoolean(10, commercial_btn.isSelected() && !existingCommercial);
-                                prepare.setBoolean(11, C_btn.isSelected() && !existingC);
-
-                                prepare.executeUpdate();
-
-                                alert = new Alert(AlertType.INFORMATION);
-                                alert.setTitle("Information Message");
-                                alert.setHeaderText(null);
-                                alert.setContentText("Successfully Added!");
-                                alert.showAndWait();
-
-                                showAllClassListData();
-
-                                // Clear input fields and reset checkboxes after successful addition
-                                classes.getSelectedToggle().setSelected(false);
-                                enter_fees.clear();
-                                A1_btn.setSelected(false);
-                                A2_btn.setSelected(false);
-                                B1_btn.setSelected(false);
-                                b2_btn.setSelected(false);
-                                C_btn.setSelected(false);
-                                arts_btn.setSelected(false);
-                                science_btn.setSelected(false);
-                                commercial_btn.setSelected(false);
-                            } else {
-                                // No new section with value 0 is selected, show warning
-
-                                alert = new Alert(AlertType.WARNING);
-                                alert.setTitle("Warning");
-                                alert.setHeaderText(null);
-                                alert.setContentText("No new selected section. Class not added.");
-                                alert.showAndWait();
-                            }
+    
+                            updatePrepare.setString(1, enter_fees.getText());
+                            updatePrepare.setBoolean(2, A1_btn.isSelected() ? true : existingA1);
+                            updatePrepare.setBoolean(3, A2_btn.isSelected() ? true : existingA2);
+                            updatePrepare.setBoolean(4, B1_btn.isSelected() ? true : existingB1);
+                            updatePrepare.setBoolean(5, b2_btn.isSelected() ? true : existingB2);
+                            updatePrepare.setBoolean(6, arts_btn.isSelected() ? true : existingArts);
+                            updatePrepare.setBoolean(7, science_btn.isSelected() ? true : existingScience);
+                            updatePrepare.setBoolean(8, commercial_btn.isSelected() ? true : existingCommercial);
+                            updatePrepare.setBoolean(9, C_btn.isSelected() ? true : existingC);
+                            updatePrepare.setString(10, ((RadioButton) classes.getSelectedToggle()).getText());
+                            updatePrepare.setString(11, academicYear);
+    
+                            updatePrepare.executeUpdate();
+    
+                            showAlert("Information Message", "Class updated successfully!", Alert.AlertType.INFORMATION);
+    
+                            showAllClassListData();
+                            clearInputs();
                         }
                     } else {
-                        // Class does not exist, proceed with the insertion
                         prepare.setString(1, ((RadioButton) classes.getSelectedToggle()).getText());
                         prepare.setString(2, enter_fees.getText());
                         prepare.setString(3, academicYear);
@@ -1551,64 +1500,76 @@ public class DashboardController implements Initializable {
                         prepare.setBoolean(9, science_btn.isSelected());
                         prepare.setBoolean(10, commercial_btn.isSelected());
                         prepare.setBoolean(11, C_btn.isSelected());
-
+    
                         prepare.executeUpdate();
-
-                        alert = new Alert(AlertType.INFORMATION);
-                        alert.setTitle("Information Message");
-                        alert.setHeaderText(null);
-                        alert.setContentText("Successfully Added!");
-                        alert.showAndWait();
-
+    
+                        showAlert("Information Message", "Successfully Added!", Alert.AlertType.INFORMATION);
+    
                         showAllClassListData();
-
-                        // Clear input fields and reset checkboxes after successful addition
-                        classes.getSelectedToggle().setSelected(false);
-                        enter_fees.clear();
-                        A1_btn.setSelected(false);
-                        A2_btn.setSelected(false);
-                        B1_btn.setSelected(false);
-                        b2_btn.setSelected(false);
-                        C_btn.setSelected(false);
-                        arts_btn.setSelected(false);
-                        science_btn.setSelected(false);
-                        commercial_btn.setSelected(false);
+                        clearInputs();
                     }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-    }
-
-    private String getCheckedSectionsFromResultSet(ResultSet resultSet) throws SQLException {
-        StringBuilder sections = new StringBuilder();
-
-        String[] sectionColumnNames = { "A1", "A2", "B1", "B2", "Arts", "Science", "Commercial" };
-
-        for (String sectionColumnName : sectionColumnNames) {
-            if (resultSet.getBoolean(sectionColumnName)) {
-                if (sections.length() > 0) {
-                    sections.append(", ");
-                }
-                sections.append(sectionColumnName);
+            showAlert("Database Error", "Error occurred while accessing the database: " + e.getMessage(), Alert.AlertType.ERROR);
+        } finally {
+            try {
+                if (checkPrepare != null) checkPrepare.close();
+                if (prepare != null) prepare.close();
+                if (updatePrepare != null) updatePrepare.close();
+                if (connect != null) connect.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showAlert("Database Error", "Error occurred while closing the database connection: " + e.getMessage(), Alert.AlertType.ERROR);
             }
         }
-
-        return sections.toString();
     }
 
+
+private void clearInputs() {
+    classes.getSelectedToggle().setSelected(false);
+    enter_fees.clear();
+    A1_btn.setSelected(false);
+    A2_btn.setSelected(false);
+    B1_btn.setSelected(false);
+    b2_btn.setSelected(false);
+    C_btn.setSelected(false);
+    arts_btn.setSelected(false);
+    science_btn.setSelected(false);
+    commercial_btn.setSelected(false);
+}
+    
+    
+    private String getCheckedSectionsFromResultSet(ResultSet result) throws SQLException {
+        StringBuilder sections = new StringBuilder();
+        if (result.getBoolean("A1")) sections.append("A1 ");
+        if (result.getBoolean("A2")) sections.append("A2 ");
+        if (result.getBoolean("B1")) sections.append("B1 ");
+        if (result.getBoolean("B2")) sections.append("B2 ");
+        if (result.getBoolean("Arts")) sections.append("Arts ");
+        if (result.getBoolean("Science")) sections.append("Science ");
+        if (result.getBoolean("Commercial")) sections.append("Commercial ");
+        if (result.getBoolean("C")) sections.append("C ");
+        return sections.toString().trim();
+    }
+    
+
     public void addStudentsAdd() {
-        String insertData = "INSERT INTO student "
-                + "(student_id, name, date_of_birth, contact, amount_paid, amount_owing, gender, academic_year, status, section, class_id, other_fees, class_name, fees, first_payment_amount) "
-                + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-
-        // connect = Database.connectDb();
-
+        String insertStudent = "INSERT INTO students (matricule, name, date_of_birth, contact, gender, image) VALUES (?, ?, ?, ?, ?, ?)";
+        String insertEnrollment = "INSERT INTO enrollments (student_id, class_name, section, academic_year, status, scholarship, school_fees, total_fees_paid) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String insertPayment = "INSERT INTO fees (enrollment_id, amount_paid, payment_date) VALUES (?, ?, ?)";
+    
         try {
+            Connection connect = Database.connectDb();
+            if (connect == null) {
+                showAlert("Database Error", "Database connection could not be established.", Alert.AlertType.ERROR);
+                return;
+            }
+    
             Alert alert;
             String academicYear = getAcademicYearFromSettings();
-
+    
             if (addStudent_class.getSelectionModel().getSelectedItem() == null
                     || addStudent_section.getSelectionModel().getSelectedItem() == null
                     || addStudents_firstName.getText().isEmpty()
@@ -1616,135 +1577,117 @@ public class DashboardController implements Initializable {
                     || addStudents_birth.getValue() == null
                     || student_amount.getText().isEmpty()
                     || !isNumeric(student_amount.getText())
-                    || !isNumeric(student_contact.getText())
-
-            ) {
-
+                    || !isNumeric(student_contact.getText())) {
+    
                 alert = new Alert(AlertType.ERROR);
                 alert.setTitle("Error Message");
                 alert.setHeaderText(null);
-                alert.setContentText(
-                        "Please fill all fields correctly. Numeric values are required for Amount, Contact, and Other Amount.");
+                alert.setContentText("Please fill all fields correctly. Numeric values are required for Amount and Contact.");
                 alert.showAndWait();
-            } else {
-                // Check if the student already exists
-                String checkData = "SELECT name FROM student WHERE name = ? AND academic_year = ?";
-                prepare = connect.prepareStatement(checkData);
-                prepare.setString(1, addStudents_firstName.getText());
-                prepare.setString(2, academicYear);
-                result = prepare.executeQuery();
-
+                return;
+            }
+    
+            String selectedSection = (String) addStudent_section.getSelectionModel().getSelectedItem();
+            String className = (String) addStudent_class.getSelectionModel().getSelectedItem();
+    
+            // Check if the student already exists
+            String checkData = "SELECT matricule FROM students WHERE name = ?";
+            try (PreparedStatement checkPrepare = connect.prepareStatement(checkData)) {
+                checkPrepare.setString(1, addStudents_firstName.getText());
+                ResultSet result = checkPrepare.executeQuery();
                 if (result.next()) {
-
                     alert = new Alert(AlertType.ERROR);
                     alert.setTitle("Error Message");
                     alert.setHeaderText(null);
-                    alert.setContentText("Student " + addStudents_firstName.getText()
-                            + " already exists for academic year" + academicYear);
+                    alert.setContentText("Student " + addStudents_firstName.getText() + " already exists.");
                     alert.showAndWait();
-                } else {
-                    String selectedSection = (String) addStudent_section.getSelectionModel().getSelectedItem();
-
-                    // Get class_id based on selected class_name, section, and academic_year
-                    String getClassIdQuery = "SELECT id FROM class WHERE class_name = ? AND academic_year = ? AND " +
-                            selectedSection + " = 1";
-                    prepare = connect.prepareStatement(getClassIdQuery);
-                    prepare.setString(1, (String) addStudent_class.getSelectionModel().getSelectedItem());
-                    prepare.setString(2, (String) academicYear);
-                    result = prepare.executeQuery();
-
-                    int classId = 0;
-
-                    if (result.next()) {
-                        classId = result.getInt("id");
-
-                    }
-
-                    // Auto-generate student_id based on class_id and section
-                    String getStudentIdQuery = "SELECT COUNT(*) AS count FROM student WHERE class_id = ? AND section = ?";
-                    prepare = connect.prepareStatement(getStudentIdQuery);
-                    prepare.setInt(1, classId);
-                    prepare.setString(2, (String) addStudent_section.getSelectionModel().getSelectedItem());
-                    result = prepare.executeQuery();
-
-                    int studentId = 1;
-                    if (result.next()) {
-                        studentId += result.getInt("count");
-                    }
-
-                    // Calculate amount_owing by subtracting student_amount from school_fees in
-                    // class table
-                    String getSchoolFeesQuery = "SELECT school_fees FROM class WHERE id = ?";
-                    prepare = connect.prepareStatement(getSchoolFeesQuery);
-                    prepare.setInt(1, classId);
-                    result = prepare.executeQuery();
-
-                    double schoolFees = 0.0;
-                    if (result.next()) {
-                        schoolFees = result.getDouble("school_fees");
-                    }
-
-                    double studentAmount = Double.parseDouble(student_amount.getText());
-                    double otherAmount = other_amount.isSelected() ? 0.0 : 5000.0;
-                    double amountOwing = schoolFees - studentAmount + otherAmount;
-
-                    // Set status based on amount_owing
-                    String status = (amountOwing <= 0) ? "completed" : "incomplete";
-
-                    prepare = connect.prepareStatement(insertData);
-                    prepare.setInt(1, studentId);
-                    prepare.setString(2, addStudents_firstName.getText());
-                    prepare.setString(3, String.valueOf(addStudents_birth.getValue()));
-                    prepare.setString(4, student_contact.getText());
-                    prepare.setString(5, String.valueOf(studentAmount));
-                    prepare.setDouble(6, amountOwing);
-                    prepare.setString(7, (String) addStudents_gender.getSelectionModel().getSelectedItem());
-
-                    // Set photo to empty for now, modify as needed
-                    prepare.setString(8, academicYear);
-                    prepare.setString(9, status);
-                    prepare.setString(10, (String) addStudent_section.getSelectionModel().getSelectedItem());
-                    prepare.setInt(11, classId); // Save class_id instead of class_name
-                    prepare.setString(12, String.valueOf(otherAmount)); // Set other_fees to 0 for now, modify as needed
-                    prepare.setString(13, (String) addStudent_class.getSelectionModel().getSelectedItem()); // Set
-                                                                                                            // class_name
-                                                                                                            // based on
-                                                                                                            // retrieved
-                                                                                                            // value
-                    double adjustedSchoolFees = other_amount.isSelected() ? schoolFees : schoolFees + 5000.0;
-                    prepare.setDouble(14, adjustedSchoolFees);
-                    prepare.setDouble(15, studentAmount);
-                    prepare.executeUpdate();
-
-                    alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle("Information Message");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Successfully Added!");
-                    alert.setOnCloseRequest(e -> {
-                        if (alert.getResult() == ButtonType.OK) {
-                            // Clear the input fields
-                            addStudents_firstName.clear();
-                            student_amount.clear();
-                            student_contact.clear();
-                            addStudent_class.getSelectionModel().clearSelection();
-                            addStudent_section.getSelectionModel().clearSelection();
-                            addStudents_gender.getSelectionModel().clearSelection();
-                            addStudents_birth.setValue(null);
-                        }
-                    });
-                    alert.showAndWait();
-
-                    showAllClassListData();
-                    addStudentsShowListData();
-                    calculateTotalFirstPayments(connect, null);
-                    displayWeeklyTotalPayments();
-
+                    return;
                 }
             }
-
+    
+            // Get class_id based on selected class_name, section, and academic_year
+            String getClassIdQuery = "SELECT id, school_fees FROM class WHERE class_name = ? AND academic_year = ? AND " + selectedSection + " = 1";
+            int classId = 0;
+            double schoolFees = 0.0;
+            try (PreparedStatement classPrepare = connect.prepareStatement(getClassIdQuery)) {
+                classPrepare.setString(1, className);
+                classPrepare.setString(2, academicYear);
+                ResultSet result = classPrepare.executeQuery();
+                if (result.next()) {
+                    classId = result.getInt("id");
+                    schoolFees = result.getDouble("school_fees");
+                } else {
+                    showAlert("Error", "Class not found for the selected section and academic year.", Alert.AlertType.ERROR);
+                    return;
+                }
+            }
+    
+            // Generate unique matricule for the student
+            String matricule = generateMatricule();
+    
+            // Insert student record
+            try (PreparedStatement studentPrepare = connect.prepareStatement(insertStudent)) {
+                studentPrepare.setString(1, matricule);
+                studentPrepare.setString(2, addStudents_firstName.getText());
+                studentPrepare.setDate(3, Date.valueOf(addStudents_birth.getValue()));
+                studentPrepare.setString(4, student_contact.getText());
+                studentPrepare.setString(5, (String) addStudents_gender.getSelectionModel().getSelectedItem());
+                studentPrepare.setString(6, ""); // Placeholder for image
+                studentPrepare.executeUpdate();
+    
+                // Calculate amounts
+                double studentAmount = Double.parseDouble(student_amount.getText());
+                double otherAmount = other_amount.isSelected() ? 0.0 : 5000.0;
+                double amountOwing = schoolFees - studentAmount + otherAmount;
+                String status = (amountOwing <= 0) ? "completed" : "incomplete";
+    
+                // Insert enrollment record
+                try (PreparedStatement enrollPrepare = connect.prepareStatement(insertEnrollment, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                    enrollPrepare.setString(1, matricule);
+                    enrollPrepare.setString(2, className);
+                    enrollPrepare.setString(3, selectedSection);
+                    enrollPrepare.setString(4, academicYear);
+                    enrollPrepare.setString(5, status);
+                    enrollPrepare.setDouble(6, 0.0); // Assuming no scholarship
+                    enrollPrepare.setDouble(7, schoolFees + otherAmount); // Adjusted school fees
+                    enrollPrepare.setDouble(8, studentAmount);
+                    enrollPrepare.executeUpdate();
+    
+                    ResultSet enrollmentKeys = enrollPrepare.getGeneratedKeys();
+                    if (enrollmentKeys.next()) {
+                        int enrollmentId = enrollmentKeys.getInt(1);
+    
+                        // Insert initial payment record
+                        try (PreparedStatement paymentPrepare = connect.prepareStatement(insertPayment)) {
+                            paymentPrepare.setInt(1, enrollmentId);
+                            paymentPrepare.setDouble(2, studentAmount);
+                            paymentPrepare.setDate(3, new Date(System.currentTimeMillis()));
+                            paymentPrepare.executeUpdate();
+                        }
+                    }
+                }
+    
+                showAlert("Information Message", "Successfully Added!", Alert.AlertType.INFORMATION);
+                clearInputFields();
+                showAllClassListData();
+                addStudentsShowListData();
+                calculateTotalFirstPayments(connect, null);
+                displayWeeklyTotalPayments();
+            }
+    
         } catch (SQLException e) {
             e.printStackTrace();
+            showAlert("Database Error", "Error occurred while adding the student: " + e.getMessage(), Alert.AlertType.ERROR);
         }
+    }
+    private void clearInputFields() {
+        addStudents_firstName.clear();
+        student_amount.clear();
+        student_contact.clear();
+        addStudent_class.getSelectionModel().clearSelection();
+        addStudent_section.getSelectionModel().clearSelection();
+        addStudents_gender.getSelectionModel().clearSelection();
+        addStudents_birth.setValue(null);
     }
 
     private boolean isNumeric(String str) {
@@ -1771,7 +1714,7 @@ public class DashboardController implements Initializable {
 
         double scholarshipAmount = Double.parseDouble(scholarship);
 
-        String updateQuery = "UPDATE student SET fees = fees - ?, amount_owing = amount_owing - ?, scholarship =  scholarship + ? WHERE id = ?";
+        String updateQuery = "UPDATE students SET fees = fees - ?, amount_owing = amount_owing - ?, scholarship =  scholarship + ? WHERE id = ?";
         // connect = Database.connectDb();
 
         try {
@@ -1786,7 +1729,7 @@ public class DashboardController implements Initializable {
 
             if (rowsUpdated > 0) {
                 // Check if the amount_owing becomes zero after scholarship
-                String checkAmountOwingQuery = "SELECT amount_owing FROM student WHERE id = ?";
+                String checkAmountOwingQuery = "SELECT amount_owing FROM students WHERE id = ?";
                 prepare = connect.prepareStatement(checkAmountOwingQuery);
                 prepare.setInt(1, selectedStudentId);
                 ResultSet result = prepare.executeQuery();
@@ -1795,7 +1738,7 @@ public class DashboardController implements Initializable {
                     double amountOwing = result.getDouble("amount_owing");
                     if (amountOwing <= 0) {
                         // Update status to "completed"
-                        String updateStatusQuery = "UPDATE student SET status = 'completed' WHERE id = ?";
+                        String updateStatusQuery = "UPDATE students SET status = 'completed' WHERE id = ?";
                         prepare = connect.prepareStatement(updateStatusQuery);
                         prepare.setInt(1, selectedStudentId);
                         prepare.executeUpdate();
@@ -1846,7 +1789,7 @@ public class DashboardController implements Initializable {
         Connection connect = Database.connectDb();
 
         try {
-            String material = "SELECT other_fees FROM student WHERE id = ?";
+            String material = "SELECT other_fees FROM students WHERE id = ?";
             double current = 0;
             try (PreparedStatement prepareMaterial = connect.prepareStatement(material)) {
                 prepareMaterial.setInt(1, selectedStudentId);
@@ -1875,7 +1818,7 @@ public class DashboardController implements Initializable {
 
             if (result == ButtonType.OK) {
                 // Update the fees and other_fees columns in the student table
-                String updateQuery = "UPDATE student SET fees = fees + ?, amount_owing = amount_owing + ?, other_fees =  other_fees + ? WHERE id = ?";
+                String updateQuery = "UPDATE students SET fees = fees + ?, amount_owing = amount_owing + ?, other_fees =  other_fees + ? WHERE id = ?";
                 connect = Database.connectDb();
 
                 try (PreparedStatement prepareUpdate = connect.prepareStatement(updateQuery)) {
@@ -1913,7 +1856,7 @@ public class DashboardController implements Initializable {
 
     public void addStudentsUpdate() {
 
-        String updateData = "UPDATE student SET "
+        String updateData = "UPDATE students SET "
                 + "name = '" + update_name.getText()
                 + "', gender = '" + std_gender.getSelectionModel().getSelectedItem()
                 + "', date_of_birth = '" + dob.getValue() + "'"
@@ -2043,7 +1986,7 @@ public class DashboardController implements Initializable {
 
     public void processInstallmentPayment() {
         String updatePaymentQuery = "INSERT INTO payments (student_id, payment_amount, payment_date) VALUES (?, ?, ?)";
-        String updateStudentQuery = "UPDATE student SET amount_paid = amount_paid + ?, amount_owing = GREATEST(amount_owing - ?, 0) WHERE id = ?";
+        String updateStudentQuery = "UPDATE students SET amount_paid = amount_paid + ?, amount_owing = GREATEST(amount_owing - ?, 0) WHERE id = ?";
         // connect = Database.connectDb();
 
         String payment = payments.getText();
@@ -2051,7 +1994,7 @@ public class DashboardController implements Initializable {
 
         try {
             // Get the current amount_owing from the student table
-            String getAmountOwingQuery = "SELECT amount_owing FROM student WHERE id = ?";
+            String getAmountOwingQuery = "SELECT amount_owing FROM students WHERE id = ?";
             prepare = connect.prepareStatement(getAmountOwingQuery);
             prepare.setInt(1, selectedStudentId);
             ResultSet result = prepare.executeQuery();
@@ -2087,7 +2030,7 @@ public class DashboardController implements Initializable {
 
             // Check if amount_owing is zero and update status accordingly
             if (amountOwing - paymentAmount == 0.0) {
-                String updateStatusQuery = "UPDATE student SET status = 'completed' WHERE id = ?";
+                String updateStatusQuery = "UPDATE students SET status = 'completed' WHERE id = ?";
                 prepare = connect.prepareStatement(updateStatusQuery);
                 prepare.setInt(1, selectedStudentId);
                 prepare.executeUpdate();
@@ -2239,7 +2182,7 @@ public class DashboardController implements Initializable {
 
     public void addStudentsSearch() {
 
-        FilteredList<studentData> filter = new FilteredList<>(addStudentsListD, e -> true);
+        FilteredList<EnrollmentData> filter = new FilteredList<>(addStudentsListD, e -> true);
 
         addStudents_search.textProperty().addListener((Observable, oldValue, newValue) -> {
 
@@ -2251,20 +2194,20 @@ public class DashboardController implements Initializable {
 
                 String searchKey = newValue.toLowerCase();
 
-                if (predicateStudentData.getName().toLowerCase().contains(searchKey)) {
+                if (predicateStudentData.getStatus().toLowerCase().contains(searchKey)) {
                     return true;
                 } else if (predicateStudentData.getId().toString().contains(searchKey)) {
                     return true;
-                } else if (predicateStudentData.getContact().toLowerCase().contains(searchKey)) {
+                } else if (predicateStudentData.getStatus().toLowerCase().contains(searchKey)) {
                     return true;
                 } else if (predicateStudentData.getClassName().toLowerCase().contains(searchKey)) {
                     return true;
                     // } else if
                     // (predicateStudentData.getContact().toLowerCase().contains(searchKey)) {
                     // return true;
-                } else if (predicateStudentData.getGender().toLowerCase().contains(searchKey)) {
+                } else if (predicateStudentData.getStatus().toLowerCase().contains(searchKey)) {
                     return true;
-                } else if (predicateStudentData.getDate_of_birth().toString().contains(searchKey)) {
+                } else if (predicateStudentData.getStatus().toString().contains(searchKey)) {
                     return true;
                 } else if (predicateStudentData.getStatus().toLowerCase().contains(searchKey)) {
                     return true;
@@ -2274,7 +2217,7 @@ public class DashboardController implements Initializable {
             });
         });
 
-        SortedList<studentData> sortList = new SortedList<>(filter);
+        SortedList<EnrollmentData> sortList = new SortedList<>(filter);
 
         sortList.comparatorProperty().bind(addStudents_tableView.comparatorProperty());
         addStudents_tableView.setItems(sortList);
@@ -2384,6 +2327,30 @@ public class DashboardController implements Initializable {
         school_year.setItems(ObList);
     }
 
+    public void classes() {
+        List<String> classNames = new ArrayList<>();
+        String query = "SELECT DISTINCT class_name FROM class";
+    
+        try (Connection connect = Database.connectDb();
+             PreparedStatement prepare = connect.prepareStatement(query);
+             ResultSet result = prepare.executeQuery()) {
+    
+            while (result.next()) {
+                classNames.add(result.getString("class_name"));
+            }
+    
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Database Error", "Error occurred while fetching classes: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    
+        ObservableList<String> obList = FXCollections.observableArrayList(classNames);
+        addStudent_class.setItems(obList);
+        classRecord_Download.setItems(obList);
+        marksheet_class.setItems(obList);
+
+    }
+
     private String[] category = { "Administrator", "Staff" };
 
     @SuppressWarnings("unchecked")
@@ -2468,7 +2435,7 @@ public class DashboardController implements Initializable {
     private void showClassesForYear(String academicYear) throws SQLException {
         // Assuming you have a table called "classes" with columns "class_name" and
         // "academic_year"
-        String query = "SELECT class_name FROM class WHERE academic_year = ?";
+        String query = "SELECT class_name FROM class";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -2477,7 +2444,7 @@ public class DashboardController implements Initializable {
         try {
             // connection = Database.connectDb();
             preparedStatement = connect.prepareStatement(query);
-            preparedStatement.setString(1, academicYear);
+            // preparedStatement.setString(1, academicYear);
             resultSet = preparedStatement.executeQuery();
 
             // Clear any previous items in the ComboBox
@@ -2559,7 +2526,7 @@ public class DashboardController implements Initializable {
 
     private void showSectionsForStudent(String className, String academicYear) throws SQLException {
         String query = "SELECT A1, A2, B1, B2, Arts, Science, Commercial, C " +
-                "FROM class WHERE class_name = ? AND academic_year = ?";
+                "FROM class WHERE class_name = ? ";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -2570,7 +2537,7 @@ public class DashboardController implements Initializable {
             // connection = Database.connectDb();
             preparedStatement = connect.prepareStatement(query);
             preparedStatement.setString(1, className);
-            preparedStatement.setString(2, academicYear);
+            // preparedStatement.setString(2, academicYear);
             resultSet = preparedStatement.executeQuery();
 
             // Clear any previous items in the ComboBox
@@ -2671,7 +2638,7 @@ public class DashboardController implements Initializable {
 
     private void showSectionsForClass(String className, String academicYear) throws SQLException {
         String query = "SELECT A1, A2, B1, B2, Arts, Science, Commercial, C " +
-                "FROM class WHERE class_name = ? AND academic_year = ?";
+                "FROM class WHERE class_name = ? ";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -2679,10 +2646,10 @@ public class DashboardController implements Initializable {
         ObservableList<String> classSections = FXCollections.observableArrayList();
 
         try {
-            // connection = Database.connectDb();
-            preparedStatement = connect.prepareStatement(query);
+            connection = Database.connectDb();
+            preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, className);
-            preparedStatement.setString(2, academicYear);
+            // preparedStatement.setString(2, academicYear);
             resultSet = preparedStatement.executeQuery();
 
             // Clear any previous items in the ComboBox
@@ -2783,7 +2750,7 @@ public class DashboardController implements Initializable {
 
     private void showSectionsForMarksheet(String className, String academicYear) throws SQLException {
         String query = "SELECT A1, A2, B1, B2, Arts, Science, Commercial, C " +
-                "FROM class WHERE class_name = ? AND academic_year = ?";
+                "FROM class WHERE class_name = ?";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -2791,10 +2758,10 @@ public class DashboardController implements Initializable {
         ObservableList<String> classSections = FXCollections.observableArrayList();
 
         try {
-            // connection = Database.connectDb();
+            connection = Database.connectDb();
             preparedStatement = connect.prepareStatement(query);
             preparedStatement.setString(1, className);
-            preparedStatement.setString(2, academicYear);
+            // preparedStatement.setString(2, academicYear);
             resultSet = preparedStatement.executeQuery();
 
             // Clear any previous items in the ComboBox
@@ -2896,35 +2863,35 @@ public class DashboardController implements Initializable {
         }
     }
 
-    // // NOW WE NEED THE COURSE, SO LETS WORK NOW THE AVAILABLE COURSE FORM : )
-    // // LETS WORK FIRST THE ADD STUDENTS FORM : )
-    public ObservableList<studentData> addStudentsListData() {
-        ObservableList<studentData> listStudents = FXCollections.observableArrayList();
-        String academicYear = getAcademicYearFromSettings(); // Replace this with your implementation
+    public ObservableList<EnrollmentData> addStudentsListData() {
+        ObservableList<EnrollmentData> listStudents = FXCollections.observableArrayList();
+        String academicYear = getAcademicYearFromSettings();
 
-        String sql = "SELECT * FROM student WHERE academic_year = ?";
+        String sql = "SELECT * FROM enrollments WHERE academic_year = ?";
 
-        // connect = Database.connectDb();
+        connect = Database.connectDb();
 
         try {
-            studentData studentD;
+            EnrollmentData studentD;
             prepare = connect.prepareStatement(sql);
-            prepare.setString(1, academicYear); // Set the academic year as a parameter in the query
+            prepare.setString(1, academicYear); 
             result = prepare.executeQuery();
 
             while (result.next()) {
-                studentD = new studentData(
-                        result.getInt("id"),
-                        result.getString("name"),
-                        result.getString("contact"),
-                        result.getString("gender"),
-                        result.getDate("date_of_birth"),
+                studentD = new EnrollmentData(
+                    result.getInt("id"),
+                        null,
                         result.getString("class_name"),
                         result.getString("section"),
-                        result.getDouble("amount_owing"),
+                        academicYear,
                         result.getString("status"),
-                        result.getDouble("scholarship")
-
+                        null,
+                        result.getDouble("school_fees"),
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
                 );
 
                 listStudents.add(studentD);
@@ -2938,7 +2905,7 @@ public class DashboardController implements Initializable {
 
     // ... (rest of the code remains unchanged)
 
-    private ObservableList<studentData> addStudentsListD;
+    private ObservableList<EnrollmentData> addStudentsListD;
 
     public void addStudentsShowListData() {
         addStudentsListD = addStudentsListData();
@@ -2964,7 +2931,7 @@ public class DashboardController implements Initializable {
 
     public void addStudentsSelect() {
 
-        studentData studentD = addStudents_tableView.getSelectionModel().getSelectedItem();
+        EnrollmentData studentD = addStudents_tableView.getSelectionModel().getSelectedItem();
         int num = addStudents_tableView.getSelectionModel().getSelectedIndex();
 
         if ((num - 1) < -1) {
@@ -2979,39 +2946,28 @@ public class DashboardController implements Initializable {
         } else {
             schorlaship.setText("N/A"); // Set a default value when the scholarship value is null
         }
-        update_name.setText(studentD.getName());
+        update_name.setText(studentD.getClassName());
         id.setText(String.valueOf(studentD.getId()));
-        studentLabel.setText(studentD.getName());
+        studentLabel.setText(studentD.getClassName());
         // id.setText(studentD.getId());
-        std_gender.setValue(studentD.getGender());
-        dob.setValue(LocalDate.parse(String.valueOf(studentD.getDate_of_birth())));
+        std_gender.setValue(studentD.getClassName());
+        dob.setValue(LocalDate.parse(String.valueOf(studentD.getClassName())));
 
         selectedStudentId = studentD.getId();
-        selectedStudentName = studentD.getName();
+        selectedStudentName = studentD.getClassName();
 
     }
 
     private int selectedTeacherId = -1;
-    // private String selectedTeacherName = "";
-
     public void teacherSelect() {
-
         teacherData teacherD = teachers_tableView.getSelectionModel().getSelectedItem();
         int num = teachers_tableView.getSelectionModel().getSelectedIndex();
 
         if ((num - 1) < -1) {
             return;
         }
-
+        
         updateTeacher_form.setVisible(true);
-
-        // Double scholarshipValue = studentD.getScholarship();
-        // if (scholarshipValue != null) {
-        // schorlaship.setText(String.valueOf(scholarshipValue));
-        // } else {
-        // schorlaship.setText("N/A"); // Set a default value when the scholarship value
-        // is null
-        // }
         teacherName.setText(teacherD.getName());
         updateteacher_name.setText(teacherD.getName());
         updateteacher_subjects.setText(teacherD.getSubject());
@@ -3021,102 +2977,82 @@ public class DashboardController implements Initializable {
         updateteacher_tel.setText(String.valueOf(teacherD.getContact()));
         updateteacher_natId.setText(String.valueOf(teacherD.getNatId()));
         updateteacher_origin.setText(teacherD.getOrigin());
-        // updateteacher_salary.setText(teacherD.getName());
-        // id.setText(String.valueOf(teacherD.getId()));
-        // studentLabel.setText(teacherD.getName());
         teacherId.setText(String.valueOf(teacherD.getId()));
         updateteacher_category.setValue(teacherD.getCategory());
-        // dob.setValue(LocalDate.parse(String.valueOf(teacherD.getDate_of_birth())));
-
         selectedTeacherId = teacherD.getId();
-        // selectedTeacherName = teacherD.getName();
 
     }
 
     public void Admins(@SuppressWarnings("exports") ActionEvent event) {
-        // Get the connection to the database
-        // connect = Database.connectDb();
-
+        Connection connect = Database.connectDb();
+        if (connect == null) {
+            showAlert("Database Error", "Database connection could not be established.", Alert.AlertType.ERROR);
+            return;
+        }
+    
         try {
             String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-
+    
             // Create a FileChooser to allow the user to select a directory
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Select Directory for Download");
-
-            // Set initial directory (optional)
             fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-
-            // Set the suggested file name for the Save As dialog (optional)
             String suggestedFileName = "Admins_Report_" + currentDate + ".pdf";
             FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PDF Files (*.pdf)", "*.pdf");
             fileChooser.getExtensionFilters().add(extFilter);
             fileChooser.setInitialFileName(suggestedFileName);
-
+    
             // Show the Save As dialog and get the selected file
             javafx.stage.Window window = ((Node) event.getSource()).getScene().getWindow();
             File selectedFile = fileChooser.showSaveDialog(window);
+            if (selectedFile == null) {
+                showAlert("File Selection", "File selection was cancelled.", Alert.AlertType.WARNING);
+                return;
+            }
+    
             String filePath = selectedFile.getAbsolutePath();
-
+    
             try (PdfDocument pdf = new PdfDocument(new PdfWriter(filePath))) {
                 Document document = new Document(pdf);
-
-                // PageSize landscape = PageSize.A4;
-                // Document document = new Document(pdf);
-
+    
                 // Add School Name and Date at the top of the page
                 PdfFont boldFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
                 PdfFont blueFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
-
-                // Create a Div element for center alignment
-                Div headerDiv = new Div()
-                        .setTextAlignment(TextAlignment.CENTER)
-                        .setVerticalAlignment(VerticalAlignment.MIDDLE);
-
+                    // Create a Div element for center alignment
+                    Div headerDiv = new Div()
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setVerticalAlignment(VerticalAlignment.MIDDLE);
                 DecimalFormat currencyFormat = new DecimalFormat("#,##0.00");
                 String[] schoolInfo = getSchoolInfoFromSettings();
                 String schoolName = schoolInfo[0];
-                String Princi = schoolInfo[2];
+                String principal = schoolInfo[2];
                 String address = schoolInfo[3];
-
                 String academicYear = getAcademicYearFromSettings();
-                Paragraph schoolNameParagraph = new Paragraph(schoolName)
-                        .setFont(boldFont)
-                        .setFontSize(14);
-
-                Paragraph date = new Paragraph("Academic Year: " + academicYear)
-                        .setFont(blueFont)
-                        .setFontSize(12);
-
-                Paragraph printed = new Paragraph("Printed Date: " + currentDate)
-                        .setFont(blueFont)
-                        .setFontSize(12);
-
-                Paragraph Address = new Paragraph("Address: " + address)
-                        .setFont(blueFont)
-                        .setFontSize(12);
-
+    
+                Paragraph schoolNameParagraph = new Paragraph(schoolName).setFont(boldFont).setFontSize(14);
+                Paragraph date = new Paragraph("Academic Year: " + academicYear).setFont(blueFont).setFontSize(12);
+                Paragraph printed = new Paragraph("Printed Date: " + currentDate).setFont(blueFont).setFontSize(12);
+                Paragraph addressParagraph = new Paragraph("Address: " + address).setFont(blueFont).setFontSize(12);
+                Paragraph principalParagraph = new Paragraph("Principal: " + principal).setFont(blueFont).setFontSize(12);
+    
                 headerDiv.add(schoolNameParagraph);
                 document.add(date);
-                document.add(Address);
+                document.add(addressParagraph);
+                document.add(principalParagraph);
                 document.add(printed);
-
-                com.itextpdf.layout.element.Image watermarkImage = Logo.createWatermarkImage("C:/Users/USER/Documents/Cohas Bepanda/Cohas Bepanda/src/pics/logo.png");
-                document.add(watermarkImage);
     
+                com.itextpdf.layout.element.Image watermarkImage = Logo.createWatermarkImage("D:\\public\\cohas\\Fees Management\\cohas\\src\\main\\resources\\pics\\std.png");
+                document.add(watermarkImage);
                 document.add(headerDiv);
-                // Add title
 
+    
                 // Database query to fetch administrators' information
-                String selectData = "SELECT Name, Age, Work_Load, Work_Period, Subject, Salary FROM teachers WHERE category = 'Administrator'";
+                String selectData = "SELECT Name, age, work_Load, Work_Period, Subject, salary FROM teachers WHERE category = 'Administrator'";
                 try (PreparedStatement prepare = connect.prepareStatement(selectData)) {
                     try (ResultSet resultSet = prepare.executeQuery()) {
-                        // Create a table to hold the administrator details
-                        float[] columnWidths = { 150f, 50f, 80f, 80f, 150f, 80f, 100f }; // Adjust column widths as
-                                                                                         // needed
+                        float[] columnWidths = {150f, 50f, 80f, 80f, 150f, 80f, 100f};
                         Table adminTable = new Table(columnWidths).useAllAvailableWidth();
-
-                        // Add table headers with bold font
+    
                         PdfFont headingFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
                         adminTable.addHeaderCell(new Cell().add(new Paragraph("Name").setFont(headingFont)));
                         adminTable.addHeaderCell(new Cell().add(new Paragraph("Age").setFont(headingFont)));
@@ -3125,156 +3061,142 @@ public class DashboardController implements Initializable {
                         adminTable.addHeaderCell(new Cell().add(new Paragraph("Subject").setFont(headingFont)));
                         adminTable.addHeaderCell(new Cell().add(new Paragraph("Salary").setFont(headingFont)));
                         adminTable.addHeaderCell(new Cell().add(new Paragraph("Annually").setFont(headingFont)));
-
-                        // Initialize a variable to calculate the sum of the annual salaries
+    
                         double totalAnnualSalary = 0.0;
                         int adminCount = 0;
-
-                        // Iterate through the administrators and add their details to the table
+    
                         while (resultSet.next()) {
                             String name = resultSet.getString("Name");
-                            int age = resultSet.getInt("Age");
-                            double workLoad = resultSet.getDouble("Work_Load");
+                            int age = resultSet.getInt("age");
+                            double workLoad = resultSet.getDouble("work_Load");
                             double workPeriod = resultSet.getDouble("Work_Period");
                             String subject = resultSet.getString("Subject");
-                            double salary = resultSet.getDouble("Salary");
+                            double salary = resultSet.getDouble("salary");
                             double annualSalary = workPeriod * salary;
-
-                            // Add details to the table
+    
                             adminTable.addCell(name);
                             adminTable.addCell(String.valueOf(age));
                             adminTable.addCell(String.valueOf(workLoad));
                             adminTable.addCell(String.valueOf(workPeriod));
                             adminTable.addCell(subject);
-                            adminTable.addCell(String.valueOf(currencyFormat.format(salary)));
-                            adminTable.addCell(String.valueOf(currencyFormat.format(annualSalary)));
-
-                            // Update the total annual salary
+                            adminTable.addCell(currencyFormat.format(salary));
+                            adminTable.addCell(currencyFormat.format(annualSalary));
+    
                             totalAnnualSalary += annualSalary;
                             adminCount++;
                         }
-
+    
                         Paragraph title = new Paragraph("Administrator Report" + "   |   Total: " + adminCount)
                                 .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD))
                                 .setFontSize(16)
                                 .setTextAlignment(TextAlignment.CENTER);
                         document.add(title);
-                        // Add the table to the document
                         document.add(adminTable);
-
-                        // Add the total annual salary as a footer
+    
                         Paragraph totalAnnualSalaryParagraph = new Paragraph(
                                 "Total Annual Salary: " + currencyFormat.format(totalAnnualSalary))
                                 .setFont(headingFont)
                                 .setFontSize(12)
                                 .setMarginTop(10f)
-                                .setHorizontalAlignment(HorizontalAlignment.RIGHT);
+                                .setTextAlignment(TextAlignment.RIGHT);
                         document.add(totalAnnualSalaryParagraph);
-
-                        // ... Add other sections and details ...
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
+                    showAlert("Database Error", "Failed to fetch administrators' information: " + e.getMessage(), Alert.AlertType.ERROR);
                     return;
                 }
-
+    
                 document.close();
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("Information Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Staff Report PDF file downloaded successfully!");
-                alert.showAndWait();
+                showAlert("Success", "Admin Report PDF file downloaded successfully!", Alert.AlertType.INFORMATION);
             } catch (IOException e) {
                 e.printStackTrace();
+                showAlert("File Error", "Failed to save the PDF file: " + e.getMessage(), Alert.AlertType.ERROR);
             }
         } catch (Exception e) {
             e.printStackTrace();
+            showAlert("Unexpected Error", "An unexpected error occurred: " + e.getMessage(), Alert.AlertType.ERROR);
+        } finally {
+            if (connect != null) {
+                try {
+                    connect.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    showAlert("Database Error", "Failed to close the database connection: " + e.getMessage(), Alert.AlertType.ERROR);
+                }
+            }
         }
     }
 
     public void Staff(ActionEvent event) {
-        // Get the connection to the database
-        // connect = Database.connectDb();
-
+        Connection connect = Database.connectDb();
+        if (connect == null) {
+            showAlert("Database Error", "Database connection could not be established.", Alert.AlertType.ERROR);
+            return;
+        }
+    
         try {
             String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-
+    
             // Create a FileChooser to allow the user to select a directory
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Select Directory for Download");
-
-            // Set initial directory (optional)
             fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-
-            // Set the suggested file name for the Save As dialog (optional)
             String suggestedFileName = "Teachers_Report_" + currentDate + ".pdf";
             FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PDF Files (*.pdf)", "*.pdf");
             fileChooser.getExtensionFilters().add(extFilter);
             fileChooser.setInitialFileName(suggestedFileName);
-
+    
             // Show the Save As dialog and get the selected file
             javafx.stage.Window window = ((Node) event.getSource()).getScene().getWindow();
             File selectedFile = fileChooser.showSaveDialog(window);
+            if (selectedFile == null) {
+                showAlert("File Selection", "File selection was cancelled.", Alert.AlertType.WARNING);
+                return;
+            }
+    
             String filePath = selectedFile.getAbsolutePath();
-
+    
             try (PdfDocument pdf = new PdfDocument(new PdfWriter(filePath))) {
                 Document document = new Document(pdf);
-
-                // PageSize landscape = PageSize.A4;
-                // Document document = new Document(pdf);
-
+    
                 // Add School Name and Date at the top of the page
                 PdfFont boldFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
                 PdfFont blueFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
-
-                // Create a Div element for center alignment
-                Div headerDiv = new Div()
-                        .setTextAlignment(TextAlignment.CENTER)
-                        .setVerticalAlignment(VerticalAlignment.MIDDLE);
-
+                    // Create a Div element for center alignment
+                    Div headerDiv = new Div()
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setVerticalAlignment(VerticalAlignment.MIDDLE);
                 DecimalFormat currencyFormat = new DecimalFormat("#,##0.00");
                 String[] schoolInfo = getSchoolInfoFromSettings();
                 String schoolName = schoolInfo[0];
-                String Princi = schoolInfo[2];
+                String principal = schoolInfo[2];
                 String address = schoolInfo[3];
-
                 String academicYear = getAcademicYearFromSettings();
-                Paragraph schoolNameParagraph = new Paragraph(schoolName)
-                        .setFont(boldFont)
-                        .setFontSize(14);
-
-                Paragraph date = new Paragraph("Academic Year: " + academicYear)
-                        .setFont(blueFont)
-                        .setFontSize(12);
-
-                Paragraph printed = new Paragraph("Printed Date: " + currentDate)
-                        .setFont(blueFont)
-                        .setFontSize(12);
-
-                Paragraph Address = new Paragraph("Address: " + address)
-                        .setFont(blueFont)
-                        .setFontSize(12);
-
+    
+                Paragraph schoolNameParagraph = new Paragraph(schoolName).setFont(boldFont).setFontSize(14);
+                Paragraph date = new Paragraph("Academic Year: " + academicYear).setFont(blueFont).setFontSize(12);
+                Paragraph printed = new Paragraph("Printed Date: " + currentDate).setFont(blueFont).setFontSize(12);
+                Paragraph addressParagraph = new Paragraph("Address: " + address).setFont(blueFont).setFontSize(12);
+                Paragraph principalParagraph = new Paragraph("Principal: " + principal).setFont(blueFont).setFontSize(12);
+    
                 headerDiv.add(schoolNameParagraph);
                 document.add(date);
-                document.add(Address);
+                document.add(addressParagraph);
+                document.add(principalParagraph);
                 document.add(printed);
-
-                com.itextpdf.layout.element.Image watermarkImage = Logo.createWatermarkImage("C:/Users/USER/Documents/Cohas Bepanda/Cohas Bepanda/src/pics/logo.png");
-                document.add(watermarkImage);
     
+                com.itextpdf.layout.element.Image watermarkImage = Logo.createWatermarkImage("D:\\public\\cohas\\Fees Management\\cohas\\src\\main\\resources\\pics\\std.png");
+                document.add(watermarkImage);
                 document.add(headerDiv);
-
+    
                 // Database query to fetch administrators' information
                 String selectData = "SELECT Name, Age, Work_Load, Work_Period, Subject, Salary FROM teachers WHERE category = 'Staff'";
                 try (PreparedStatement prepare = connect.prepareStatement(selectData)) {
                     try (ResultSet resultSet = prepare.executeQuery()) {
-                        // Create a table to hold the administrator details
-                        float[] columnWidths = { 150f, 50f, 80f, 80f, 150f, 80f, 100f }; // Adjust column widths as
-                                                                                         // needed
+                        float[] columnWidths = {150f, 50f, 80f, 80f, 150f, 80f, 100f};
                         Table adminTable = new Table(columnWidths).useAllAvailableWidth();
-
-                        // Add table headers with bold font
+    
                         PdfFont headingFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
                         adminTable.addHeaderCell(new Cell().add(new Paragraph("Name").setFont(headingFont)));
                         adminTable.addHeaderCell(new Cell().add(new Paragraph("Age").setFont(headingFont)));
@@ -3283,12 +3205,10 @@ public class DashboardController implements Initializable {
                         adminTable.addHeaderCell(new Cell().add(new Paragraph("Subject").setFont(headingFont)));
                         adminTable.addHeaderCell(new Cell().add(new Paragraph("Salary").setFont(headingFont)));
                         adminTable.addHeaderCell(new Cell().add(new Paragraph("Annually").setFont(headingFont)));
-
-                        // Initialize a variable to calculate the sum of the annual salaries
+    
                         double totalAnnualSalary = 0.0;
                         int teacherCount = 0;
-
-                        // Iterate through the administrators and add their details to the table
+    
                         while (resultSet.next()) {
                             String name = resultSet.getString("Name");
                             int age = resultSet.getInt("Age");
@@ -3297,144 +3217,133 @@ public class DashboardController implements Initializable {
                             String subject = resultSet.getString("Subject");
                             double salary = resultSet.getDouble("Salary");
                             double annualSalary = workPeriod * salary;
-
-                            // Add details to the table
+    
                             adminTable.addCell(name);
                             adminTable.addCell(String.valueOf(age));
                             adminTable.addCell(String.valueOf(workLoad));
                             adminTable.addCell(String.valueOf(workPeriod));
                             adminTable.addCell(subject);
-                            adminTable.addCell(String.valueOf(currencyFormat.format(salary)));
-                            adminTable.addCell(String.valueOf(currencyFormat.format(annualSalary)));
-
-                            // Update the total annual salary
+                            adminTable.addCell(currencyFormat.format(salary));
+                            adminTable.addCell(currencyFormat.format(annualSalary));
+    
                             totalAnnualSalary += annualSalary;
                             teacherCount++;
                         }
-
-                        // Add title
+    
                         Paragraph title = new Paragraph("Staff Report" + "   |   Total: " + teacherCount)
                                 .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD))
                                 .setFontSize(16)
                                 .setTextAlignment(TextAlignment.CENTER);
                         document.add(title);
-                        // Add the table to the document
                         document.add(adminTable);
-
-                        // Add the total annual salary as a footer
+    
                         Paragraph totalAnnualSalaryParagraph = new Paragraph(
                                 "Total Annual Salary: " + currencyFormat.format(totalAnnualSalary))
                                 .setFont(headingFont)
                                 .setFontSize(12)
                                 .setMarginTop(10f)
-                                .setHorizontalAlignment(HorizontalAlignment.RIGHT);
+                                .setTextAlignment(TextAlignment.RIGHT);
                         document.add(totalAnnualSalaryParagraph);
-
-                        // ... Add other sections and details ...
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
+                    showAlert("Database Error", "Failed to fetch staff information: " + e.getMessage(), Alert.AlertType.ERROR);
                     return;
                 }
-
+    
                 document.close();
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("Information Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Administrator Report PDF file downloaded successfully!");
-                alert.showAndWait();
+                showAlert("Success", "Staff Report PDF file downloaded successfully!", Alert.AlertType.INFORMATION);
             } catch (IOException e) {
                 e.printStackTrace();
+                showAlert("File Error", "Failed to save the PDF file: " + e.getMessage(), Alert.AlertType.ERROR);
             }
         } catch (Exception e) {
             e.printStackTrace();
+            showAlert("Unexpected Error", "An unexpected error occurred: " + e.getMessage(), Alert.AlertType.ERROR);
+        } finally {
+            if (connect != null) {
+                try {
+                    connect.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    showAlert("Database Error", "Failed to close the database connection: " + e.getMessage(), Alert.AlertType.ERROR);
+                }
+            }
         }
     }
 
     public void allTeachers(ActionEvent event) {
-        // Get the connection to the database
-        // connect = Database.connectDb();
-
+        Connection connect = Database.connectDb();
+        if (connect == null) {
+            showAlert("Database Error", "Database connection could not be established.", Alert.AlertType.ERROR);
+            return;
+        }
+    
         try {
             String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-
+    
             // Create a FileChooser to allow the user to select a directory
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Select Directory for Download");
-
-            // Set initial directory (optional)
             fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-
-            // Set the suggested file name for the Save As dialog (optional)
             String suggestedFileName = "Gen_Teachers_Report_" + currentDate + ".pdf";
             FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PDF Files (*.pdf)", "*.pdf");
             fileChooser.getExtensionFilters().add(extFilter);
             fileChooser.setInitialFileName(suggestedFileName);
-
+    
             // Show the Save As dialog and get the selected file
             javafx.stage.Window window = ((Node) event.getSource()).getScene().getWindow();
             File selectedFile = fileChooser.showSaveDialog(window);
+            if (selectedFile == null) {
+                showAlert("File Selection", "File selection was cancelled.", Alert.AlertType.WARNING);
+                return;
+            }
+    
             String filePath = selectedFile.getAbsolutePath();
-
+    
             try (PdfDocument pdf = new PdfDocument(new PdfWriter(filePath))) {
-                // Document document = new Document(pdf);
                 PageSize landscape = PageSize.A4.rotate();
                 Document document = new Document(pdf, landscape);
-
-                // PageSize landscape = PageSize.A4;
-                // Document document = new Document(pdf);
-
-                // Add School Name and Date at the top of the page
-                PdfFont boldFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
-                PdfFont blueFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
-
-                // Create a Div element for center alignment
-                Div headerDiv = new Div()
-                        .setTextAlignment(TextAlignment.CENTER)
-                        .setVerticalAlignment(VerticalAlignment.MIDDLE);
-
-                DecimalFormat currencyFormat = new DecimalFormat("#,##0.00");
-                String[] schoolInfo = getSchoolInfoFromSettings();
-                String schoolName = schoolInfo[0];
-                String Princi = schoolInfo[2];
-                String address = schoolInfo[3];
-
-                String academicYear = getAcademicYearFromSettings();
-                Paragraph schoolNameParagraph = new Paragraph(schoolName)
-                        .setFont(boldFont)
-                        .setFontSize(14);
-
-                Paragraph date = new Paragraph("Academic Year: " + academicYear)
-                        .setFont(blueFont)
-                        .setFontSize(12);
-
-                Paragraph printed = new Paragraph("Printed Date: " + currentDate)
-                        .setFont(blueFont)
-                        .setFontSize(12);
-
-                Paragraph Address = new Paragraph("Address: " + address)
-                        .setFont(blueFont)
-                        .setFontSize(12);
-
-                headerDiv.add(schoolNameParagraph);
-                document.add(date);
-                document.add(Address);
-                document.add(printed);
-
-                com.itextpdf.layout.element.Image watermarkImage = Logo.createWatermarkImage("C:/Users/USER/Documents/Cohas Bepanda/Cohas Bepanda/src/pics/logo.png");
-                document.add(watermarkImage);    
-                document.add(headerDiv);
-                // Add title
-
-                // Database query to fetch administrators' information
+    
+                                // Add School Name and Date at the top of the page
+                                PdfFont boldFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+                                PdfFont blueFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+                                    // Create a Div element for center alignment
+                                    Div headerDiv = new Div()
+                                    .setTextAlignment(TextAlignment.CENTER)
+                                    .setVerticalAlignment(VerticalAlignment.MIDDLE);
+                                DecimalFormat currencyFormat = new DecimalFormat("#,##0.00");
+                                String[] schoolInfo = getSchoolInfoFromSettings();
+                                String schoolName = schoolInfo[0];
+                                String principal = schoolInfo[2];
+                                String address = schoolInfo[3];
+                                String academicYear = getAcademicYearFromSettings();
+                    
+                                Paragraph schoolNameParagraph = new Paragraph(schoolName).setFont(boldFont).setFontSize(14);
+                                Paragraph date = new Paragraph("Academic Year: " + academicYear).setFont(blueFont).setFontSize(12);
+                                Paragraph printed = new Paragraph("Printed Date: " + currentDate).setFont(blueFont).setFontSize(12);
+                                Paragraph addressParagraph = new Paragraph("Address: " + address).setFont(blueFont).setFontSize(12);
+                                Paragraph principalParagraph = new Paragraph("Principal: " + principal).setFont(blueFont).setFontSize(12);
+                    
+                                headerDiv.add(schoolNameParagraph);
+                                document.add(date);
+                                document.add(addressParagraph);
+                                document.add(principalParagraph);
+                                document.add(printed);
+                    
+                                com.itextpdf.layout.element.Image watermarkImage = Logo.createWatermarkImage("D:\\public\\cohas\\Fees Management\\cohas\\src\\main\\resources\\pics\\std.png");
+                                document.add(watermarkImage);
+                                document.add(headerDiv);
+                document.add(new Paragraph("General Teachers Report").setTextAlignment(TextAlignment.CENTER).setFont(boldFont).setFontSize(16));
+    
+                // Database query to fetch teachers' information
                 String selectData = "SELECT Name, Age, Work_Load, Work_Period, Subject, Salary, phone_number FROM teachers";
                 try (PreparedStatement prepare = connect.prepareStatement(selectData)) {
                     try (ResultSet resultSet = prepare.executeQuery()) {
-                        // Create a table to hold the administrator details
-                        float[] columnWidths = { 150f, 50f, 100f, 80f, 80f, 150f, 80f, 100f }; // Adjust column widths
-                                                                                               // as needed
+                        // Create a table to hold the teacher details
+                        float[] columnWidths = {150f, 50f, 100f, 80f, 80f, 150f, 80f, 100f}; // Adjust column widths as needed
                         Table adminTable = new Table(columnWidths).useAllAvailableWidth();
-
+    
                         // Add table headers with bold font
                         PdfFont headingFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
                         adminTable.addHeaderCell(new Cell().add(new Paragraph("Name").setFont(headingFont)));
@@ -3445,506 +3354,73 @@ public class DashboardController implements Initializable {
                         adminTable.addHeaderCell(new Cell().add(new Paragraph("Subject").setFont(headingFont)));
                         adminTable.addHeaderCell(new Cell().add(new Paragraph("Salary").setFont(headingFont)));
                         adminTable.addHeaderCell(new Cell().add(new Paragraph("Annually").setFont(headingFont)));
-
+    
                         // Initialize a variable to calculate the sum of the annual salaries
                         double totalAnnualSalary = 0.0;
                         int staffCount = 0;
-
-                        // Iterate through the administrators and add their details to the table
+    
+                        // Iterate through the teachers and add their details to the table
                         while (resultSet.next()) {
                             String name = resultSet.getString("Name");
                             int age = resultSet.getInt("Age");
-                            int tel = resultSet.getInt("phone_number");
+                            String tel = resultSet.getString("phone_number");
                             double workLoad = resultSet.getDouble("Work_Load");
                             double workPeriod = resultSet.getDouble("Work_Period");
                             String subject = resultSet.getString("Subject");
                             double salary = resultSet.getDouble("Salary");
                             double annualSalary = workPeriod * salary;
-
+    
                             // Add details to the table
                             adminTable.addCell(name);
                             adminTable.addCell(String.valueOf(age));
-                            adminTable.addCell(String.valueOf(tel));
+                            adminTable.addCell(tel);
                             adminTable.addCell(String.valueOf(workLoad));
                             adminTable.addCell(String.valueOf(workPeriod));
                             adminTable.addCell(subject);
-                            adminTable.addCell(String.valueOf(currencyFormat.format(salary)));
-                            adminTable.addCell(String.valueOf(currencyFormat.format(annualSalary)));
-
+                            adminTable.addCell(currencyFormat.format(salary));
+                            adminTable.addCell(currencyFormat.format(annualSalary));
+    
                             // Update the total annual salary
                             totalAnnualSalary += annualSalary;
                             staffCount++;
                         }
-
-                        Paragraph title = new Paragraph("General Staff Report" + "    |   Total: " + staffCount)
-                                .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD))
-                                .setFontSize(16)
-                                .setTextAlignment(TextAlignment.CENTER);
-                        document.add(title);
-
-                        // Add the table to the document
-                        document.add(adminTable);
-
-                        // Add the total annual salary as a footer
+    
                         Paragraph totalAnnualSalaryParagraph = new Paragraph(
                                 "Total Annual Salary: " + currencyFormat.format(totalAnnualSalary))
                                 .setFont(headingFont)
                                 .setFontSize(12)
                                 .setMarginTop(10f)
-                                .setHorizontalAlignment(HorizontalAlignment.RIGHT);
+                                .setTextAlignment(TextAlignment.RIGHT);
+                        document.add(adminTable);
                         document.add(totalAnnualSalaryParagraph);
-
-                        // ... Add other sections and details ...
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();
+                    showAlert("Database Error", "Failed to fetch teachers' information: " + e.getMessage(), Alert.AlertType.ERROR);
                     return;
                 }
-
+    
                 document.close();
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("Information Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Staff List Report PDF file downloaded successfully!");
-                alert.showAndWait();
+                showAlert("Success", "Teachers Report PDF file downloaded successfully!", Alert.AlertType.INFORMATION);
             } catch (IOException e) {
                 e.printStackTrace();
+                showAlert("File Error", "Failed to save the PDF file: " + e.getMessage(), Alert.AlertType.ERROR);
             }
         } catch (Exception e) {
             e.printStackTrace();
+            showAlert("Unexpected Error", "An unexpected error occurred: " + e.getMessage(), Alert.AlertType.ERROR);
+        } finally {
+            if (connect != null) {
+                try {
+                    connect.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    showAlert("Database Error", "Failed to close the database connection: " + e.getMessage(), Alert.AlertType.ERROR);
+                }
+            }
         }
     }
-
-    // public void availableCourseAdd() {
-
-    // String insertData = "INSERT INTO course (course,description,degree)
-    // VALUES(?,?,?)";
-
-    // connect = Database.connectDb();
-
-    // try {
-    // Alert alert;
-
-    // if (availableCourse_course.getText().isEmpty()
-    // || availableCourse_description.getText().isEmpty()
-    // || availableCourse_degree.getText().isEmpty()) {
-    // alert = new Alert(AlertType.ERROR);
-    // alert.setTitle("Error Message");
-    // alert.setHeaderText(null);
-    // alert.setContentText("Please fill all blank fields");
-    // alert.showAndWait();
-    // } else {
-    // // CHECK IF THE COURSE YOU WANT TO INSERT IS ALREADY EXIST!
-    // String checkData = "SELECT course FROM course WHERE course = '"
-    // + availableCourse_course.getText() + "'";
-
-    // statement = connect.createStatement();
-    // result = statement.executeQuery(checkData);
-
-    // if (result.next()) {
-    // alert = new Alert(AlertType.ERROR);
-    // alert.setTitle("Error Message");
-    // alert.setHeaderText(null);
-    // alert.setContentText("Course: " + availableCourse_course.getText() + " was
-    // already exist!");
-    // alert.showAndWait();
-    // } else {
-    // prepare = connect.prepareStatement(insertData);
-    // prepare.setString(1, availableCourse_course.getText());
-    // prepare.setString(2, availableCourse_description.getText());
-    // prepare.setString(3, availableCourse_degree.getText());
-
-    // prepare.executeUpdate();
-
-    // alert = new Alert(AlertType.INFORMATION);
-    // alert.setTitle("Information Message");
-    // alert.setHeaderText(null);
-    // alert.setContentText("Successfully Added!");
-    // alert.showAndWait();
-
-    // // TO BECOME UPDATED OUR TABLEVIEW ONCE THE DATA WE GAVE SUCCESSFUL
-    // // availableCourseShowListData();
-    // // TO CLEAR THE TEXT FIELDS
-    // availableCourseClear();
-
-    // }
-    // }
-    // } catch (SQLException e) {
-    // e.printStackTrace();
-    // }
-    // }
-
-    // public void availableCourseUpdate() {
-
-    // String updateData = "UPDATE course SET description = '"
-    // + availableCourse_description.getText() + "', degree = '"
-    // + availableCourse_degree.getText() + "' WHERE course = '"
-    // + availableCourse_course.getText() + "'";
-
-    // connect = Database.connectDb();
-
-    // try {
-    // Alert alert;
-
-    // if (availableCourse_course.getText().isEmpty()
-    // || availableCourse_description.getText().isEmpty()
-    // || availableCourse_degree.getText().isEmpty()) {
-    // alert = new Alert(AlertType.ERROR);
-    // alert.setTitle("Error Message");
-    // alert.setHeaderText(null);
-    // alert.setContentText("Please fill all blank fields");
-    // alert.showAndWait();
-    // } else {
-
-    // alert = new Alert(AlertType.CONFIRMATION);
-    // alert.setTitle("Confirmation Message");
-    // alert.setHeaderText(null);
-    // alert.setContentText("Are you sure you want to UPDATE Course: " +
-    // availableCourse_course.getText() + "?");
-    // Optional<ButtonType> option = alert.showAndWait();
-
-    // if (option.get().equals(ButtonType.OK)) {
-    // statement = connect.createStatement();
-    // statement.executeUpdate(updateData);
-
-    // alert = new Alert(AlertType.INFORMATION);
-    // alert.setTitle("Information Message");
-    // alert.setHeaderText(null);
-    // alert.setContentText("Successfully Updated!");
-    // alert.showAndWait();
-
-    // // TO BECOME UPDATED OUR TABLEVIEW ONCE THE DATA WE GAVE SUCCESSFUL
-    // // availableCourseShowListData();
-    // // TO CLEAR THE TEXT FIELDS
-    // availableCourseClear();
-
-    // } else {
-    // return;
-    // }
-
-    // }
-
-    // } catch (SQLException e) {
-    // e.printStackTrace();
-    // }
-
-    // }
-
-    // public void availableCourseDelete() {
-
-    // String deleteData = "DELETE FROM course WHERE course = '"
-    // + availableCourse_course.getText() + "'";
-
-    // connect = Database.connectDb();
-
-    // try {
-    // Alert alert;
-
-    // if (availableCourse_course.getText().isEmpty()
-    // || availableCourse_description.getText().isEmpty()
-    // || availableCourse_degree.getText().isEmpty()) {
-    // alert = new Alert(AlertType.ERROR);
-    // alert.setTitle("Error Message");
-    // alert.setHeaderText(null);
-    // alert.setContentText("Please fill all blank fields");
-    // alert.showAndWait();
-    // } else {
-    // // ALL GOOD GUYS! NOW LETS PROCEED TO ADD STUDENTS FORM
-    // alert = new Alert(AlertType.CONFIRMATION);
-    // alert.setTitle("Confirmation Message");
-    // alert.setHeaderText(null);
-    // alert.setContentText("Are you sure you want to DELETE Course: " +
-    // availableCourse_course.getText() + "?");
-    // Optional<ButtonType> option = alert.showAndWait();
-
-    // if (option.get().equals(ButtonType.OK)) {
-    // statement = connect.createStatement();
-    // statement.executeUpdate(deleteData);
-
-    // alert = new Alert(AlertType.INFORMATION);
-    // alert.setTitle("Information Message");
-    // alert.setHeaderText(null);
-    // alert.setContentText("Successfully Deleted!");
-    // alert.showAndWait();
-
-    // // TO BECOME UPDATED OUR TABLEVIEW ONCE THE DATA WE GAVE SUCCESSFUL
-    // // availableCourseShowListData();
-    // // TO CLEAR THE TEXT FIELDS
-    // availableCourseClear();
-
-    // } else {
-    // return;
-    // }
-    // }
-
-    // } catch (SQLException e) {
-    // e.printStackTrace();
-    // }
-
-    // }
-
-    // public void availableCourseClear() {
-    // availableCourse_course.setText("");
-    // availableCourse_description.setText("");
-    // availableCourse_degree.setText("");
-    // }
-
-    // public ObservableList<courseData> availableCourseListData() {
-
-    // ObservableList<courseData> listData = FXCollections.observableArrayList();
-
-    // String sql = "SELECT * FROM course";
-
-    // connect = Database.connectDb();
-
-    // try {
-    // courseData courseD;
-    // prepare = connect.prepareStatement(sql);
-    // result = prepare.executeQuery();
-
-    // while (result.next()) {
-    // courseD = new courseData(result.getString("course"),
-    // result.getString("description"),
-    // result.getString("degree"));
-
-    // listData.add(courseD);
-    // }
-
-    // } catch (SQLException e) {
-    // e.printStackTrace();
-    // }
-    // return listData;
-    // }
-
-    // private ObservableList<courseData> availableCourseList;
-
-    // public void availableCourseShowListData() {
-    // availableCourseList = availableCourseListData();
-
-    // availableCourse_col_course.setCellValueFactory(new
-    // PropertyValueFactory<>("course"));
-    // availableCourse_col_description.setCellValueFactory(new
-    // PropertyValueFactory<>("description"));
-    // availableCourse_col_degree.setCellValueFactory(new
-    // PropertyValueFactory<>("degree"));
-
-    // availableCourse_tableView.setItems(availableCourseList);
-
-    // }
-
-    // public void availableCourseSelect() {
-    // courseData courseD =
-    // availableCourse_tableView.getSelectionModel().getSelectedItem();
-    // int num = availableCourse_tableView.getSelectionModel().getSelectedIndex();
-
-    // if ((num - 1) < -1) {
-    // return;
-    // }
-
-    // availableCourse_course.setText(courseD.getCourse());
-    // availableCourse_description.setText(courseD.getDescription());
-    // availableCourse_degree.setText(courseD.getDegree());
-
-    // }
-
-    // public void studentGradesUpdate() {
-    // double finalCheck1 = 0;
-    // double finalCheck2 = 0;
-
-    // String checkData = "SELECT * FROM student_grade WHERE studentNum = '"
-    // + studentGrade_studentNum.getText() + "'";
-
-    // connect = Database.connectDb();
-
-    // double finalResult = 0;
-
-    // try {
-
-    // prepare = connect.prepareStatement(checkData);
-    // result = prepare.executeQuery();
-
-    // if (result.next()) {
-    // finalCheck1 = result.getDouble("first_sem");
-    // finalCheck2 = result.getDouble("second_sem");
-    // }
-
-    // if (finalCheck1 == 0 || finalCheck2 == 0) {
-    // finalResult = 0;
-    // } else { //LIKE (X+Y)/2 AVE WE NEED TO FIND FOR FINALS
-    // finalResult = (Double.parseDouble(studentGrade_firstSem.getText())
-    // + Double.parseDouble(studentGrade_secondSem.getText()) / 2);
-    // }
-
-    // String updateData = "UPDATE student_grade SET "
-    // + " year = '" + studentGrade_year.getText()
-    // + "', course = '" + studentGrade_course.getText()
-    // + "', first_sem = '" + studentGrade_firstSem.getText()
-    // + "', second_sem = '" + studentGrade_secondSem.getText()
-    // + "', final = '" + finalResult + "' WHERE studentNum = '"
-    // + studentGrade_studentNum.getText() + "'";
-
-    // Alert alert;
-
-    // if (studentGrade_studentNum.getText().isEmpty()
-    // || studentGrade_year.getText().isEmpty()
-    // || studentGrade_course.getText().isEmpty()) {
-    // alert = new Alert(AlertType.ERROR);
-    // alert.setTitle("Error Message");
-    // alert.setHeaderText(null);
-    // alert.setContentText("Please fill all blank fields");
-    // alert.showAndWait();
-
-    // } else {
-
-    // alert = new Alert(AlertType.CONFIRMATION);
-    // alert.setTitle("Confirmation Message");
-    // alert.setHeaderText(null);
-    // alert.setContentText("Are you sure you want to UPDATE Student #" +
-    // studentGrade_studentNum.getText() + "?");
-    // Optional<ButtonType> option = alert.showAndWait();
-
-    // if (option.get().equals(ButtonType.OK)) {
-    // statement = connect.createStatement();
-    // statement.executeUpdate(updateData);
-
-    // alert = new Alert(AlertType.INFORMATION);
-    // alert.setTitle("Information Message");
-    // alert.setHeaderText(null);
-    // alert.setContentText("Successfully Updated!");
-    // alert.showAndWait();
-
-    // // TO UPDATE THE TABLEVIEW
-    // studentGradesShowListData();
-    // } else {
-    // return;
-    // }
-
-    // }// NOT WE ARE CLOSER TO THE ENDING PART :) LETS PROCEED TO DASHBOARD FORM
-    // } catch (SQLException e) {
-    // e.printStackTrace();
-    // }
-    // }
-
-    // public void studentGradesClear() {
-    // studentGrade_studentNum.setText("");
-    // studentGrade_year.setText("");
-    // studentGrade_course.setText("");
-    // studentGrade_firstSem.setText("");
-    // studentGrade_secondSem.setText("");
-    // }
-
-    // public ObservableList<studentData> studentGradesListData() {
-
-    // ObservableList<studentData> listData = FXCollections.observableArrayList();
-
-    // String sql = "SELECT * FROM student_grade";
-
-    // connect = Database.connectDb();
-
-    // try {
-    // studentData studentD;
-
-    // prepare = connect.prepareStatement(sql);
-    // result = prepare.executeQuery();
-
-    // while (result.next()) {
-    // studentD = new studentData(result.getInt("studentNum"),
-    // result.getString("year"),
-    // result.getString("course"),
-    // result.getDouble("first_sem"),
-    // result.getDouble("second_sem"),
-    // result.getDouble("final"));
-
-    // listData.add(studentD);
-    // }
-    // } catch (SQLException e) {
-    // e.printStackTrace();
-    // }
-    // return listData;
-    // }
-
-    // private ObservableList<studentData> studentGradesList;
-
-    // public void studentGradesShowListData() {
-    // studentGradesList = studentGradesListData();
-
-    // studentGrade_col_studentNum.setCellValueFactory(new
-    // PropertyValueFactory<>("studentNum"));
-    // studentGrade_col_year.setCellValueFactory(new
-    // PropertyValueFactory<>("year"));
-    // studentGrade_col_course.setCellValueFactory(new
-    // PropertyValueFactory<>("course"));
-    // studentGrade_col_firstSem.setCellValueFactory(new
-    // PropertyValueFactory<>("firstSem"));
-    // studentGrade_col_secondSem.setCellValueFactory(new
-    // PropertyValueFactory<>("secondSem"));
-    // studentGrade_col_final.setCellValueFactory(new
-    // PropertyValueFactory<>("finals"));
-    // // WE NEED TO FIX THE DELETE ON ADD STUDENT FORM
-    // studentGrade_tableView.setItems(studentGradesList);
-
-    // }
-
-    // public void studentGradesSelect() {
-
-    // studentData studentD =
-    // studentGrade_tableView.getSelectionModel().getSelectedItem();
-    // int num = studentGrade_tableView.getSelectionModel().getSelectedIndex();
-
-    // if ((num - 1) < -1) {
-    // return;
-    // }
-
-    // studentGrade_studentNum.setText(String.valueOf(studentD.getStudentNum()));
-    // studentGrade_year.setText(studentD.getYear());
-    // studentGrade_course.setText(studentD.getCourse());
-    // studentGrade_firstSem.setText(String.valueOf(studentD.getFirstSem()));
-    // studentGrade_secondSem.setText(String.valueOf(studentD.getSecondSem()));
-    // }
-
-    // public void studentGradesSearch() {
-
-    // FilteredList<studentData> filter = new FilteredList<>(studentGradesList, e ->
-    // true);
-
-    // studentGrade_search.textProperty().addListener((Observable, oldValue,
-    // newValue) -> {
-
-    // filter.setPredicate(predicateStudentData -> {
-
-    // if (newValue.isEmpty() || newValue == null) {
-    // return true;
-    // }
-    // String searchKey = newValue.toLowerCase();
-
-    // if (predicateStudentData.getStudentNum().toString().contains(searchKey)) {
-    // return true;
-    // } else if (predicateStudentData.getYear().toLowerCase().contains(searchKey))
-    // {
-    // return true;
-    // } else if
-    // (predicateStudentData.getCourse().toLowerCase().contains(searchKey)) {
-    // return true;
-    // } else if (predicateStudentData.getFirstSem().toString().contains(searchKey))
-    // {
-    // return true;
-    // } else if
-    // (predicateStudentData.getSecondSem().toString().contains(searchKey)) {
-    // return true;
-    // } else if (predicateStudentData.getFinals().toString().contains(searchKey)) {
-    // return true;
-    // } else {
-    // return false;
-    // }
-    // });
-    // });
-
-    // SortedList<studentData> sortList = new SortedList<>(filter);
-
-    // sortList.comparatorProperty().bind(studentGrade_tableView.comparatorProperty());
-    // studentGrade_tableView.setItems(sortList);
-
-    // }
+  
 
     private double x = 0;
     private double y = 0;
@@ -4034,6 +3510,7 @@ public class DashboardController implements Initializable {
             homeDisplayFemaleEnrolledChart();
             homeDisplayTotalEnrolledChart();
             homeCollectedFees();
+            showAllClassListData();
 
         } else if (event.getSource() == addStudents_btn) {
             home_form.setVisible(false);
@@ -4141,6 +3618,7 @@ public class DashboardController implements Initializable {
             updateTeacher_form.setVisible(false);
 
             getAcademicYearFromSettings();
+            showAllClassListData();
 
             manageClass_btn.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
             home_btn.setStyle("-fx-background-color:transparent");
@@ -4245,7 +3723,7 @@ public class DashboardController implements Initializable {
         if (selectedYear == null) {
             return;
         }
-        FilteredList<studentData> filter = new FilteredList<>(showClassListD, e -> true);
+        FilteredList<EnrollmentData> filter = new FilteredList<>(showClassListD, e -> true);
 
         class_search.textProperty().addListener((Observable, oldValue, newValue) -> {
 
@@ -4266,121 +3744,142 @@ public class DashboardController implements Initializable {
                     return true;
                 } else if (predicateStudentData.getAcademicYear().toLowerCase().contains(searchKey)) {
                     return true;
-                } else if (predicateStudentData.getTotalStudents().toString().contains(searchKey)) {
-                    return true;
-                } else if (predicateStudentData.getTotalExpected().toString().contains(searchKey)) {
-                    return true;
-                } else if (predicateStudentData.getTotalOwing().toString().contains(searchKey)) {
-                    return true;
-                } else if (predicateStudentData.getTotalPaid().toString().contains(searchKey)) {
-                    return true;
-                } else if (predicateStudentData.getTotalStudentsOwing().toString().contains(searchKey)) {
-                    return true;
-                    // } else if
-                    // (predicateStudentData.getTotalArtsStudents().toString().contains(searchKey))
-                    // {
-                    // return true;
-                    // } else if
-                    // (predicateStudentData.getTotalScienceStudents().toString().contains(searchKey))
-                    // {
-                    // return true;
-                    // } else if
-                    // (predicateStudentData.getTotalCommercialStudents().toString().contains(searchKey))
-                    // {
-                    // return true;
                 } else if (predicateStudentData.getSection().toLowerCase().contains(searchKey)) {
                     return true;
-                    // } else if
-                    // (predicateStudentData.getGender().toLowerCase().contains(searchKey)) {
-                    // return true;
-                    // } else if
-                    // (predicateStudentData.getDate_of_birth().toString().contains(searchKey)) {
-                    // return true;
-                    // } else if
-                    // (predicateStudentData.getStatus().toLowerCase().contains(searchKey)) {
-                    // return true;
                 } else {
                     return false;
                 }
             });
         });
-
-        SortedList<studentData> sortList = new SortedList<>(filter);
-
+        SortedList<EnrollmentData> sortList = new SortedList<>(filter);
         sortList.comparatorProperty().bind(showClass_tableView.comparatorProperty());
         showClass_tableView.setItems(sortList);
 
     }
 
-    public ObservableList<studentData> showClassListData() {
-        ObservableList<studentData> listClass = FXCollections.observableArrayList();
+    public ObservableList<EnrollmentData> showClassListData() {
+        ObservableList<EnrollmentData> listClass = FXCollections.observableArrayList();
         String academicYear = getAcademicYearFromSettings(); // Replace this with your implementation
-
-        String sql = "SELECT class_name, academic_year, fees, section, " +
-                "COUNT(*) AS totalStudents, " +
-                "SUM(CASE WHEN status = 'incomplete' THEN 1 ELSE 0 END) AS totalStudentsOwing, " +
-                "SUM(fees) AS totalExpected, " +
-                "SUM(amount_paid) AS totalPaid, " +
-                "SUM(amount_owing) AS totalOwing " +
-                "FROM student WHERE academic_year = ? GROUP BY class_id, section";
-
-        // connect = Database.connectDb();
-
+    
+        Connection connect = Database.connectDb();
+        if (connect == null) {
+            System.err.println("Error: Database connection could not be established.");
+            return listClass;
+        }
+    
         try {
-            studentData studentF;
-            prepare = connect.prepareStatement(sql);
-            prepare.setString(1, academicYear); // Set the academic year as a parameter in the query
-            result = prepare.executeQuery();
-
-            while (result.next()) {
-                studentF = new studentData(
-                        result.getInt("fees"),
-                        result.getString("class_name"),
-                        result.getString("academic_year"),
-                        result.getString("section"),
-                        result.getInt("totalStudents"),
-                        result.getInt("totalExpected"),
-                        result.getInt("totalPaid"),
-                        result.getInt("totalOwing"),
-                        result.getInt("totalStudentsOwing")
-                // result.getInt("totalArtsStudents"),
-                // result.getInt("totalScienceStudents"),
-                // result.getInt("totalCommercialStudents")
-                );
-                // result.getDate("date_of_birth"),
-                // result.getString("status"));
-
-                listClass.add(studentF);
+            // First, check if there are enrollments for the specified academic year
+            String sqlCheckEnrollments = "SELECT COUNT(*) AS count FROM enrollments WHERE academic_year = ?";
+            PreparedStatement checkPrepare = connect.prepareStatement(sqlCheckEnrollments);
+            checkPrepare.setString(1, academicYear);
+            ResultSet checkResult = checkPrepare.executeQuery();
+    
+            boolean hasEnrollments = false;
+            if (checkResult.next() && checkResult.getInt("count") > 0) {
+                hasEnrollments = true;
             }
+    
+            checkResult.close();
+            checkPrepare.close();
+    
+            if (hasEnrollments) {
+                // Retrieve the enrollment data
+                String sql = "SELECT class_name, school_fees, section, " +
+                        "COUNT(*) AS totalStudents, " +
+                        "COUNT(CASE WHEN school_fees - total_fees_paid > 0 THEN 1 END) AS studentsOwing, " +
+                        "SUM(school_fees) AS totalExpected, " +
+                        "SUM(total_fees_paid) AS totalFeesPaid, " +
+                        "SUM(school_fees - total_fees_paid) AS totalOwing " +
+                        "FROM enrollments WHERE academic_year = ? GROUP BY class_name, section";
+    
+                PreparedStatement prepare = connect.prepareStatement(sql);
+                prepare.setString(1, academicYear);
+                ResultSet result = prepare.executeQuery();
+    
+                while (result.next()) {
+                    EnrollmentData enrollmentData = new EnrollmentData(
+                            null,
+                            null,
+                            result.getString("class_name"),
+                            result.getString("section"),
+                            academicYear,
+                            null,
+                            null,
+                            result.getDouble("school_fees"),
+                            result.getDouble("totalFeesPaid"),
+                            result.getDouble("totalOwing"),
+                            result.getDouble("totalExpected"),
+                            result.getInt("totalStudents"),
+                            result.getInt("studentsOwing")
+                    );
+                    listClass.add(enrollmentData);
+                }
+    
+                result.close();
+                prepare.close();
+            } else {
+                // If there are no enrollments, retrieve class details from class table
+                String sql = "SELECT class_name, school_fees, " +
+                "CASE WHEN A1 = 1 THEN 'A1, ' ELSE '' END || " +
+                "CASE WHEN A2 = 1 THEN 'A2, ' ELSE '' END || " +
+                "CASE WHEN B1 = 1 THEN 'B1, ' ELSE '' END || " +
+                "CASE WHEN B2 = 1 THEN 'B2, ' ELSE '' END || " +
+                "CASE WHEN Arts = 1 THEN 'Arts, ' ELSE '' END || " +
+                "CASE WHEN Science = 1 THEN 'Science, ' ELSE '' END || " +
+                "CASE WHEN Commercial = 1 THEN 'Commercial, ' ELSE '' END || " +
+                "CASE WHEN C = 1 THEN 'C, ' ELSE '' END AS sections " +
+                "FROM class";
+                
+                PreparedStatement prepare = connect.prepareStatement(sql);
+                ResultSet result = prepare.executeQuery();
+    
+                while (result.next()) {
+                String sections = result.getString("sections").replaceAll(", $", "");
 
+                    EnrollmentData enrollmentData = new EnrollmentData(
+                            null,
+                            null,
+                            result.getString("class_name"),
+                            sections,
+                            academicYear,
+                            null,
+                            null,
+                            result.getDouble("school_fees"),
+                            null,
+                            null,
+                            null,
+                            null,
+                            null
+                    );
+                    listClass.add(enrollmentData);
+                }
+    
+                result.close();
+                prepare.close();
+            }
+    
+            connect.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    
         return listClass;
     }
-
-    private ObservableList<studentData> showClassListD;
+    
+    private ObservableList<EnrollmentData> showClassListD;
 
     public void showAllClassListData() {
         showClassListD = showClassListData();
 
         showClass_col_year.setCellValueFactory(new PropertyValueFactory<>("academicYear"));
-        // addStudents_col_year.setCellValueFactory(new PropertyValueFactory<>("year"));
         showClass_col_name.setCellValueFactory(new PropertyValueFactory<>("className"));
         showClass_col_fees.setCellValueFactory(new PropertyValueFactory<>("schoolFees"));
         showClass_col_section.setCellValueFactory(new PropertyValueFactory<>("section"));
         showClass_col_totalStudents.setCellValueFactory(new PropertyValueFactory<>("totalStudents"));
         showClass_col_totalExpected.setCellValueFactory(new PropertyValueFactory<>("totalExpected"));
-        showClass_col_totalPaid.setCellValueFactory(new PropertyValueFactory<>("totalPaid"));
+        showClass_col_totalPaid.setCellValueFactory(new PropertyValueFactory<>("totalFeesPaid"));
         showClass_col_totalOwing.setCellValueFactory(new PropertyValueFactory<>("totalOwing"));
-        showClass_col_StudentsOwing.setCellValueFactory(new PropertyValueFactory<>("totalStudentsOwing"));
-        // showClass_col_arts.setCellValueFactory(new
-        // PropertyValueFactory<>("totalArtsStudents"));
-        // showClass_col_science.setCellValueFactory(new
-        // PropertyValueFactory<>("totalScienceStudents"));
-        // showClass_col_commercial.setCellValueFactory(new
-        // PropertyValueFactory<>("totalCommercialStudents"));
-
+        showClass_col_StudentsOwing.setCellValueFactory(new PropertyValueFactory<>("studentsOwing"));
         showClass_tableView.setItems(showClassListD);
 
     }
@@ -4413,7 +3912,7 @@ public class DashboardController implements Initializable {
         return schoolInfo;
     }
 
-    public boolean generateAndSavePDF(ObservableList<studentData> dataList, ActionEvent event) {
+    public boolean generateAndSavePDF(ObservableList<EnrollmentData> dataList, ActionEvent event) {
         if (dataList == null || dataList.isEmpty()) {
             System.err.println("Error: Data list is null or empty.");
             return false;
@@ -4434,9 +3933,12 @@ public class DashboardController implements Initializable {
             fileChooser.getExtensionFilters().add(extFilter);
             fileChooser.setInitialFileName(suggestedFileName);
 
-            // Show the Save As dialog and get the selected file
             javafx.stage.Window window = ((Node) event.getSource()).getScene().getWindow();
+
             File selectedFile = fileChooser.showSaveDialog(window);
+            if (selectedFile == null) {
+                return false; // User cancelled the dialog
+            }
             String filePath = selectedFile.getAbsolutePath();
 
             try (PdfDocument pdf = new PdfDocument(new PdfWriter(filePath))) {
@@ -4446,43 +3948,32 @@ public class DashboardController implements Initializable {
                 // Add School Name and Date at the top of the page
                 PdfFont boldFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
                 PdfFont blueFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
-
-                // Create a Div element for center alignment
-                Div headerDiv = new Div()
-                        .setTextAlignment(TextAlignment.CENTER)
-                        .setVerticalAlignment(VerticalAlignment.MIDDLE);
-
+                    // Create a Div element for center alignment
+                    Div headerDiv = new Div()
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setVerticalAlignment(VerticalAlignment.MIDDLE);
+                DecimalFormat currencyFormat = new DecimalFormat("#,##0.00");
                 String[] schoolInfo = getSchoolInfoFromSettings();
                 String schoolName = schoolInfo[0];
-                String Princi = schoolInfo[2];
+                String principal = schoolInfo[2];
                 String address = schoolInfo[3];
-
                 String academicYear = getAcademicYearFromSettings();
-                Paragraph schoolNameParagraph = new Paragraph(schoolName)
-                        .setFont(boldFont)
-                        .setFontSize(16);
-
-                Paragraph date = new Paragraph("Academic Year: " + academicYear)
-                        .setFont(blueFont)
-                        .setFontSize(12);
-
-                Paragraph printed = new Paragraph("Printed Date: " + currentDate)
-                        .setFont(blueFont)
-                        .setFontSize(12);
-
-                Paragraph Address = new Paragraph("Address: " + address)
-                        .setFont(blueFont)
-                        .setFontSize(12);
-
+    
+                Paragraph schoolNameParagraph = new Paragraph(schoolName).setFont(boldFont).setFontSize(14);
+                Paragraph date = new Paragraph("Academic Year: " + academicYear).setFont(blueFont).setFontSize(12);
+                Paragraph printed = new Paragraph("Printed Date: " + currentDate).setFont(blueFont).setFontSize(12);
+                Paragraph addressParagraph = new Paragraph("Address: " + address).setFont(blueFont).setFontSize(12);
+                Paragraph principalParagraph = new Paragraph("Principal: " + principal).setFont(blueFont).setFontSize(12);
+    
                 headerDiv.add(schoolNameParagraph);
                 document.add(date);
-                document.add(Address);
+                document.add(addressParagraph);
+                document.add(principalParagraph);
                 document.add(printed);
-                document.add(headerDiv);
 
-                com.itextpdf.layout.element.Image watermarkImage = Logo.createWatermarkImage("C:/Users/USER/Documents/Cohas Bepanda/Cohas Bepanda/src/pics/logo.png");
+                com.itextpdf.layout.element.Image watermarkImage = Logo.createWatermarkImage(imageFile.getAbsolutePath());
                 document.add(watermarkImage);
-    
+                document.add(headerDiv);
 
                 Paragraph record = new Paragraph("General Class Record for the Academic Year: " + academicYear)
                         .setFont(blueFont)
@@ -4490,13 +3981,12 @@ public class DashboardController implements Initializable {
 
                 document.add(record);
                 // Add a table to the document
-                float[] columnWidths = { 100f, 100f, 50f, 50f, 50f, 100f, 100f, 100f }; // Adjust column widths as
-                                                                                        // needed
+                float[] columnWidths = { 100f, 100f, 50f, 50f, 50f, 100f, 100f, 100f }; // Adjust column widths as needed
                 Table table = new Table(UnitValue.createPercentArray(columnWidths)).useAllAvailableWidth();
 
                 // Add table headers with bold font
                 PdfFont headingFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
-                DecimalFormat currencyFormat = new DecimalFormat("#,##0.00");
+                // DecimalFormat currencyFormat = new DecimalFormat("#,##0.00");
 
                 table.addHeaderCell(new Cell().add(new Paragraph("Class Name").setFont(headingFont)));
                 table.addHeaderCell(new Cell().add(new Paragraph("Fees").setFont(headingFont)));
@@ -4508,15 +3998,15 @@ public class DashboardController implements Initializable {
                 table.addHeaderCell(new Cell().add(new Paragraph("Total Owing").setFont(headingFont)));
 
                 // Add table rows
-                for (studentData item : dataList) {
-                    table.addCell(item.getClassName());
-                    table.addCell(currencyFormat.format(item.getSchoolFees()));
-                    table.addCell(item.getSection());
-                    table.addCell(String.valueOf(item.getTotalStudents()));
-                    table.addCell(String.valueOf(item.getTotalStudentsOwing()));
-                    table.addCell(currencyFormat.format(item.getTotalExpected()));
-                    table.addCell(currencyFormat.format(item.getTotalPaid()));
-                    table.addCell(currencyFormat.format(item.getTotalOwing()));
+                for (EnrollmentData item : dataList) {
+                    table.addCell(new Cell().add(new Paragraph(item.getClassName())));
+                    table.addCell(new Cell().add(new Paragraph(currencyFormat.format(item.getSchoolFees()))));
+                    table.addCell(new Cell().add(new Paragraph(item.getSection())));
+                    table.addCell(new Cell().add(new Paragraph(String.valueOf(item.getTotalStudents()))));
+                    table.addCell(new Cell().add(new Paragraph(String.valueOf(item.getStudentsOwing()))));
+                    table.addCell(new Cell().add(new Paragraph(currencyFormat.format(item.getTotalExpected()))));
+                    table.addCell(new Cell().add(new Paragraph(currencyFormat.format(item.getTotalFeesPaid()))));
+                    table.addCell(new Cell().add(new Paragraph(currencyFormat.format(item.getTotalOwing()))));
                 }
 
                 // Calculate the totals for the footer
@@ -4526,11 +4016,11 @@ public class DashboardController implements Initializable {
                 int totalStudentsOwing = 0;
                 int totalStudents = 0;
 
-                for (studentData item : dataList) {
+                for (EnrollmentData item : dataList) {
                     totalOwing += item.getTotalOwing();
-                    totalPaid += item.getTotalPaid();
+                    totalPaid += item.getTotalFeesPaid();
                     totalExpected += item.getTotalExpected();
-                    totalStudentsOwing += item.getTotalStudentsOwing();
+                    totalStudentsOwing += item.getStudentsOwing();
                     totalStudents += item.getTotalStudents();
                 }
 
@@ -4539,22 +4029,17 @@ public class DashboardController implements Initializable {
                 table.addFooterCell(new Cell().add(new Paragraph("Total:").setFont(footerFont).setBold()));
                 table.addFooterCell(new Cell().add(new Paragraph("")));
                 table.addFooterCell(new Cell().add(new Paragraph(""))); // Empty cell for 'Section'
-                table.addFooterCell(
-                        new Cell().add(new Paragraph(String.valueOf(totalStudents)).setFont(footerFont).setBold()));
-                table.addFooterCell(new Cell()
-                        .add(new Paragraph(String.valueOf(totalStudentsOwing)).setFont(footerFont).setBold()));
-                table.addFooterCell(new Cell()
-                        .add(new Paragraph(currencyFormat.format(totalExpected)).setFont(footerFont).setBold()));
-                table.addFooterCell(
-                        new Cell().add(new Paragraph(currencyFormat.format(totalPaid)).setFont(footerFont).setBold()));
-                table.addFooterCell(
-                        new Cell().add(new Paragraph(currencyFormat.format(totalOwing)).setFont(footerFont).setBold()));
+                table.addFooterCell(new Cell().add(new Paragraph(String.valueOf(totalStudents)).setFont(footerFont).setBold()));
+                table.addFooterCell(new Cell().add(new Paragraph(String.valueOf(totalStudentsOwing)).setFont(footerFont).setBold()));
+                table.addFooterCell(new Cell().add(new Paragraph(currencyFormat.format(totalExpected)).setFont(footerFont).setBold()));
+                table.addFooterCell(new Cell().add(new Paragraph(currencyFormat.format(totalPaid)).setFont(footerFont).setBold()));
+                table.addFooterCell(new Cell().add(new Paragraph(currencyFormat.format(totalOwing)).setFont(footerFont).setBold()));
 
                 // Add the table to the document
                 document.add(table);
 
                 // Get Principal Name from principal settings table and show as signature
-                Paragraph signature = new Paragraph("Principal: " + Princi)
+                Paragraph signature = new Paragraph("Principal: " + principal)
                         .setFont(boldFont)
                         .setFontSize(12)
                         .setMarginTop(10);
@@ -4566,7 +4051,7 @@ public class DashboardController implements Initializable {
                 Alert alert = new Alert(AlertType.INFORMATION);
                 alert.setTitle("Information Message");
                 alert.setHeaderText(null);
-                alert.setContentText("Class Record PDF file Downloaded successfully!");
+                alert.setContentText("Class Record PDF file downloaded successfully!");
                 alert.showAndWait();
                 return true;
             } catch (IOException e) {
@@ -4642,14 +4127,14 @@ public class DashboardController implements Initializable {
                 headerDiv.add(schoolNameParagraph);
                 document.add(date);
                 document.add(printed);
-                com.itextpdf.layout.element.Image watermarkImage = Logo.createWatermarkImage("C:/Users/USER/Documents/Cohas Bepanda/Cohas Bepanda/src/pics/logo.png");
+                com.itextpdf.layout.element.Image watermarkImage = Logo.createWatermarkImage(imageFile.getAbsolutePath());
                 document.add(watermarkImage);
     
 
                 // ... Continue with the student details ...
 
                 // Database query to fetch student details based on the school name
-                String selectData = "SELECT * FROM student WHERE id = ?";
+                String selectData = "SELECT * FROM students WHERE id = ?";
                 try (PreparedStatement prepare = connect.prepareStatement(selectData)) {
                     prepare.setInt(1, selectedStudentId); // Assuming school_name is a TextField or similar
                     try (ResultSet resultSet = prepare.executeQuery()) {
@@ -4843,41 +4328,35 @@ public class DashboardController implements Initializable {
                 // Add School Name and Date at the top of the page
                 PdfFont boldFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
                 PdfFont blueFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
-
-                // Create a Div element for center alignment
-                Div headerDiv = new Div()
-                        .setTextAlignment(TextAlignment.CENTER)
-                        .setVerticalAlignment(VerticalAlignment.MIDDLE);
-
+                    // Create a Div element for center alignment
+                    Div headerDiv = new Div()
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setVerticalAlignment(VerticalAlignment.MIDDLE);
                 DecimalFormat currencyFormat = new DecimalFormat("#,##0.00");
                 String[] schoolInfo = getSchoolInfoFromSettings();
                 String schoolName = schoolInfo[0];
-                String Princi = schoolInfo[2];
+                String principal = schoolInfo[2];
                 String address = schoolInfo[3];
-
                 String academicYear = getAcademicYearFromSettings();
-                Paragraph schoolNameParagraph = new Paragraph(schoolName)
-                        .setFont(boldFont)
-                        .setFontSize(16);
-
-                Paragraph date = new Paragraph(
-                        "Academic Year: " + academicYear + " | Address: " + address + " | Principal: " + Princi)
-                        .setFont(blueFont)
-                        .setFontSize(14);
-
-                Paragraph printed = new Paragraph("Printed Date: " + currentDate)
-                        .setFont(blueFont)
-                        .setFontSize(12);
-
+    
+                Paragraph schoolNameParagraph = new Paragraph(schoolName).setFont(boldFont).setFontSize(14);
+                Paragraph date = new Paragraph("Academic Year: " + academicYear).setFont(blueFont).setFontSize(12);
+                Paragraph printed = new Paragraph("Printed Date: " + currentDate).setFont(blueFont).setFontSize(12);
+                Paragraph addressParagraph = new Paragraph("Address: " + address).setFont(blueFont).setFontSize(12);
+                Paragraph principalParagraph = new Paragraph("Principal: " + principal).setFont(blueFont).setFontSize(12);
+    
                 headerDiv.add(schoolNameParagraph);
                 document.add(date);
+                document.add(addressParagraph);
+                document.add(principalParagraph);
                 document.add(printed);
-
-                com.itextpdf.layout.element.Image watermarkImage = Logo.createWatermarkImage("C:/Users/USER/Documents/Cohas Bepanda/Cohas Bepanda/src/pics/logo.png");
+    
+                com.itextpdf.layout.element.Image watermarkImage = Logo.createWatermarkImage(imageFile.getAbsolutePath());
                 document.add(watermarkImage);
+                document.add(headerDiv);
     
                 // Database query to fetch class details based on the selected class and section
-                String selectData = "SELECT * FROM student WHERE class_name = ? AND section = ? AND academic_year = ?";
+                String selectData = "SELECT * FROM students WHERE class_name = ? AND section = ? AND academic_year = ?";
                 try (PreparedStatement prepare = connect.prepareStatement(selectData)) {
                     prepare.setString(1, selectedClassName);
                     prepare.setString(2, selectedSection);
@@ -5060,12 +4539,12 @@ public class DashboardController implements Initializable {
                 document.add(date);
                 document.add(Address);
                 document.add(printed);
-                com.itextpdf.layout.element.Image watermarkImage = Logo.createWatermarkImage("C:/Users/USER/Documents/Cohas Bepanda/Cohas Bepanda/src/pics/logo.png");
+                com.itextpdf.layout.element.Image watermarkImage = Logo.createWatermarkImage(imageFile.getAbsolutePath());
                 document.add(watermarkImage);
     
 
                 // Database query to fetch class details based on the selected class and section
-                String selectData = "SELECT * FROM student WHERE class_name = ? AND section = ? AND academic_year = ?";
+                String selectData = "SELECT * FROM students WHERE class_name = ? AND section = ? AND academic_year = ?";
                 try (PreparedStatement prepare = connect.prepareStatement(selectData)) {
                     prepare.setString(1, selectedClassName);
                     prepare.setString(2, selectedSection);
@@ -5233,13 +4712,12 @@ public class DashboardController implements Initializable {
             schoolNameRun.setBold(true); // Make the text bold
 
             // Add watermark image
-            try (FileInputStream watermarkStream = new FileInputStream(
-                    "C:/Users/USER/Documents/Cohas Bepanda/Cohas Bepanda/src/pics/logo.png")) {
+            try (FileInputStream watermarkStream = new FileInputStream(imageFile.getAbsolutePath())) {
                 XWPFParagraph watermarkParagraph = document.createParagraph();
                 watermarkParagraph.setAlignment(ParagraphAlignment.CENTER);
 
                 watermarkParagraph.createRun().addPicture(watermarkStream, XWPFDocument.PICTURE_TYPE_PNG,
-                        "C:/Users/USER/Documents/Cohas Bepanda/Cohas Bepanda/src/pics/logo.png", Units.toEMU(50),
+                imageFile.getAbsolutePath(), Units.toEMU(50),
                         Units.toEMU(50));
             } catch (IOException e) {
                 e.printStackTrace();
@@ -5274,7 +4752,7 @@ public class DashboardController implements Initializable {
             headerRow.getCell(9).setText("Sq6");
 
             // Database query to fetch class details based on the selected class and section
-            String selectData = "SELECT * FROM student WHERE class_name = ? AND section = ? AND academic_year = ?";
+            String selectData = "SELECT * FROM students WHERE class_name = ? AND section = ? AND academic_year = ?";
             try (PreparedStatement prepare = connect.prepareStatement(selectData)) {
                 prepare.setString(1, selectedClassName);
                 prepare.setString(2, selectedSection);
@@ -5595,7 +5073,7 @@ public class DashboardController implements Initializable {
     private double calculateTotalFirstPayments(Connection connect, LocalDate currentDate) throws SQLException {
         // Query to calculate the total first payments for the day
         String query = "SELECT SUM(first_payment_amount) AS total_first_payments " +
-                "FROM student " +
+                "FROM students " +
                 "WHERE DATE(date) = ?";
         double totalFirstPayments = 0.0;
 
@@ -5667,7 +5145,7 @@ public class DashboardController implements Initializable {
 
             // Database query to retrieve first payment amounts from the "student" table for
             // the current week
-            String selectStudentsData = "SELECT first_payment_amount FROM student WHERE date BETWEEN ? AND ?";
+            String selectStudentsData = "SELECT first_payment_amount FROM students WHERE date BETWEEN ? AND ?";
             try (PreparedStatement prepare = connect.prepareStatement(selectStudentsData)) {
                 prepare.setString(1, startDate.toString());
                 prepare.setString(2, endDate.toString());
@@ -5762,7 +5240,7 @@ public class DashboardController implements Initializable {
                     .setTextAlignment(TextAlignment.CENTER);
 
             // PdfCanvas canvas = new PdfCanvas(pdf.getFirstPage());
-            com.itextpdf.layout.element.Image watermarkImage = Logo.createWatermarkImage("C:/Users/USER/Documents/Cohas Bepanda/Cohas Bepanda/src/pics/logo.png");
+            com.itextpdf.layout.element.Image watermarkImage = Logo.createWatermarkImage(imageFile.getAbsolutePath());
             document.add(watermarkImage);
 
             document.add(header);
@@ -5775,7 +5253,7 @@ public class DashboardController implements Initializable {
             // Database query to retrieve daily total payments from the "payments" table for
             // each day of the week
             String selectPaymentsData = "SELECT payment_date, SUM(payment_amount) AS total_payment FROM payments WHERE payment_date BETWEEN ? AND ? GROUP BY payment_date";
-            String selectStudentsData = "SELECT date, SUM(first_payment_amount) AS total_payment FROM student WHERE date BETWEEN ? AND ? GROUP BY date";
+            String selectStudentsData = "SELECT date, SUM(first_payment_amount) AS total_payment FROM students WHERE date BETWEEN ? AND ? GROUP BY date";
 
             try (PreparedStatement preparePayments = connect.prepareStatement(selectPaymentsData);
                     PreparedStatement prepareStudents = connect.prepareStatement(selectStudentsData)) {
@@ -5893,7 +5371,7 @@ public class DashboardController implements Initializable {
                         .setTextAlignment(TextAlignment.CENTER);
 
                 // PdfCanvas canvas = new PdfCanvas(pdf.getFirstPage());
-                com.itextpdf.layout.element.Image watermarkImage = Logo.createWatermarkImage("C:/Users/USER/Documents/Cohas Bepanda/Cohas Bepanda/src/pics/logo.png");
+                com.itextpdf.layout.element.Image watermarkImage = Logo.createWatermarkImage(imageFile.getAbsolutePath());
                 document.add(watermarkImage);
     
                 document.add(headerDiv);
@@ -5901,7 +5379,7 @@ public class DashboardController implements Initializable {
                 // Database connection
                 // Connection connect = Database.connectDb();
 
-                String selectData = "SELECT class_name, section, amount_paid FROM student WHERE academic_year = ?";
+                String selectData = "SELECT class_name, section, amount_paid FROM students WHERE academic_year = ?";
                 try (PreparedStatement prepare = connect.prepareStatement(selectData)) {
                     prepare.setString(1, academicYear);
                     try (ResultSet resultSet = prepare.executeQuery()) {
@@ -6274,6 +5752,24 @@ public class DashboardController implements Initializable {
 
     // SORRY ABOUT THAT, I JUST NAMED THE DIFFERENT COMPONENTS WITH THE SAME NAME
     // MAKE SURE THAT THE NAME YOU GAVE TO THEM ARE DIFFERENT TO THE OTHER OKAY?
+
+    private String generateMatricule() {
+        String prefix = "CO";
+        String year = new SimpleDateFormat("yy").format(new java.util.Date());
+        String middle = generateRandomString(4);
+        return prefix + middle + year;
+    }
+
+    private String generateRandomString(int length) {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder sb = new StringBuilder(length);
+        Random random = new Random();
+        for (int i = 0; i < length; i++) {
+            sb.append(characters.charAt(random.nextInt(characters.length())));
+        }
+        return sb.toString();
+    }
+    
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         school_name.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -6302,6 +5798,9 @@ public class DashboardController implements Initializable {
         });
         updateteacher_name.textProperty().addListener((observable, oldValue, newValue) -> {
             updateteacher_name.setText(newValue.toUpperCase());
+        });
+        addStudents_firstName.textProperty().addListener((observable, oldValue, newValue) -> {
+            addStudents_firstName.setText(newValue.toUpperCase());
         });
         updateteacher_subjects.textProperty().addListener((observable, oldValue, newValue) -> {
             updateteacher_subjects.setText(newValue.toUpperCase());
@@ -6355,6 +5854,7 @@ public class DashboardController implements Initializable {
         // addStudentsCourseList();
         classYear();
         category();
+        classes();
 
         // handleAcademicYearSelection();
         // showClassInfo();
