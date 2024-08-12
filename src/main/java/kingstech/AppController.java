@@ -73,7 +73,7 @@ public class AppController implements Initializable {
                     Parent root = FXMLLoader.load(getClass().getResource("dashboard.fxml"));
                     Stage stage = new Stage();
                     Scene scene = new Scene(root);
-                    stage.setTitle("College of Hopes, Arts and Sciences - Dashboard");
+                    stage.setTitle("SAINT PETERS COMPREHENSIVE HIGH SCHOOL (ST.PCHS) - Dashboard");
                     stage.setMinWidth(1100);
                     stage.setMinHeight(650);
                     stage.setScene(scene);

@@ -20,9 +20,9 @@
          <children>
             <VBox alignment="CENTER" spacing="10">
                <FontAwesomeIconView fill="#faf8f8" glyphName="GRADUATION_CAP" size="150" />
-            <Label alignment="CENTER" prefHeight="52.0" prefWidth="350.0" text="COHAS BEPANDA" textFill="WHITE">
+            <Label alignment="CENTER" prefHeight="52.0" prefWidth="350.0" text="ST. PCHS" textFill="WHITE">
                <font>
-                  <Font name="Script MT Bold" size="30.0" />
+                  <Font name="Bell MT" size="30.0" />
                </font>
             </Label>
                <effect>

@@ -17,7 +17,7 @@ public class App extends Application {
 
         // Load the initial FXML file
         scene = new Scene(loadFXML("login"), 640, 480);
-        stage.setTitle("College of Hopes, Arts and Sciences");
+        stage.setTitle("SAINT PETERS COMPREHENSIVE HIGH SCHOOL (ST.PCHS)");
         stage.setMinWidth(660);
         stage.setMinHeight(480);
         stage.setScene(scene);
