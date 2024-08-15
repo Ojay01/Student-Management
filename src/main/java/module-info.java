@@ -10,6 +10,6 @@ module kingstech {
     requires org.apache.poi.poi;
     requires javafx.graphics;
 
-    opens kingstech to javafx.fxml;
+    opens kingstech to javafx.fxml, javafx.controls;
     exports kingstech;
 }

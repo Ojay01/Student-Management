@@ -6,15 +6,27 @@ import java.sql.SQLException;
 
 public class Database {
 
+    private static final String DATABASE_URL = "jdbc:sqlite:database.db";
+    
     public static Connection connectDb() {
         Connection connect = null;
         try {
-            // SQLite connection string
-            String url = "jdbc:sqlite:database.db";
-            connect = DriverManager.getConnection(url);
-            // System.out.println("Connection to SQLite has been established.");
+            // Explicitly load the SQLite JDBC driver
+            Class.forName("org.sqlite.JDBC");
+
+            // Attempt to establish a connection to the SQLite database
+            connect = DriverManager.getConnection(DATABASE_URL);
+            if (connect != null) {
+                System.out.println("Connection to SQLite has been established.");
+            }
+        } catch (ClassNotFoundException e) {
+            // Handle the exception when the JDBC driver class is not found
+            System.err.println("SQLite JDBC Driver not found.");
+            e.printStackTrace();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            // Handle SQL exceptions
+            System.err.println("Failed to connect to the SQLite database.");
+            e.printStackTrace(); // This will print the stack trace to help with debugging
         }
         return connect;
     }

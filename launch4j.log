@@ -1,0 +1,22 @@
+
+
+Version:	3.50
+CmdLine:	D:\public\cohas\Fees Management\cohas\st.pchs.exe --l4j-debug
+JNI:		No
+WOW64:		Yes
+Working dir:	D:\public\cohas\Fees Management\cohas\.
+Requires JDK:	No
+Requires 64-Bit: No
+Java min ver:	
+Java max ver:	
+Substitute:	JAVA_HOME = C:\Program Files\Java\jdk-22
+Substitute:	PATH = C:\Program Files\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\Common Files\Oracle\Java\java8path;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\MySQL\MySQL Server 8.0\bin;C:\Program Files\nodejs\;C:\ProgramData\chocolatey\bin;C:\Program Files\Git\cmd;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files\dotnet\;C:\Program Files\sqlite3;C:\ProgramData\ComposerSetup\bin;C:\Program Files\apache-maven-3.9.8\bin;C:\Users\Mengi Sharon\AppData\Local\Programs\Python\Launcher\;C:\Users\Mengi Sharon\AppData\Local\Microsoft\WindowsApps;C:\Users\Mengi Sharon\AppData\Roaming\npm;C:\Users\Mengi Sharon\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\php;C:\Users\Mengi Sharon\AppData\Roaming\Composer\vendor\bin;C:\Program Files\JetBrains\IntelliJ IDEA 2023.3.6\bin;;C:\Program Files\apache-maven-3.9.8\bin;C:\Program Files\Java\jdk-22\bin;C:\Program Files\Java\jdk-22\javafx-sdk-22\lib;C:\Program Files\sqlite3\sqlite3.exe;;C:\Program Files\Java\jdk-22\bin
+JRE paths:	C:\Program Files\Java\jdk-22;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\Common Files\Oracle\Java\java8path;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\MySQL\MySQL Server 8.0\bin;C:\Program Files\nodejs\;C:\ProgramData\chocolatey\bin;C:\Program Files\Git\cmd;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files\dotnet\;C:\Program Files\sqlite3;C:\ProgramData\ComposerSetup\bin;C:\Program Files\apache-maven-3.9.8\bin;C:\Users\Mengi Sharon\AppData\Local\Programs\Python\Launcher\;C:\Users\Mengi Sharon\AppData\Local\Microsoft\WindowsApps;C:\Users\Mengi Sharon\AppData\Roaming\npm;C:\Users\Mengi Sharon\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\php;C:\Users\Mengi Sharon\AppData\Roaming\Composer\vendor\bin;C:\Program Files\JetBrains\IntelliJ IDEA 2023.3.6\bin;;C:\Program Files\apache-maven-3.9.8\bin;C:\Program Files\Java\jdk-22\bin;C:\Program Files\Java\jdk-22\javafx-sdk-22\lib;C:\Program Files\sqlite3\sqlite3.exe;;C:\Program Files\Java\jdk-22\bin
+Check launcher:	C:\Program Files\Java\jdk-22\bin\javaw.exe (OK)
+Version string: 1.022.000 / 64-Bit (OK)
+Main class:	kingstech.EntryPoint
+Info:		Classpath not defined.
+Launcher:	C:\Program Files\Java\jdk-22\bin\javaw.exe
+Launcher args:	-classpath "D:\public\cohas\Fees Management\cohas\st.pchs.exe" kingstech.EntryPoint
+Args length:	83/32768 chars
+Exit code:	0

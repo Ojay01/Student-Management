@@ -1,0 +1,11 @@
+kingstech\settingsData.class
+kingstech\teacherData.class
+kingstech\studentData.class
+kingstech\Database.class
+kingstech\Logo.class
+module-info.class
+kingstech\EnrollmentData.class
+kingstech\AppController.class
+kingstech\getData.class
+kingstech\DashboardController.class
+kingstech\App.class

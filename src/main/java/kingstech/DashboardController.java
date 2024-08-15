@@ -2438,7 +2438,7 @@ public class DashboardController implements Initializable {
         teachers_tableView.setItems(sortList);
     }
 
-    private String[] year = { "2023-2024", "2024-2025" };
+    private String[] year = { "2024-2025", "2025-2026" };
 
     @SuppressWarnings("unchecked")
     public void classYear() {
