@@ -7,7 +7,8 @@ import java.sql.SQLException;
 public class Database {
 
     private static final String DATABASE_URL = "jdbc:sqlite:database.db";
-    
+
+    @SuppressWarnings("exports")
     public static Connection connectDb() {
         Connection connect = null;
         try {

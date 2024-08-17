@@ -132,6 +132,7 @@ public class teacherData {
         return gender;
     }
 
+    @SuppressWarnings("exports")
     public Date getDate_of_birth() {
         return date_of_birth;
     }

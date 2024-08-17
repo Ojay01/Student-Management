@@ -60,7 +60,7 @@ public class studentData {
     }
 
     // MAKE SURE THAT SAME DATATYPE THAT YOU WILL PUT THERE 
-    public studentData(Integer id, String name, String contact, String gender, Date date_of_birth, String class_name, String section, Double owing, String status, Double scholarship ) {
+    public studentData(Integer id, String name, String contact, String gender, @SuppressWarnings("exports") Date date_of_birth, String class_name, String section, Double owing, String status, Double scholarship ) {
         this.id = id;
         this.class_name = class_name;
         this.contact = contact;
@@ -165,6 +165,7 @@ public class studentData {
         return gender;
     }
 
+    @SuppressWarnings("exports")
     public Date getDate_of_birth() {
         return date_of_birth;
     }

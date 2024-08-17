@@ -60,10 +60,13 @@
                   <VBox.margin>
                      <Insets left="15.0" right="15.0" />
                   </VBox.margin></PasswordField>
-               <Button fx:id="login" mnemonicParsing="false" onAction="#loginAdmin" styleClass="login" stylesheets="@styles.css" text="Login" textFill="WHITE">
+               <Button fx:id="login" mnemonicParsing="false" onAction="#loginAdmin" prefHeight="38.0" prefWidth="162.0" styleClass="login" stylesheets="@styles.css" text="Login" textFill="WHITE">
                   <font>
-                     <Font size="15.0" />
+                     <Font name="System Bold Italic" size="15.0" />
                   </font>
+                  <graphic>
+                     <FontAwesomeIconView fill="WHITE" glyphName="SIGN_IN" scaleX="1.5" scaleY="1.5" scaleZ="1.5" wrappingWidth="12.857142448425293" />
+                  </graphic>
                </Button>
                <effect>
                   <Blend />

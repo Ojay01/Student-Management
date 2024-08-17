@@ -8,6 +8,7 @@ import com.itextpdf.layout.properties.HorizontalAlignment;
 import java.net.MalformedURLException;
 
 public class Logo {
+    @SuppressWarnings("exports")
     public static Image createWatermarkImage(String imagePath) {
         try {
             ImageData imageData = ImageDataFactory.create(imagePath);
