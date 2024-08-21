@@ -4,6 +4,7 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -41,7 +42,7 @@ public class AppController implements Initializable {
         String sql = "SELECT * FROM admin WHERE username = ? and password = ?";
 
         connect = Database.connectDb();
-
+        String academicYear = getAcademicYearFromSettings();
         try {
             Alert alert;
 
@@ -73,7 +74,7 @@ public class AppController implements Initializable {
                     Parent root = FXMLLoader.load(getClass().getResource("dashboard.fxml"));
                     Stage stage = new Stage();
                     Scene scene = new Scene(root);
-                    stage.setTitle("SAINT PETERS COMPREHENSIVE HIGH SCHOOL (ST.PCHS) - Dashboard");
+                    stage.setTitle("SAINT PETERS COMPREHENSIVE HIGH SCHOOL (ST.PCHS) - Dashboard -- " + academicYear);
                     stage.setMinWidth(1100);
                     stage.setMinHeight(650);
                     stage.setScene(scene);
@@ -100,8 +101,24 @@ public class AppController implements Initializable {
         }
     }
 
+        private String getAcademicYearFromSettings() {
+        String sqlSettings = "SELECT academicYear FROM settings";
+        try (Connection settingsConnection = Database.connectDb();
+                PreparedStatement settingsPrepare = settingsConnection.prepareStatement(sqlSettings);
+                ResultSet settingsResult = settingsPrepare.executeQuery()) {
+
+            if (settingsResult.next()) {
+                return settingsResult.getString("academicYear");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-       //
+        getAcademicYearFromSettings();
     }
 }

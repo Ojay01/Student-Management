@@ -1463,14 +1463,6 @@ public class DashboardController implements Initializable {
         return null;
     }
 
-    // private boolean newSectionsHaveValueOfZero(boolean... newSections) {
-    // for (boolean sectionValue : newSections) {
-    // if (!sectionValue) {
-    // return true; // At least one section has value of 0
-    // }
-    // }
-    // return false; // All new sections are selected
-    // }
 
     public void addClassesAdd() {
         String insertData = "INSERT INTO class "
@@ -2537,13 +2529,13 @@ public class DashboardController implements Initializable {
     @FXML
     private void handleClassSelection() {
         String selectedClass = addStudent_class.getValue();
-        String selectedYear = getAcademicYearFromSettings();
+        String selectedDep = department_addStudent.getValue();
         if (selectedClass == null) {
             return;
         }
         // Update the selected section based on the selected class
         try {
-            showSectionsForClass(selectedClass, selectedYear);
+            showSectionsForClass(selectedClass, selectedDep);
         } catch (SQLException e) {
             e.printStackTrace();
             // Handle the exception if necessary
@@ -2553,7 +2545,7 @@ public class DashboardController implements Initializable {
     @FXML
     private void handlePromoteSection() {
         String selectedClass = promoteClass.getValue();
-        String selectedYear = getAcademicYearFromSettings();
+        String selectedYear = promoteDepartment.getValue();
         if (selectedClass == null) {
             return;
         }
@@ -2569,13 +2561,13 @@ public class DashboardController implements Initializable {
     @FXML
     private void handleStudentClass() {
         String selectedStudentClass = classRecord_Download.getValue();
-        String selectedYear = getAcademicYearFromSettings();
+        String selectedDep = department_details.getValue();
         if (selectedStudentClass == null) {
             return;
         }
         // Update the selected section based on the selected class
         try {
-            showSectionsForStudent(selectedStudentClass, selectedYear);
+            showSectionsForStudent(selectedStudentClass, selectedDep);
         } catch (SQLException e) {
             e.printStackTrace();
             // Handle the exception if necessary
@@ -2585,22 +2577,22 @@ public class DashboardController implements Initializable {
     @FXML
     private void handleClassMarksheet() {
         String selectedClassMarksheet = marksheet_class.getValue();
-        String selectedYear = getAcademicYearFromSettings();
+        String selectedDep = department_marksheet.getValue();
         if (selectedClassMarksheet == null) {
             return;
         }
         // Update the selected section based on the selected class
         try {
-            showSectionsForMarksheet(selectedClassMarksheet, selectedYear);
+            showSectionsForMarksheet(selectedClassMarksheet, selectedDep);
         } catch (SQLException e) {
             e.printStackTrace();
             // Handle the exception if necessary
         }
     }
 
-    private void showSectionsForStudent(String className, String academicYear) throws SQLException {
+    private void showSectionsForStudent(String className, String academicDep) throws SQLException {
         String query = "SELECT A1, A2, B1, B2, Arts, Science, Commercial, C " +
-                "FROM class WHERE class_name = ? ";
+                "FROM class WHERE class_name = ? AND category = ?";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -2611,7 +2603,7 @@ public class DashboardController implements Initializable {
             // connection = Database.connectDb();
             preparedStatement = connect.prepareStatement(query);
             preparedStatement.setString(1, className);
-            // preparedStatement.setString(2, academicYear);
+            preparedStatement.setString(2, academicDep);
             resultSet = preparedStatement.executeQuery();
 
             // Clear any previous items in the ComboBox
@@ -2695,9 +2687,9 @@ public class DashboardController implements Initializable {
         }
     }
 
-    private void showSectionsForClass(String className, String academicYear) throws SQLException {
+    private void showSectionsForClass(String className, String academicDep) throws SQLException {
         String query = "SELECT A1, A2, B1, B2, Arts, Science, Commercial, C " +
-                "FROM class WHERE class_name = ? ";
+                "FROM class WHERE class_name = ? AND category = ?";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -2708,7 +2700,7 @@ public class DashboardController implements Initializable {
             connection = Database.connectDb();
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, className);
-            // preparedStatement.setString(2, academicYear);
+            preparedStatement.setString(2, academicDep);
             resultSet = preparedStatement.executeQuery();
 
             // Clear any previous items in the ComboBox
@@ -2792,9 +2784,9 @@ public class DashboardController implements Initializable {
         }
     }
 
-    private void showPromoteSectionsForClass(String className, String academicYear) throws SQLException {
+    private void showPromoteSectionsForClass(String className, String academicDep) throws SQLException {
         String query = "SELECT A1, A2, B1, B2, Arts, Science, Commercial, C " +
-                "FROM class WHERE class_name = ? ";
+                "FROM class WHERE class_name = ? AND category = ?";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -2805,7 +2797,7 @@ public class DashboardController implements Initializable {
             connection = Database.connectDb();
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, className);
-            // preparedStatement.setString(2, academicYear);
+            preparedStatement.setString(2, academicDep);
             resultSet = preparedStatement.executeQuery();
 
             // Clear any previous items in the ComboBox
@@ -2904,9 +2896,9 @@ public class DashboardController implements Initializable {
         }
     }
 
-    private void showSectionsForMarksheet(String className, String academicYear) throws SQLException {
+    private void showSectionsForMarksheet(String className, String academicDep) throws SQLException {
         String query = "SELECT A1, A2, B1, B2, Arts, Science, Commercial, C " +
-                "FROM class WHERE class_name = ?";
+                "FROM class WHERE class_name = ? AND category = ?";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
@@ -2917,7 +2909,7 @@ public class DashboardController implements Initializable {
             connection = Database.connectDb();
             preparedStatement = connect.prepareStatement(query);
             preparedStatement.setString(1, className);
-            // preparedStatement.setString(2, academicYear);
+            preparedStatement.setString(2, academicDep);
             resultSet = preparedStatement.executeQuery();
 
             // Clear any previous items in the ComboBox
