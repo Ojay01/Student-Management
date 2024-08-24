@@ -6165,12 +6165,12 @@ public class DashboardController implements Initializable {
                         int studentCount = studentsMap.get(classSectionKey).get(category);
                         double actualFees = feesMap.get(classSectionKey).get(category);
 
-                        double regFee = calculateRegFee(className, section);
-                        double pracFee = calculatePractical(className, section);
+                        double regFee = calculateRegFee(className, section) * studentCount;
+                        double pracFee = calculatePractical(className, section) * studentCount;
 
                         totalStudents += studentCount;
-                        totalRegFees += regFee * studentCount;
-                        totalPracFees += pracFee * studentCount;
+                        totalRegFees += regFee ;
+                        totalPracFees += pracFee ;
                         totalActualFees += actualFees;
 
                         // Add cells to the table
