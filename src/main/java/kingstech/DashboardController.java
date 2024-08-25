@@ -782,6 +782,7 @@ public class DashboardController implements Initializable {
     private File imageFile = new File("src/main/resources/pics/logo.jpg");
     private int selectedStudentId = -1;
     private String selectedStudentMatricule = "";
+    private String academicYear = "";
     private String selectedStudentName = "";
     private Image image;
 
@@ -1464,147 +1465,251 @@ public class DashboardController implements Initializable {
     }
 
 
+    // public void addClassesAdd() {
+    //     String insertData = "INSERT INTO class "
+    //             + "(class_name, school_fees, academic_year, A1, A2, B1, B2, Arts, Science, Commercial, C, category) "
+    //             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    //     String checkData = "SELECT DISTINCT class_name, school_fees, A1, A2, B1, B2, Arts, Science, Commercial, C, category "
+    //             + "FROM class WHERE class_name = ? AND academic_year = ? AND category = ?";
+
+    //     String updateData = "UPDATE class SET school_fees = ?, A1 = ?, A2 = ?, B1 = ?, B2 = ?, Arts = ?, Science = ?, Commercial = ?, C = ?, category = ? "
+    //             + "WHERE class_name = ? AND academic_year = ? AND category = ?";
+
+    //     Connection connect = null;
+    //     PreparedStatement checkPrepare = null;
+    //     PreparedStatement prepare = null;
+    //     PreparedStatement updatePrepare = null;
+
+    //     try {
+    //         connect = Database.connectDb();
+    //         if (connect == null) {
+    //             showAlert("Database Error", "Database connection could not be established.", Alert.AlertType.ERROR);
+    //             return;
+    //         }
+
+    //         checkPrepare = connect.prepareStatement(checkData);
+    //         prepare = connect.prepareStatement(insertData);
+    //         updatePrepare = connect.prepareStatement(updateData);
+
+    //         if (classes.getSelectedToggle() == null
+    //                 || enter_fees.getText().isEmpty()
+    //                 || department.getSelectionModel().isEmpty()
+    //                 || (!A1_btn.isSelected()
+    //                         && !A2_btn.isSelected()
+    //                         && !B1_btn.isSelected()
+    //                         && !b2_btn.isSelected()
+    //                         && !C_btn.isSelected()
+    //                         && !arts_btn.isSelected()
+    //                         && !science_btn.isSelected()
+    //                         && !commercial_btn.isSelected())) {
+
+    //             showAlert("Error Message", "Please fill all blank fields", Alert.AlertType.ERROR);
+    //         } else {
+    //             String academicYear = getAcademicYearFromSettings();
+    //             String selectedCategory = department.getSelectionModel().getSelectedItem();
+
+    //             if (academicYear == null) {
+    //                 showAlert("Error Message", "Academic year not set in the settings table!", Alert.AlertType.ERROR);
+    //             } else {
+    //                 checkPrepare.setString(1, ((RadioButton) classes.getSelectedToggle()).getText());
+    //                 checkPrepare.setString(2, academicYear);
+    //                 checkPrepare.setString(3, selectedCategory);
+    //                 ResultSet result = checkPrepare.executeQuery();
+
+    //                 if (result.next()) {
+    //                     String existingSections = getCheckedSectionsFromResultSet(result);
+    //                     Alert confirmationAlert = new Alert(AlertType.CONFIRMATION);
+    //                     confirmationAlert.setTitle("Confirmation");
+    //                     confirmationAlert.setHeaderText(null);
+
+    //                     confirmationAlert.setContentText("Class "
+    //                             + ((RadioButton) classes.getSelectedToggle()).getText() +
+    //                             " already has sections (" + existingSections +
+    //                             ") for this academic year and category (" + selectedCategory
+    //                             + "). Do you wish to update the sections and school fees?");
+
+    //                     Optional<ButtonType> resultButton = confirmationAlert.showAndWait();
+
+    //                     if (resultButton.isPresent() && resultButton.get() == ButtonType.OK) {
+    //                         boolean existingA1 = result.getBoolean("A1");
+    //                         boolean existingA2 = result.getBoolean("A2");
+    //                         boolean existingB1 = result.getBoolean("B1");
+    //                         boolean existingB2 = result.getBoolean("B2");
+    //                         boolean existingArts = result.getBoolean("Arts");
+    //                         boolean existingScience = result.getBoolean("Science");
+    //                         boolean existingC = result.getBoolean("C");
+    //                         boolean existingCommercial = result.getBoolean("Commercial");
+
+    //                         updatePrepare.setString(1, enter_fees.getText());
+    //                         updatePrepare.setBoolean(2, A1_btn.isSelected() ? true : existingA1);
+    //                         updatePrepare.setBoolean(3, A2_btn.isSelected() ? true : existingA2);
+    //                         updatePrepare.setBoolean(4, B1_btn.isSelected() ? true : existingB1);
+    //                         updatePrepare.setBoolean(5, b2_btn.isSelected() ? true : existingB2);
+    //                         updatePrepare.setBoolean(6, arts_btn.isSelected() ? true : existingArts);
+    //                         updatePrepare.setBoolean(7, science_btn.isSelected() ? true : existingScience);
+    //                         updatePrepare.setBoolean(8, commercial_btn.isSelected() ? true : existingCommercial);
+    //                         updatePrepare.setBoolean(9, C_btn.isSelected() ? true : existingC);
+    //                         updatePrepare.setString(10, selectedCategory);
+    //                         updatePrepare.setString(11, ((RadioButton) classes.getSelectedToggle()).getText());
+    //                         updatePrepare.setString(12, academicYear);
+
+    //                         // updatePrepare.executeUpdate();
+
+    //                         int rowsUpdated = updatePrepare.executeUpdate();
+    //                         if (rowsUpdated > 0) {
+    //                             showAlert("Information Message", "Class updated successfully!", Alert.AlertType.INFORMATION);
+    //                         } else {
+    //                             showAlert("Information Message", "No class was updated. Please check the input data.", Alert.AlertType.WARNING);
+    //                         }
+    //                         showAllClassListData();
+    //                         clearInputs();
+    //                     }
+    //                 } else {
+    //                     prepare.setString(1, ((RadioButton) classes.getSelectedToggle()).getText());
+    //                     prepare.setString(2, enter_fees.getText());
+    //                     prepare.setString(3, academicYear);
+    //                     prepare.setBoolean(4, A1_btn.isSelected());
+    //                     prepare.setBoolean(5, A2_btn.isSelected());
+    //                     prepare.setBoolean(6, B1_btn.isSelected());
+    //                     prepare.setBoolean(7, b2_btn.isSelected());
+    //                     prepare.setBoolean(8, arts_btn.isSelected());
+    //                     prepare.setBoolean(9, science_btn.isSelected());
+    //                     prepare.setBoolean(10, commercial_btn.isSelected());
+    //                     prepare.setBoolean(11, C_btn.isSelected());
+    //                     prepare.setString(12, selectedCategory);
+
+    //                     prepare.executeUpdate();
+
+    //                     showAlert("Information Message", "Successfully Added!", Alert.AlertType.INFORMATION);
+
+    //                     showAllClassListData();
+    //                     clearInputs();
+    //                 }
+    //             }
+    //         }
+    //     } catch (SQLException e) {
+    //         e.printStackTrace();
+    //         showAlert("Database Error", "Error occurred while accessing the database: " + e.getMessage(),
+    //                 Alert.AlertType.ERROR);
+    //     } finally {
+    //         try {
+    //             if (checkPrepare != null)
+    //                 checkPrepare.close();
+    //             if (prepare != null)
+    //                 prepare.close();
+    //             if (updatePrepare != null)
+    //                 updatePrepare.close();
+    //             if (connect != null)
+    //                 connect.close();
+    //         } catch (SQLException e) {
+    //             e.printStackTrace();
+    //             showAlert("Database Error", "Error occurred while closing the database connection: " + e.getMessage(),
+    //                     Alert.AlertType.ERROR);
+    //         }
+    //     }
+    // }
+
     public void addClassesAdd() {
-        String insertData = "INSERT INTO class "
-                + "(class_name, school_fees, academic_year, A1, A2, B1, B2, Arts, Science, Commercial, C, category) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-        String checkData = "SELECT DISTINCT class_name, school_fees, A1, A2, B1, B2, Arts, Science, Commercial, C, category "
-                + "FROM class WHERE class_name = ? AND academic_year = ? AND category = ?";
-
-        String updateData = "UPDATE class SET school_fees = ?, A1 = ?, A2 = ?, B1 = ?, B2 = ?, Arts = ?, Science = ?, Commercial = ?, C = ?, category = ? "
-                + "WHERE class_name = ? AND academic_year = ? AND category = ?";
-
-        Connection connect = null;
-        PreparedStatement checkPrepare = null;
-        PreparedStatement prepare = null;
-        PreparedStatement updatePrepare = null;
-
-        try {
-            connect = Database.connectDb();
+        String insertData = "INSERT INTO class (class_name, school_fees, academic_year, A1, A2, B1, B2, Arts, Science, Commercial, C, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String checkData = "SELECT DISTINCT class_name, school_fees, A1, A2, B1, B2, Arts, Science, Commercial, C, category FROM class WHERE class_name = ? AND academic_year = ? AND category = ?";
+        String updateData = "UPDATE class SET school_fees = ?, A1 = ?, A2 = ?, B1 = ?, B2 = ?, Arts = ?, Science = ?, Commercial = ?, C = ? WHERE class_name = ? AND academic_year = ? AND category = ?";
+    
+        try (Connection connect = Database.connectDb()) {
             if (connect == null) {
                 showAlert("Database Error", "Database connection could not be established.", Alert.AlertType.ERROR);
                 return;
             }
-
-            checkPrepare = connect.prepareStatement(checkData);
-            prepare = connect.prepareStatement(insertData);
-            updatePrepare = connect.prepareStatement(updateData);
-
-            if (classes.getSelectedToggle() == null
-                    || enter_fees.getText().isEmpty()
-                    || department.getSelectionModel().isEmpty()
-                    || (!A1_btn.isSelected()
-                            && !A2_btn.isSelected()
-                            && !B1_btn.isSelected()
-                            && !b2_btn.isSelected()
-                            && !C_btn.isSelected()
-                            && !arts_btn.isSelected()
-                            && !science_btn.isSelected()
-                            && !commercial_btn.isSelected())) {
-
-                showAlert("Error Message", "Please fill all blank fields", Alert.AlertType.ERROR);
-            } else {
-                String academicYear = getAcademicYearFromSettings();
-                String selectedCategory = department.getSelectionModel().getSelectedItem();
-
-                if (academicYear == null) {
-                    showAlert("Error Message", "Academic year not set in the settings table!", Alert.AlertType.ERROR);
+    
+            try (PreparedStatement checkPrepare = connect.prepareStatement(checkData);
+                 PreparedStatement prepare = connect.prepareStatement(insertData);
+                 PreparedStatement updatePrepare = connect.prepareStatement(updateData)) {
+    
+                if (classes.getSelectedToggle() == null
+                        || enter_fees.getText().isEmpty()
+                        || department.getSelectionModel().isEmpty()
+                        || (!A1_btn.isSelected() && !A2_btn.isSelected() && !B1_btn.isSelected() && !b2_btn.isSelected() && !C_btn.isSelected() && !arts_btn.isSelected() && !science_btn.isSelected() && !commercial_btn.isSelected())) {
+    
+                    showAlert("Error Message", "Please fill all blank fields", Alert.AlertType.ERROR);
                 } else {
-                    checkPrepare.setString(1, ((RadioButton) classes.getSelectedToggle()).getText());
-                    checkPrepare.setString(2, academicYear);
-                    checkPrepare.setString(3, selectedCategory);
-                    ResultSet result = checkPrepare.executeQuery();
+                    String className = ((RadioButton) classes.getSelectedToggle()).getText().trim();
+                    String academicYear = getAcademicYearFromSettings().trim();
+                    String selectedCategory = department.getSelectionModel().getSelectedItem().trim();
+    
+                    if (academicYear == null) {
+                        showAlert("Error Message", "Academic year not set in the settings table!", Alert.AlertType.ERROR);
+                    } else {
+                        checkPrepare.setString(1, className);
+                        checkPrepare.setString(2, academicYear);
+                        checkPrepare.setString(3, selectedCategory);
+                        ResultSet result = checkPrepare.executeQuery();
+    
+                        if (result.next()) {
+                            String existingSections = getCheckedSectionsFromResultSet(result);
+                            Alert confirmationAlert = new Alert(AlertType.CONFIRMATION);
+                            confirmationAlert.setTitle("Confirmation");
+                            confirmationAlert.setHeaderText(null);
+                            confirmationAlert.setContentText("Class " + className + " already has sections (" + existingSections + ") for this academic year and category (" + selectedCategory + "). Do you wish to update the sections and school fees?");
+    
+                            Optional<ButtonType> resultButton = confirmationAlert.showAndWait();
+    
+                            if (resultButton.isPresent() && resultButton.get() == ButtonType.OK) {
 
-                    if (result.next()) {
-                        String existingSections = getCheckedSectionsFromResultSet(result);
-                        Alert confirmationAlert = new Alert(AlertType.CONFIRMATION);
-                        confirmationAlert.setTitle("Confirmation");
-                        confirmationAlert.setHeaderText(null);
-
-                        confirmationAlert.setContentText("Class "
-                                + ((RadioButton) classes.getSelectedToggle()).getText() +
-                                " already has sections (" + existingSections +
-                                ") for this academic year and category (" + selectedCategory
-                                + "). Do you wish to update the sections and school fees?");
-
-                        Optional<ButtonType> resultButton = confirmationAlert.showAndWait();
-
-                        if (resultButton.isPresent() && resultButton.get() == ButtonType.OK) {
-                            boolean existingA1 = result.getBoolean("A1");
-                            boolean existingA2 = result.getBoolean("A2");
-                            boolean existingB1 = result.getBoolean("B1");
-                            boolean existingB2 = result.getBoolean("B2");
-                            boolean existingArts = result.getBoolean("Arts");
-                            boolean existingScience = result.getBoolean("Science");
-                            boolean existingC = result.getBoolean("C");
-                            boolean existingCommercial = result.getBoolean("Commercial");
-
-                            updatePrepare.setString(1, enter_fees.getText());
-                            updatePrepare.setBoolean(2, A1_btn.isSelected() ? true : existingA1);
-                            updatePrepare.setBoolean(3, A2_btn.isSelected() ? true : existingA2);
-                            updatePrepare.setBoolean(4, B1_btn.isSelected() ? true : existingB1);
-                            updatePrepare.setBoolean(5, b2_btn.isSelected() ? true : existingB2);
-                            updatePrepare.setBoolean(6, arts_btn.isSelected() ? true : existingArts);
-                            updatePrepare.setBoolean(7, science_btn.isSelected() ? true : existingScience);
-                            updatePrepare.setBoolean(8, commercial_btn.isSelected() ? true : existingCommercial);
-                            updatePrepare.setBoolean(9, C_btn.isSelected() ? true : existingC);
-                            updatePrepare.setString(10, selectedCategory);
-                            updatePrepare.setString(11, ((RadioButton) classes.getSelectedToggle()).getText());
-                            updatePrepare.setString(12, academicYear);
-
-                            updatePrepare.executeUpdate();
-
-                            showAlert("Information Message", "Class updated successfully!",
-                                    Alert.AlertType.INFORMATION);
-
+                                updatePrepare.setString(1, enter_fees.getText().trim());
+                                updatePrepare.setBoolean(2, A1_btn.isSelected()); // Directly use isSelected()
+                                updatePrepare.setBoolean(3, A2_btn.isSelected());
+                                updatePrepare.setBoolean(4, B1_btn.isSelected());
+                                updatePrepare.setBoolean(5, b2_btn.isSelected());
+                                updatePrepare.setBoolean(6, arts_btn.isSelected());
+                                updatePrepare.setBoolean(7, science_btn.isSelected());
+                                updatePrepare.setBoolean(8, commercial_btn.isSelected());
+                                updatePrepare.setBoolean(9, C_btn.isSelected());
+                                updatePrepare.setString(10, className);
+                                updatePrepare.setString(11, academicYear);
+                                updatePrepare.setString(12, selectedCategory);
+                                
+                                int rowsUpdated = updatePrepare.executeUpdate();
+    
+                                if (rowsUpdated > 0) {
+                                    showAlert("Information Message", "Class updated successfully!", Alert.AlertType.INFORMATION);
+                                } else {
+                                    showAlert("Information Message", "No class was updated. Please check the input data.", Alert.AlertType.WARNING);
+                                }
+    
+                                showAllClassListData();
+                                clearInputs();
+                            }
+                        } else {
+                            prepare.setString(1, className);
+                            prepare.setString(2, enter_fees.getText().trim());
+                            prepare.setString(3, academicYear);
+                            prepare.setBoolean(4, A1_btn.isSelected());
+                            prepare.setBoolean(5, A2_btn.isSelected());
+                            prepare.setBoolean(6, B1_btn.isSelected());
+                            prepare.setBoolean(7, b2_btn.isSelected());
+                            prepare.setBoolean(8, arts_btn.isSelected());
+                            prepare.setBoolean(9, science_btn.isSelected());
+                            prepare.setBoolean(10, commercial_btn.isSelected());
+                            prepare.setBoolean(11, C_btn.isSelected());
+                            prepare.setString(12, selectedCategory);
+    
+                            prepare.executeUpdate();
+    
+                            showAlert("Information Message", "Successfully Added!", Alert.AlertType.INFORMATION);
+    
                             showAllClassListData();
                             clearInputs();
                         }
-                    } else {
-                        prepare.setString(1, ((RadioButton) classes.getSelectedToggle()).getText());
-                        prepare.setString(2, enter_fees.getText());
-                        prepare.setString(3, academicYear);
-                        prepare.setBoolean(4, A1_btn.isSelected());
-                        prepare.setBoolean(5, A2_btn.isSelected());
-                        prepare.setBoolean(6, B1_btn.isSelected());
-                        prepare.setBoolean(7, b2_btn.isSelected());
-                        prepare.setBoolean(8, arts_btn.isSelected());
-                        prepare.setBoolean(9, science_btn.isSelected());
-                        prepare.setBoolean(10, commercial_btn.isSelected());
-                        prepare.setBoolean(11, C_btn.isSelected());
-                        prepare.setString(12, selectedCategory);
-
-                        prepare.executeUpdate();
-
-                        showAlert("Information Message", "Successfully Added!", Alert.AlertType.INFORMATION);
-
-                        showAllClassListData();
-                        clearInputs();
                     }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            showAlert("Database Error", "Error occurred while accessing the database: " + e.getMessage(),
-                    Alert.AlertType.ERROR);
-        } finally {
-            try {
-                if (checkPrepare != null)
-                    checkPrepare.close();
-                if (prepare != null)
-                    prepare.close();
-                if (updatePrepare != null)
-                    updatePrepare.close();
-                if (connect != null)
-                    connect.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                showAlert("Database Error", "Error occurred while closing the database connection: " + e.getMessage(),
-                        Alert.AlertType.ERROR);
-            }
+            showAlert("Database Error", "Error occurred while accessing the database: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
+    
+    
 
     private void clearInputs() {
         classes.getSelectedToggle().setSelected(false);
@@ -1694,13 +1799,14 @@ public class DashboardController implements Initializable {
             }
 
             // Get class_id based on selected class_name, section, and academic_year
-            String getClassIdQuery = "SELECT id, school_fees FROM class WHERE class_name = ? AND "
-                    + selectedSection + " = 1";
+            String getClassIdQuery = "SELECT id, school_fees FROM class WHERE class_name = ? AND " 
+            + selectedSection + " = 1 AND category = ?";    
             @SuppressWarnings("unused")
             int classId = 0;
             double schoolFees = 0.0;
             try (PreparedStatement classPrepare = connect.prepareStatement(getClassIdQuery)) {
                 classPrepare.setString(1, className);
+                classPrepare.setString(2, selectedDepartment);
                 ResultSet result = classPrepare.executeQuery();
                 if (result.next()) {
                     classId = result.getInt("id");
@@ -2262,20 +2368,20 @@ public class DashboardController implements Initializable {
 
                 if (predicateStudentData.getStatus().toLowerCase().contains(searchKey)) {
                     return true;
-                } else if (predicateStudentData.getId().toString().contains(searchKey)) {
+                } else if (predicateStudentData.getStudentId().toString().contains(searchKey)) {
                     return true;
-                } else if (predicateStudentData.getStatus().toLowerCase().contains(searchKey)) {
+                } else if (predicateStudentData.getName().toLowerCase().contains(searchKey)) {
                     return true;
                 } else if (predicateStudentData.getClassName().toLowerCase().contains(searchKey)) {
                     return true;
                     // } else if
                     // (predicateStudentData.getContact().toLowerCase().contains(searchKey)) {
                     // return true;
-                } else if (predicateStudentData.getStatus().toLowerCase().contains(searchKey)) {
+                } else if (predicateStudentData.getSection().toLowerCase().contains(searchKey)) {
                     return true;
-                } else if (predicateStudentData.getStatus().toString().contains(searchKey)) {
+                } else if (predicateStudentData.getOwing().toString().contains(searchKey)) {
                     return true;
-                } else if (predicateStudentData.getStatus().toLowerCase().contains(searchKey)) {
+                } else if (predicateStudentData.getGender().toLowerCase().contains(searchKey)) {
                     return true;
                 } else {
                     return false;
@@ -3079,7 +3185,7 @@ public class DashboardController implements Initializable {
     public void addStudentsShowListData() {
         addStudentsListD = addStudentsListData(null);
 
-        addStudents_col_studentNum.setCellValueFactory(new PropertyValueFactory<>("id"));
+        addStudents_col_studentNum.setCellValueFactory(new PropertyValueFactory<>("studentId"));
         addStudents_col_course.setCellValueFactory(new PropertyValueFactory<>("contact"));
         addStudents_col_firstName.setCellValueFactory(new PropertyValueFactory<>("name"));
         showClass_col_B1.setCellValueFactory(new PropertyValueFactory<>("section"));
@@ -4605,58 +4711,76 @@ public class DashboardController implements Initializable {
 
     public void removeStudent(String selectedStudentMatricule) {
         String studentName = getStudentName(selectedStudentMatricule);
+        String academicYear = getAcademicYearFromSettings();
+
         if (studentName == null) {
             showAlert("Error", "Student not found.", Alert.AlertType.ERROR);
             return;
         }
-
+    
         Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmationAlert.setTitle("Confirmation Dialog");
         confirmationAlert.setHeaderText(null);
         confirmationAlert.setContentText(
-                "Are you sure you want to delete the student '" + studentName + "' and all related records?");
-
+                "Are you sure you want to delete the student '" + studentName + "' and all related records for the academic year " + academicYear + "?");
+    
         Optional<ButtonType> result = confirmationAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            String deleteStudentQuery = "DELETE FROM students WHERE matricule = ?";
-            String deleteEnrollmentsQuery = "DELETE FROM enrollments WHERE student_id = ?";
+            String deleteEnrollmentsQuery = "DELETE FROM enrollments WHERE student_id = ? AND academic_year = ?";
             String deleteFeesQuery = "DELETE FROM fees WHERE enrollment_id IN (SELECT id FROM enrollments WHERE student_id = ?)";
-
+            String checkOtherEnrollmentsQuery = "SELECT COUNT(*) AS count FROM enrollments WHERE student_id = ?";
+            String deleteStudentQuery = "DELETE FROM students WHERE matricule = ?";
+    
             Connection connect = Database.connectDb();
             if (connect == null) {
                 showAlert("Database Error", "Database connection could not be established.", Alert.AlertType.ERROR);
                 return;
             }
-
+    
             try {
                 connect.setAutoCommit(false); // Start transaction
-
-                // Delete fees records related to the student's enrollments
+    
+                // Delete fees records related to the student's enrollments for the specific academic year
                 try (PreparedStatement deleteFeesStmt = connect.prepareStatement(deleteFeesQuery)) {
                     deleteFeesStmt.setString(1, selectedStudentMatricule);
                     deleteFeesStmt.executeUpdate();
                 }
-
-                // Delete enrollments records related to the student
+    
+                // Delete enrollments records related to the student for the specific academic year
                 try (PreparedStatement deleteEnrollmentsStmt = connect.prepareStatement(deleteEnrollmentsQuery)) {
                     deleteEnrollmentsStmt.setString(1, selectedStudentMatricule);
+                    deleteEnrollmentsStmt.setString(2, academicYear);
                     deleteEnrollmentsStmt.executeUpdate();
                 }
-
-                // Delete the student record
-                try (PreparedStatement deleteStudentStmt = connect.prepareStatement(deleteStudentQuery)) {
-                    deleteStudentStmt.setString(1, selectedStudentMatricule);
-                    deleteStudentStmt.executeUpdate();
+    
+                // Check if there are any other enrollments for the student
+                boolean hasOtherEnrollments = false;
+                try (PreparedStatement checkEnrollmentsStmt = connect.prepareStatement(checkOtherEnrollmentsQuery)) {
+                    checkEnrollmentsStmt.setString(1, selectedStudentMatricule);
+                    try (ResultSet rs = checkEnrollmentsStmt.executeQuery()) {
+                        if (rs.next()) {
+                            int count = rs.getInt("count");
+                            hasOtherEnrollments = (count > 0);
+                        }
+                    }
                 }
-
+    
+                // If no other enrollments exist, delete the student record
+                if (!hasOtherEnrollments) {
+                    try (PreparedStatement deleteStudentStmt = connect.prepareStatement(deleteStudentQuery)) {
+                        deleteStudentStmt.setString(1, selectedStudentMatricule);
+                        deleteStudentStmt.executeUpdate();
+                    }
+                }
+    
                 connect.commit(); // Commit transaction
-
-                showAlert("Information Message", "Student and related records deleted successfully!",
+    
+                showAlert("Information Message", "Student and related records for the academic year " + academicYear + " deleted successfully!",
                         Alert.AlertType.INFORMATION);
                 personal_form.setVisible(false);
                 all_students_form.setVisible(true);
                 addStudentsShowListData();
-
+    
             } catch (SQLException e) {
                 try {
                     if (connect != null) {
@@ -4682,6 +4806,7 @@ public class DashboardController implements Initializable {
             showAlert("Information Message", "Student deletion cancelled.", Alert.AlertType.INFORMATION);
         }
     }
+    
 
     private String getStudentName(String studentMatricule) {
         String query = "SELECT name FROM students WHERE matricule = ?";
@@ -4934,6 +5059,10 @@ public class DashboardController implements Initializable {
             String selectedSection = (String) PromoteSection.getSelectionModel().getSelectedItem();
             String selectedDepartment = (String) promoteDepartment.getSelectionModel().getSelectedItem();
 
+            if (promoteStudent_paid.getText().isEmpty()) {
+                showAlert("Error Message", "Amount field cannot be empty.", Alert.AlertType.ERROR);
+                return;
+            }
             // Check if the student is already enrolled for the new academic year
             String checkEnrollment = "SELECT id FROM enrollments WHERE student_id = ? AND class_name = ? AND section = ? AND academic_year = ?";
             try (PreparedStatement checkPrepare = connect.prepareStatement(checkEnrollment)) {
@@ -4951,13 +5080,15 @@ public class DashboardController implements Initializable {
 
             // Get class_id and school_fees based on selected class_name, section, and
             // academic_year
-            String getClassIdQuery = "SELECT id, school_fees FROM class WHERE class_name = ? AND " + selectedSection
-                    + " = 1";
+            String getClassIdQuery = "SELECT id, school_fees FROM class WHERE class_name = ? AND " 
+            + selectedSection + " = 1 AND category = ?";
+    
             @SuppressWarnings("unused")
             int classId = 0;
             double schoolFees = 0.0;
             try (PreparedStatement classPrepare = connect.prepareStatement(getClassIdQuery)) {
                 classPrepare.setString(1, className);
+                classPrepare.setString(2, selectedDepartment);
                 resultSet = classPrepare.executeQuery();
                 if (resultSet.next()) {
                     classId = resultSet.getInt("id");
