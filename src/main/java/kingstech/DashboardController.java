@@ -1,9 +1,9 @@
 package kingstech;
 
-import java.util.Random;
-import java.io.FileOutputStream;
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
@@ -11,9 +11,14 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,7 +26,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.ResourceBundle;
+
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -37,7 +44,8 @@ import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
-import com.itextpdf.kernel.pdf.*;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.element.Cell;
@@ -47,19 +55,7 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.layout.properties.VerticalAlignment;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableView;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import javafx.stage.Stage;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import java.awt.Toolkit;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.TemporalAdjusters;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -70,12 +66,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -84,12 +82,17 @@ import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Stage;
 
 public class DashboardController implements Initializable {
 
@@ -1610,104 +1613,147 @@ public class DashboardController implements Initializable {
     //     }
     // }
 
-    public void addClassesAdd() {
-        String insertData = "INSERT INTO class (class_name, school_fees, academic_year, A1, A2, B1, B2, Arts, Science, Commercial, C, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        String checkData = "SELECT DISTINCT class_name, school_fees, A1, A2, B1, B2, Arts, Science, Commercial, C, category FROM class WHERE class_name = ? AND academic_year = ? AND category = ?";
-        String updateData = "UPDATE class SET school_fees = ?, A1 = ?, A2 = ?, B1 = ?, B2 = ?, Arts = ?, Science = ?, Commercial = ?, C = ? WHERE class_name = ? AND academic_year = ? AND category = ?";
-    
-        try (Connection connect = Database.connectDb()) {
-            if (connect == null) {
-                showAlert("Database Error", "Database connection could not be established.", Alert.AlertType.ERROR);
-                return;
-            }
-    
-            try (PreparedStatement checkPrepare = connect.prepareStatement(checkData);
-                 PreparedStatement prepare = connect.prepareStatement(insertData);
-                 PreparedStatement updatePrepare = connect.prepareStatement(updateData)) {
-    
-                if (classes.getSelectedToggle() == null
-                        || enter_fees.getText().isEmpty()
-                        || department.getSelectionModel().isEmpty()
-                        || (!A1_btn.isSelected() && !A2_btn.isSelected() && !B1_btn.isSelected() && !b2_btn.isSelected() && !C_btn.isSelected() && !arts_btn.isSelected() && !science_btn.isSelected() && !commercial_btn.isSelected())) {
-    
-                    showAlert("Error Message", "Please fill all blank fields", Alert.AlertType.ERROR);
-                } else {
-                    String className = ((RadioButton) classes.getSelectedToggle()).getText().trim();
-                    String academicYear = getAcademicYearFromSettings().trim();
-                    String selectedCategory = department.getSelectionModel().getSelectedItem().trim();
-    
-                    if (academicYear == null) {
-                        showAlert("Error Message", "Academic year not set in the settings table!", Alert.AlertType.ERROR);
-                    } else {
-                        checkPrepare.setString(1, className);
-                        checkPrepare.setString(2, academicYear);
-                        checkPrepare.setString(3, selectedCategory);
-                        ResultSet result = checkPrepare.executeQuery();
-    
-                        if (result.next()) {
-                            String existingSections = getCheckedSectionsFromResultSet(result);
-                            Alert confirmationAlert = new Alert(AlertType.CONFIRMATION);
-                            confirmationAlert.setTitle("Confirmation");
-                            confirmationAlert.setHeaderText(null);
-                            confirmationAlert.setContentText("Class " + className + " already has sections (" + existingSections + ") for this academic year and category (" + selectedCategory + "). Do you wish to update the sections and school fees?");
-    
-                            Optional<ButtonType> resultButton = confirmationAlert.showAndWait();
-    
-                            if (resultButton.isPresent() && resultButton.get() == ButtonType.OK) {
+public void addClassesAdd() {
+    String insertData = "INSERT INTO class (class_name, school_fees, academic_year, A1, A2, B1, B2, Arts, Science, Commercial, C, category) "
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    // We'll format this template with the column name (controlled list) e.g. "Arts"
+    String checkDataTemplate = "SELECT id, school_fees FROM class WHERE class_name = ? AND academic_year = ? AND category = ? AND %s = 1";
+    String updateData = "UPDATE class SET school_fees = ? WHERE id = ?";
 
-                                updatePrepare.setString(1, enter_fees.getText().trim());
-                                updatePrepare.setBoolean(2, A1_btn.isSelected()); // Directly use isSelected()
-                                updatePrepare.setBoolean(3, A2_btn.isSelected());
-                                updatePrepare.setBoolean(4, B1_btn.isSelected());
-                                updatePrepare.setBoolean(5, b2_btn.isSelected());
-                                updatePrepare.setBoolean(6, arts_btn.isSelected());
-                                updatePrepare.setBoolean(7, science_btn.isSelected());
-                                updatePrepare.setBoolean(8, commercial_btn.isSelected());
-                                updatePrepare.setBoolean(9, C_btn.isSelected());
-                                updatePrepare.setString(10, className);
-                                updatePrepare.setString(11, academicYear);
-                                updatePrepare.setString(12, selectedCategory);
-                                
-                                int rowsUpdated = updatePrepare.executeUpdate();
-    
-                                if (rowsUpdated > 0) {
-                                    showAlert("Information Message", "Class updated successfully!", Alert.AlertType.INFORMATION);
-                                } else {
-                                    showAlert("Information Message", "No class was updated. Please check the input data.", Alert.AlertType.WARNING);
+    try (Connection connect = Database.connectDb()) {
+        if (connect == null) {
+            showAlert("Database Error", "Database connection could not be established.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        // Basic UI validation
+        if (classes.getSelectedToggle() == null
+                || enter_fees.getText().isEmpty()
+                || department.getSelectionModel().isEmpty()
+                || (!A1_btn.isSelected() && !A2_btn.isSelected() && !B1_btn.isSelected()
+                    && !b2_btn.isSelected() && !C_btn.isSelected()
+                    && !arts_btn.isSelected() && !science_btn.isSelected() && !commercial_btn.isSelected())) {
+
+            showAlert("Error Message", "Please fill all blank fields", Alert.AlertType.ERROR);
+            return;
+        }
+
+        String className = ((RadioButton) classes.getSelectedToggle()).getText().trim();
+        String academicYear = getAcademicYearFromSettings();
+        String selectedCategory = department.getSelectionModel().getSelectedItem().trim();
+        String feesText = enter_fees.getText().trim();
+
+        if (academicYear == null || academicYear.trim().isEmpty()) {
+            showAlert("Error Message", "Academic year not set in the settings table!", Alert.AlertType.ERROR);
+            return;
+        }
+
+        // Validate fee numeric value
+        final java.math.BigDecimal feeValue;
+        try {
+            feeValue = new java.math.BigDecimal(feesText);
+        } catch (NumberFormatException nfe) {
+            showAlert("Error Message", "Enter a valid numeric fee amount.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        // Use AtomicBoolean because the lambda needs an effectively final mutable flag
+        final java.util.concurrent.atomic.AtomicBoolean anyChange = new java.util.concurrent.atomic.AtomicBoolean(false);
+
+        // Helper that processes a single section (column name must be from the controlled set below)
+        java.util.function.BiConsumer<String, Boolean> processSection = (section, selected) -> {
+            if (!selected) return;
+
+            // Build the check query for this exact section column
+            String formattedCheck = String.format(checkDataTemplate, section);
+
+            try (PreparedStatement checkStmt = connect.prepareStatement(formattedCheck)) {
+                checkStmt.setString(1, className);
+                checkStmt.setString(2, academicYear);
+                checkStmt.setString(3, selectedCategory);
+
+                try (ResultSet rs = checkStmt.executeQuery()) {
+                    if (rs.next()) {
+                        // A row already exists for this specific section -> ask for confirmation before updating
+                        int existingId = rs.getInt("id");
+                        String existingFee = rs.getString("school_fees"); // safe to show as string
+
+                        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+                        confirmationAlert.setTitle("Confirm Update");
+                        confirmationAlert.setHeaderText(null);
+                        confirmationAlert.setContentText(
+                                "Section \"" + section + "\" already exists for class \"" + className + "\"\n"
+                                + "Category: " + (selectedCategory == null ? "N/A" : selectedCategory) + "\n"
+                                + "Academic Year: " + academicYear + "\n"
+                                + "Existing fee: " + existingFee + "\n\n"
+                                + "Do you want to update its fee to: " + feeValue.toPlainString() + " ?"
+                        );
+
+                        Optional<ButtonType> res = confirmationAlert.showAndWait();
+                        if (res.isPresent() && res.get() == ButtonType.OK) {
+                            try (PreparedStatement updateStmt = connect.prepareStatement(updateData)) {
+                                updateStmt.setBigDecimal(1, feeValue);
+                                updateStmt.setInt(2, existingId);
+                                int updated = updateStmt.executeUpdate();
+                                if (updated > 0) {
+                                    anyChange.set(true);
                                 }
-    
-                                showAllClassListData();
-                                clearInputs();
                             }
                         } else {
-                            prepare.setString(1, className);
-                            prepare.setString(2, enter_fees.getText().trim());
-                            prepare.setString(3, academicYear);
-                            prepare.setBoolean(4, A1_btn.isSelected());
-                            prepare.setBoolean(5, A2_btn.isSelected());
-                            prepare.setBoolean(6, B1_btn.isSelected());
-                            prepare.setBoolean(7, b2_btn.isSelected());
-                            prepare.setBoolean(8, arts_btn.isSelected());
-                            prepare.setBoolean(9, science_btn.isSelected());
-                            prepare.setBoolean(10, commercial_btn.isSelected());
-                            prepare.setBoolean(11, C_btn.isSelected());
-                            prepare.setString(12, selectedCategory);
-    
-                            prepare.executeUpdate();
-    
-                            showAlert("Information Message", "Successfully Added!", Alert.AlertType.INFORMATION);
-    
-                            showAllClassListData();
-                            clearInputs();
+                            // User cancelled update for this section — skip it.
+                        }
+                    } else {
+                        // No row for this section -> insert a new row with only this section = 1 (others 0)
+                        try (PreparedStatement insertStmt = connect.prepareStatement(insertData)) {
+                            insertStmt.setString(1, className);
+                            insertStmt.setBigDecimal(2, feeValue);
+                            insertStmt.setString(3, academicYear);
+
+                            insertStmt.setInt(4, section.equals("A1") ? 1 : 0);         // A1
+                            insertStmt.setInt(5, section.equals("A2") ? 1 : 0);         // A2
+                            insertStmt.setInt(6, section.equals("B1") ? 1 : 0);         // B1
+                            insertStmt.setInt(7, section.equals("B2") ? 1 : 0);         // B2
+                            insertStmt.setInt(8, section.equals("Arts") ? 1 : 0);       // Arts
+                            insertStmt.setInt(9, section.equals("Science") ? 1 : 0);    // Science
+                            insertStmt.setInt(10, section.equals("Commercial") ? 1 : 0);// Commercial
+                            insertStmt.setInt(11, section.equals("C") ? 1 : 0);         // C
+
+                            insertStmt.setString(12, selectedCategory);
+                            int inserted = insertStmt.executeUpdate();
+                            if (inserted > 0) anyChange.set(true);
                         }
                     }
                 }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert("Database Error", "Error occurred while accessing the database: " + e.getMessage(), Alert.AlertType.ERROR);
+        };
+
+        processSection.accept("A1", A1_btn.isSelected());
+        processSection.accept("A2", A2_btn.isSelected());
+        processSection.accept("B1", B1_btn.isSelected());
+        processSection.accept("B2", b2_btn.isSelected());
+        processSection.accept("C", C_btn.isSelected());
+        processSection.accept("Arts", arts_btn.isSelected());
+        processSection.accept("Science", science_btn.isSelected());
+        processSection.accept("Commercial", commercial_btn.isSelected());
+
+        // Final feedback to the user
+        if (anyChange.get()) {
+            showAlert("Information Message", "Class/Section saved successfully!", Alert.AlertType.INFORMATION);
+        } else {
+            showAlert("Information Message", "No changes were made.", Alert.AlertType.INFORMATION);
         }
+
+        showAllClassListData();
+        clearInputs();
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        showAlert("Database Error", "Error occurred while accessing the database: " + e.getMessage(), Alert.AlertType.ERROR);
     }
+}
+
     
     
 
@@ -6258,8 +6304,9 @@ public class DashboardController implements Initializable {
 
                     double regFee = calculateRegFee(className, section);
                     double practical = calculatePractical(className, section);
+                    double internship = calculateInternship(className, section);
 
-                    double totalFees = regFee + practical;
+                    double totalFees = regFee + practical + internship;
                     double actualFees = amountPaid - totalFees;
 
                     feesMap.get(classSectionKey).put(category,
@@ -6269,7 +6316,7 @@ public class DashboardController implements Initializable {
                 }
 
                 // Create the table for displaying data
-                float[] columnWidths = { 75f, 50f, 50f, 100f, 100f, 100f, 100f };
+                float[] columnWidths = { 75f, 50f, 50f, 100f, 100f, 100f, 100f, 100f };
                 Table studentTable = new Table(columnWidths).useAllAvailableWidth();
 
                 PdfFont headingFonts = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
@@ -6279,11 +6326,13 @@ public class DashboardController implements Initializable {
                 studentTable.addHeaderCell(new Cell().add(new Paragraph("Students").setFont(headingFonts)));
                 studentTable.addHeaderCell(new Cell().add(new Paragraph("RegFee").setFont(headingFonts)));
                 studentTable.addHeaderCell(new Cell().add(new Paragraph("Practicals").setFont(headingFonts)));
+                studentTable.addHeaderCell(new Cell().add(new Paragraph("Internship").setFont(headingFonts)));
                 studentTable.addHeaderCell(new Cell().add(new Paragraph("ActualFees").setFont(headingFonts)));
 
                 int totalStudents = 0;
                 double totalRegFees = 0;
                 double totalPracFees = 0;
+                double totalInternshipFees = 0;
                 double totalActualFees = 0;
 
                 // Add rows with summed data, grouped by class, section, and category
@@ -6298,10 +6347,13 @@ public class DashboardController implements Initializable {
 
                         double regFee = calculateRegFee(className, section) * studentCount;
                         double pracFee = calculatePractical(className, section) * studentCount;
+                        double internshipFee = calculateInternship(className, section) * studentCount;
+
 
                         totalStudents += studentCount;
                         totalRegFees += regFee ;
                         totalPracFees += pracFee ;
+                        totalInternshipFees += internshipFee;
                         totalActualFees += actualFees;
 
                         // Add cells to the table
@@ -6314,6 +6366,7 @@ public class DashboardController implements Initializable {
                                 new Cell().add(new Paragraph(currencyFormat.format(regFee)).setFont(contentFont)));
                         studentTable.addCell(
                                 new Cell().add(new Paragraph(currencyFormat.format(pracFee)).setFont(contentFont)));
+                        studentTable.addCell(new Cell().add(new Paragraph(currencyFormat.format(internshipFee)).setFont(contentFont)));
                         studentTable.addCell(
                                 new Cell().add(new Paragraph(currencyFormat.format(actualFees)).setFont(contentFont)));
                     }
@@ -6327,6 +6380,7 @@ public class DashboardController implements Initializable {
                         new Cell().add(new Paragraph(currencyFormat.format(totalRegFees)).setFont(footerFont)));
                 studentTable.addCell(
                         new Cell().add(new Paragraph(currencyFormat.format(totalPracFees)).setFont(footerFont)));
+                studentTable.addCell(new Cell().add(new Paragraph(currencyFormat.format(totalInternshipFees)).setFont(footerFont)));
                 studentTable.addCell(
                         new Cell().add(new Paragraph(currencyFormat.format(totalActualFees)).setFont(footerFont)));
 
@@ -6371,6 +6425,17 @@ public class DashboardController implements Initializable {
             return 0; // Default value
         }
     }
+
+    // Add internship calculation
+private double calculateInternship(String className, String section) {
+    if ((className.equalsIgnoreCase("Form Five") && section.equalsIgnoreCase("C")) ||
+        (className.equalsIgnoreCase("UpperSixth") && section.equalsIgnoreCase("C"))) {
+        return 10000;
+    } else {
+        return 0;
+    }
+}
+
 
     private double calculatePractical(String className, String section) {
         if ((className.equalsIgnoreCase("LowerSixth") || className.equalsIgnoreCase("UpperSixth"))
