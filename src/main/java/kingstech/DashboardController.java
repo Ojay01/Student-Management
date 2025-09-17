@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -41,6 +42,7 @@ import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 
 import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
@@ -1846,13 +1848,14 @@ public void addClassesAdd() {
 
             // Get class_id based on selected class_name, section, and academic_year
             String getClassIdQuery = "SELECT id, school_fees FROM class WHERE class_name = ? AND " 
-            + selectedSection + " = 1 AND category = ?";    
+            + selectedSection + " = 1 AND category = ? AND academic_year = ?";    
             @SuppressWarnings("unused")
             int classId = 0;
             double schoolFees = 0.0;
             try (PreparedStatement classPrepare = connect.prepareStatement(getClassIdQuery)) {
                 classPrepare.setString(1, className);
                 classPrepare.setString(2, selectedDepartment);
+                classPrepare.setString(3, academicYear);
                 ResultSet result = classPrepare.executeQuery();
                 if (result.next()) {
                     classId = result.getInt("id");
@@ -2744,18 +2747,19 @@ public void addClassesAdd() {
 
     private void showSectionsForStudent(String className, String academicDep) throws SQLException {
         String query = "SELECT A1, A2, B1, B2, Arts, Science, Commercial, C " +
-                "FROM class WHERE class_name = ? AND category = ?";
+                "FROM class WHERE class_name = ? AND category = ? AND academic_year = ?";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         String selectedStudentClass = null; // Initialize selectedSection to null
         ObservableList<String> classSections = FXCollections.observableArrayList();
-
+         String academicYear = getAcademicYearFromSettings();
         try {
             // connection = Database.connectDb();
             preparedStatement = connect.prepareStatement(query);
             preparedStatement.setString(1, className);
             preparedStatement.setString(2, academicDep);
+            preparedStatement.setString(3, academicYear);
             resultSet = preparedStatement.executeQuery();
 
             // Clear any previous items in the ComboBox
@@ -2841,18 +2845,20 @@ public void addClassesAdd() {
 
     private void showSectionsForClass(String className, String academicDep) throws SQLException {
         String query = "SELECT A1, A2, B1, B2, Arts, Science, Commercial, C " +
-                "FROM class WHERE class_name = ? AND category = ?";
+                "FROM class WHERE class_name = ? AND category = ? AND academic_year = ?";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         String selectedSection = null; // Initialize selectedSection to null
         ObservableList<String> classSections = FXCollections.observableArrayList();
+        String academicYear = getAcademicYearFromSettings();
 
         try {
             connection = Database.connectDb();
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, className);
             preparedStatement.setString(2, academicDep);
+            preparedStatement.setString(3, academicYear);
             resultSet = preparedStatement.executeQuery();
 
             // Clear any previous items in the ComboBox
@@ -3050,18 +3056,20 @@ public void addClassesAdd() {
 
     private void showSectionsForMarksheet(String className, String academicDep) throws SQLException {
         String query = "SELECT A1, A2, B1, B2, Arts, Science, Commercial, C " +
-                "FROM class WHERE class_name = ? AND category = ?";
+                "FROM class WHERE class_name = ? AND category = ? AND academic_year = ?";
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         String selectedClassMarksheet = null; // Initialize selectedSection to null
         ObservableList<String> classSections = FXCollections.observableArrayList();
+        String academicYear = getAcademicYearFromSettings();
 
         try {
             connection = Database.connectDb();
             preparedStatement = connect.prepareStatement(query);
             preparedStatement.setString(1, className);
             preparedStatement.setString(2, academicDep);
+            preparedStatement.setString(3, academicYear);
             resultSet = preparedStatement.executeQuery();
 
             // Clear any previous items in the ComboBox
@@ -4365,22 +4373,20 @@ public void addClassesAdd() {
     }
 
     @SuppressWarnings("exports")
-    public boolean generateAndSavePDF(ObservableList<EnrollmentData> dataList, ActionEvent event) {
-        if (dataList == null || dataList.isEmpty()) {
-            System.err.println("Error: Data list is null or empty.");
-            return false;
-        }
+public boolean generateAndSavePDF(ObservableList<EnrollmentData> dataList, ActionEvent event) {
+    if (dataList == null || dataList.isEmpty()) {
+        System.err.println("Error: Data list is null or empty.");
+        return false;
+    }
 
-        try {
-            String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    try {
+        String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Select Directory for Download");
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Directory for Download");
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
 
-            // Set initial directory (optional)
-            fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-
-            // Set the suggested file name for the Save As dialog (optional)
+                    // Set the suggested file name for the Save As dialog (optional)
             String suggestedFileName = "Class_Record_" + currentDate + ".pdf";
             FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PDF Files (*.pdf)", "*.pdf");
             fileChooser.getExtensionFilters().add(extFilter);
@@ -4443,27 +4449,43 @@ public void addClassesAdd() {
                         .setFontSize(14);
 
                 document.add(record);
-                // Add a table to the document
-                float[] columnWidths = { 100f, 100f, 100f, 50f, 50f, 50f, 100f, 100f, 100f }; // Adjust column widths as
-                // needed
-                Table table = new Table(UnitValue.createPercentArray(columnWidths)).useAllAvailableWidth();
 
-                // Add table headers with bold font
-                PdfFont headingFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
-                // DecimalFormat currencyFormat = new DecimalFormat("#,##0.00");
+            // Group data by department
+            Map<String, List<EnrollmentData>> groupedByDepartment = dataList.stream()
+                    .collect(Collectors.groupingBy(EnrollmentData::getCategory,
+                            LinkedHashMap::new, Collectors.toList()));
 
-                table.addHeaderCell(new Cell().add(new Paragraph("Class Name").setFont(headingFont)));
-                table.addHeaderCell(new Cell().add(new Paragraph("Department").setFont(headingFont)));
-                table.addHeaderCell(new Cell().add(new Paragraph("Fees").setFont(headingFont)));
-                table.addHeaderCell(new Cell().add(new Paragraph("Section").setFont(headingFont)));
-                table.addHeaderCell(new Cell().add(new Paragraph("Total Students").setFont(headingFont)));
-                table.addHeaderCell(new Cell().add(new Paragraph("Total Students Owing").setFont(headingFont)));
-                table.addHeaderCell(new Cell().add(new Paragraph("Total Expected").setFont(headingFont)));
-                table.addHeaderCell(new Cell().add(new Paragraph("Total Paid").setFont(headingFont)));
-                table.addHeaderCell(new Cell().add(new Paragraph("Total Owing").setFont(headingFont)));
+            float[] columnWidths = {100f, 100f, 100f, 50f, 50f, 50f, 100f, 100f, 100f};
+            PdfFont headingFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
 
-                // Add table rows
-                for (EnrollmentData item : dataList) {
+            Table table = new Table(UnitValue.createPercentArray(columnWidths)).useAllAvailableWidth();
+
+            // Headers
+            table.addHeaderCell(new Cell().add(new Paragraph("Class Name").setFont(headingFont)));
+            table.addHeaderCell(new Cell().add(new Paragraph("Department").setFont(headingFont)));
+            table.addHeaderCell(new Cell().add(new Paragraph("Fees").setFont(headingFont)));
+            table.addHeaderCell(new Cell().add(new Paragraph("Section").setFont(headingFont)));
+            table.addHeaderCell(new Cell().add(new Paragraph("Total Students").setFont(headingFont)));
+            table.addHeaderCell(new Cell().add(new Paragraph("Total Students Owing").setFont(headingFont)));
+            table.addHeaderCell(new Cell().add(new Paragraph("Total Expected").setFont(headingFont)));
+            table.addHeaderCell(new Cell().add(new Paragraph("Total Paid").setFont(headingFont)));
+            table.addHeaderCell(new Cell().add(new Paragraph("Total Owing").setFont(headingFont)));
+
+            // Totals
+            double totalOwing = 0, totalPaid = 0, totalExpected = 0;
+            int totalStudentsOwing = 0, totalStudents = 0;
+
+            for (Map.Entry<String, List<EnrollmentData>> entry : groupedByDepartment.entrySet()) {
+                String department = entry.getKey();
+                List<EnrollmentData> deptData = entry.getValue();
+
+                // Department header row
+                Cell deptHeader = new Cell(1, 9)
+                        .add(new Paragraph("Department: " + department).setBold())
+                        .setBackgroundColor(ColorConstants.LIGHT_GRAY);
+                table.addCell(deptHeader);
+
+                for (EnrollmentData item : deptData) {
                     table.addCell(new Cell().add(new Paragraph(item.getClassName())));
                     table.addCell(new Cell().add(new Paragraph(item.getCategory())));
                     table.addCell(new Cell().add(new Paragraph(currencyFormat.format(item.getSchoolFees()))));
@@ -4473,68 +4495,57 @@ public void addClassesAdd() {
                     table.addCell(new Cell().add(new Paragraph(currencyFormat.format(item.getTotalExpected()))));
                     table.addCell(new Cell().add(new Paragraph(currencyFormat.format(item.getTotalFeesPaid()))));
                     table.addCell(new Cell().add(new Paragraph(currencyFormat.format(item.getTotalOwing()))));
-                }
 
-                // Calculate the totals for the footer
-                double totalOwing = 0;
-                double totalPaid = 0;
-                double totalExpected = 0;
-                int totalStudentsOwing = 0;
-                int totalStudents = 0;
-
-                for (EnrollmentData item : dataList) {
                     totalOwing += item.getTotalOwing();
                     totalPaid += item.getTotalFeesPaid();
                     totalExpected += item.getTotalExpected();
                     totalStudentsOwing += item.getStudentsOwing();
                     totalStudents += item.getTotalStudents();
                 }
-
-                // Add table footer to show the totals
-                PdfFont footerFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
-                table.addFooterCell(new Cell().add(new Paragraph("Total:").setFont(footerFont).setBold()));
-                table.addFooterCell(new Cell().add(new Paragraph("")));
-                table.addFooterCell(new Cell().add(new Paragraph(""))); // Empty cell for 'Section'
-                table.addFooterCell(new Cell().add(new Paragraph(""))); // Empty cell for 'Section'
-                table.addFooterCell(
-                        new Cell().add(new Paragraph(String.valueOf(totalStudents)).setFont(footerFont).setBold()));
-                table.addFooterCell(new Cell()
-                        .add(new Paragraph(String.valueOf(totalStudentsOwing)).setFont(footerFont).setBold()));
-                table.addFooterCell(new Cell()
-                        .add(new Paragraph(currencyFormat.format(totalExpected)).setFont(footerFont).setBold()));
-                table.addFooterCell(
-                        new Cell().add(new Paragraph(currencyFormat.format(totalPaid)).setFont(footerFont).setBold()));
-                table.addFooterCell(
-                        new Cell().add(new Paragraph(currencyFormat.format(totalOwing)).setFont(footerFont).setBold()));
-
-                // Add the table to the document
-                document.add(table);
-
-                // Get Principal Name from principal settings table and show as signature
-                Paragraph signature = new Paragraph("Principal: " + principal)
-                        .setFont(boldFont)
-                        .setFontSize(12)
-                        .setMarginTop(10);
-                document.add(signature);
-
-                // Close the document after adding content
-                document.close();
-
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("Information Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Class Record PDF file downloaded successfully!");
-                alert.showAndWait();
-                return true;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
             }
-        } catch (Exception e) {
+
+            // Add main table
+            document.add(table);
+
+            // Add totals table separately (only once, at the end)
+            Table totalsTable = new Table(UnitValue.createPercentArray(columnWidths)).useAllAvailableWidth();
+            totalsTable.addCell(new Cell().add(new Paragraph("Grand Total:").setBold()));
+            totalsTable.addCell(new Cell().add(new Paragraph(""))); // Department
+            totalsTable.addCell(new Cell().add(new Paragraph(""))); // Fees
+            totalsTable.addCell(new Cell().add(new Paragraph(""))); // Section
+            totalsTable.addCell(new Cell().add(new Paragraph(String.valueOf(totalStudents)).setBold()));
+            totalsTable.addCell(new Cell().add(new Paragraph(String.valueOf(totalStudentsOwing)).setBold()));
+            totalsTable.addCell(new Cell().add(new Paragraph(currencyFormat.format(totalExpected)).setBold()));
+            totalsTable.addCell(new Cell().add(new Paragraph(currencyFormat.format(totalPaid)).setBold()));
+            totalsTable.addCell(new Cell().add(new Paragraph(currencyFormat.format(totalOwing)).setBold()));
+
+            document.add(totalsTable);
+
+            // Signature
+            Paragraph signature = new Paragraph("Principal: " + principal)
+                    .setFont(boldFont)
+                    .setFontSize(12)
+                    .setMarginTop(10);
+            document.add(signature);
+
+            document.close();
+
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Information Message");
+            alert.setHeaderText(null);
+            alert.setContentText("Class Record PDF file downloaded successfully!");
+            alert.showAndWait();
+            return true;
+
+        } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
     }
+}
 
     public void ClassRecord(@SuppressWarnings("exports") ActionEvent event) {
         generateAndSavePDF(showClassListD, event);
@@ -5127,7 +5138,7 @@ public void addClassesAdd() {
             // Get class_id and school_fees based on selected class_name, section, and
             // academic_year
             String getClassIdQuery = "SELECT id, school_fees FROM class WHERE class_name = ? AND " 
-            + selectedSection + " = 1 AND category = ?";
+            + selectedSection + " = 1 AND category = ? AND academic_year = ?";
     
             @SuppressWarnings("unused")
             int classId = 0;
@@ -5135,6 +5146,7 @@ public void addClassesAdd() {
             try (PreparedStatement classPrepare = connect.prepareStatement(getClassIdQuery)) {
                 classPrepare.setString(1, className);
                 classPrepare.setString(2, selectedDepartment);
+                classPrepare.setString(3, academicYear);
                 resultSet = classPrepare.executeQuery();
                 if (resultSet.next()) {
                     classId = resultSet.getInt("id");
@@ -6182,47 +6194,46 @@ public void addClassesAdd() {
         }
     }
 
-    public void feeStructure(@SuppressWarnings("exports") ActionEvent event) {
-        Connection connect = null;
-        PreparedStatement prepare = null;
-        ResultSet resultSet = null;
+public void feeStructure(@SuppressWarnings("exports") ActionEvent event) {
+    Connection connect = null;
+    PreparedStatement prepare = null;
+    ResultSet resultSet = null;
 
-        try {
-            String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    try {
+        String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Select Directory for Download");
-            fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Directory for Download");
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
 
-            String suggestedFileName = "Fees_Structure" + "_" + currentDate + ".pdf";
-            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PDF Files (*.pdf)", "*.pdf");
-            fileChooser.getExtensionFilters().add(extFilter);
-            fileChooser.setInitialFileName(suggestedFileName);
+        String suggestedFileName = "Fees_Structure_" + currentDate + ".pdf";
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PDF Files (*.pdf)", "*.pdf");
+        fileChooser.getExtensionFilters().add(extFilter);
+        fileChooser.setInitialFileName(suggestedFileName);
 
-            javafx.stage.Window window = ((Node) event.getSource()).getScene().getWindow();
-            File selectedFile = fileChooser.showSaveDialog(window);
-            String filePath = selectedFile.getAbsolutePath();
+        javafx.stage.Window window = ((Node) event.getSource()).getScene().getWindow();
+        File selectedFile = fileChooser.showSaveDialog(window);
+        if (selectedFile == null) return; // user cancelled
+        String filePath = selectedFile.getAbsolutePath();
 
-            // Use PdfWriter to create a new PDF
-            try (PdfDocument pdf = new PdfDocument(new PdfWriter(filePath))) {
-                @SuppressWarnings("resource")
-                Document document = new Document(pdf, PageSize.A4.rotate());
+        try (PdfDocument pdf = new PdfDocument(new PdfWriter(filePath))) {
+            Document document = new Document(pdf, PageSize.A4.rotate());
 
-                PdfFont boldFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
-                PdfFont blueFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+            PdfFont boldFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+            PdfFont blueFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+            PdfFont contentFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
 
-                Div headerDiv = new Div()
+            DecimalFormat currencyFormat = new DecimalFormat("#,##0.00");
+            String[] schoolInfo = getSchoolInfoFromSettings();
+            String schoolName = schoolInfo[0];
+            String principal = schoolInfo[2];
+            String address = schoolInfo[3];
+            String academicYear = getAcademicYearFromSettings();
+
+         Div headerDiv = new Div()
                         .setTextAlignment(TextAlignment.CENTER)
-                        .setVerticalAlignment(VerticalAlignment.MIDDLE);
-
-                DecimalFormat currencyFormat = new DecimalFormat("#,##0.00");
-                String[] schoolInfo = getSchoolInfoFromSettings();
-                String schoolName = schoolInfo[0];
-                String principal = schoolInfo[2];
-                String address = schoolInfo[3];
-
-                String academicYear = getAcademicYearFromSettings();
-                Paragraph schoolNameParagraph = new Paragraph(schoolName)
+                        .setVerticalAlignment(VerticalAlignment.MIDDLE);     
+Paragraph schoolNameParagraph = new Paragraph(schoolName)
                         .setFont(boldFont)
                         .setFontSize(18);
 
@@ -6264,8 +6275,6 @@ public void addClassesAdd() {
 
                 // Define fonts and colors
                 PdfFont headingFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
-                PdfFont contentFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
-
                 // Add header
                 Paragraph header = new Paragraph("School Fees Structure")
                         .setFont(headingFont)
@@ -6274,143 +6283,112 @@ public void addClassesAdd() {
 
                 // Adding the watermark image
                 com.itextpdf.layout.element.Image watermarkImage = Logo
-                        .createWatermarkImage(imageFile.getAbsolutePath());
-                document.add(watermarkImage);
-                document.add(headerDiv);
-                document.add(header);
+                        .createWatermarkImage(imageFile.getAbsolutePath());            document.add(watermarkImage);
+            document.add(headerDiv);
 
-                // Database connection
-                connect = Database.connectDb();
+           document.add(header);
 
-                String selectData = "SELECT category, class_name, section, total_fees_paid FROM enrollments WHERE academic_year = ? ORDER BY class_name, section, category";
-                prepare = connect.prepareStatement(selectData);
-                prepare.setString(1, academicYear);
-                resultSet = prepare.executeQuery();
+            // Query
+            connect = Database.connectDb();
+            String selectData = "SELECT category, class_name, section, total_fees_paid FROM enrollments WHERE academic_year = ? ORDER BY category, class_name, section";
+            prepare = connect.prepareStatement(selectData);
+            prepare.setString(1, academicYear);
+            resultSet = prepare.executeQuery();
 
-                Map<String, Map<String, Double>> feesMap = new LinkedHashMap<>();
-                Map<String, Map<String, Integer>> studentsMap = new LinkedHashMap<>();
+            // Group by Department (category)
+            Map<String, List<Map<String, Object>>> groupedData = new LinkedHashMap<>();
 
-                while (resultSet.next()) {
-                    String category = resultSet.getString("category");
-                    String className = resultSet.getString("class_name");
-                    String section = resultSet.getString("section");
-                    double amountPaid = resultSet.getDouble("total_fees_paid");
+            while (resultSet.next()) {
+                String category = resultSet.getString("category");
+                String className = resultSet.getString("class_name");
+                String section = resultSet.getString("section");
+                double amountPaid = resultSet.getDouble("total_fees_paid");
 
-                    String classSectionKey = className + "-" + section;
+                Map<String, Object> row = new HashMap<>();
+                row.put("className", className);
+                row.put("section", section);
+                row.put("amountPaid", amountPaid);
 
-                    // Group by class, section, and category
-                    feesMap.putIfAbsent(classSectionKey, new LinkedHashMap<>());
-                    studentsMap.putIfAbsent(classSectionKey, new LinkedHashMap<>());
-
-                    double regFee = calculateRegFee(className, section);
-                    double practical = calculatePractical(className, section);
-                    double internship = calculateInternship(className, section);
-
-                    double totalFees = regFee + practical + internship;
-                    double actualFees = amountPaid - totalFees;
-
-                    feesMap.get(classSectionKey).put(category,
-                            feesMap.get(classSectionKey).getOrDefault(category, 0.0) + actualFees);
-                    studentsMap.get(classSectionKey).put(category,
-                            studentsMap.get(classSectionKey).getOrDefault(category, 0) + 1);
-                }
-
-                // Create the table for displaying data
-                float[] columnWidths = { 75f, 50f, 50f, 100f, 100f, 100f, 100f, 100f };
-                Table studentTable = new Table(columnWidths).useAllAvailableWidth();
-
-                PdfFont headingFonts = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
-                studentTable.addHeaderCell(new Cell().add(new Paragraph("Class").setFont(headingFonts)));
-                studentTable.addHeaderCell(new Cell().add(new Paragraph("Section").setFont(headingFonts)));
-                studentTable.addHeaderCell(new Cell().add(new Paragraph("Category").setFont(headingFonts)));
-                studentTable.addHeaderCell(new Cell().add(new Paragraph("Students").setFont(headingFonts)));
-                studentTable.addHeaderCell(new Cell().add(new Paragraph("RegFee").setFont(headingFonts)));
-                studentTable.addHeaderCell(new Cell().add(new Paragraph("Practicals").setFont(headingFonts)));
-                studentTable.addHeaderCell(new Cell().add(new Paragraph("Internship").setFont(headingFonts)));
-                studentTable.addHeaderCell(new Cell().add(new Paragraph("ActualFees").setFont(headingFonts)));
-
-                int totalStudents = 0;
-                double totalRegFees = 0;
-                double totalPracFees = 0;
-                double totalInternshipFees = 0;
-                double totalActualFees = 0;
-
-                // Add rows with summed data, grouped by class, section, and category
-                for (String classSectionKey : feesMap.keySet()) {
-                    String[] parts = classSectionKey.split("-");
-                    String className = parts[0];
-                    String section = parts[1];
-
-                    for (String category : feesMap.get(classSectionKey).keySet()) {
-                        int studentCount = studentsMap.get(classSectionKey).get(category);
-                        double actualFees = feesMap.get(classSectionKey).get(category);
-
-                        double regFee = calculateRegFee(className, section) * studentCount;
-                        double pracFee = calculatePractical(className, section) * studentCount;
-                        double internshipFee = calculateInternship(className, section) * studentCount;
-
-
-                        totalStudents += studentCount;
-                        totalRegFees += regFee ;
-                        totalPracFees += pracFee ;
-                        totalInternshipFees += internshipFee;
-                        totalActualFees += actualFees;
-
-                        // Add cells to the table
-                        studentTable.addCell(new Cell().add(new Paragraph(className).setFont(contentFont)));
-                        studentTable.addCell(new Cell().add(new Paragraph(section).setFont(contentFont)));
-                        studentTable.addCell(new Cell().add(new Paragraph(category).setFont(contentFont)));
-                        studentTable.addCell(
-                                new Cell().add(new Paragraph(String.valueOf(studentCount)).setFont(contentFont)));
-                        studentTable.addCell(
-                                new Cell().add(new Paragraph(currencyFormat.format(regFee)).setFont(contentFont)));
-                        studentTable.addCell(
-                                new Cell().add(new Paragraph(currencyFormat.format(pracFee)).setFont(contentFont)));
-                        studentTable.addCell(new Cell().add(new Paragraph(currencyFormat.format(internshipFee)).setFont(contentFont)));
-                        studentTable.addCell(
-                                new Cell().add(new Paragraph(currencyFormat.format(actualFees)).setFont(contentFont)));
-                    }
-                }
-
-                // Add a footer row for totals
-                PdfFont footerFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
-                studentTable.addCell(new Cell(1, 3).add(new Paragraph("Total").setFont(footerFont)));
-                studentTable.addCell(new Cell().add(new Paragraph(String.valueOf(totalStudents)).setFont(footerFont)));
-                studentTable.addCell(
-                        new Cell().add(new Paragraph(currencyFormat.format(totalRegFees)).setFont(footerFont)));
-                studentTable.addCell(
-                        new Cell().add(new Paragraph(currencyFormat.format(totalPracFees)).setFont(footerFont)));
-                studentTable.addCell(new Cell().add(new Paragraph(currencyFormat.format(totalInternshipFees)).setFont(footerFont)));
-                studentTable.addCell(
-                        new Cell().add(new Paragraph(currencyFormat.format(totalActualFees)).setFont(footerFont)));
-
-                // Add table to document
-                document.add(studentTable);
-                Alert alert = new Alert(AlertType.INFORMATION);
-                alert.setTitle("Information Message");
-                alert.setHeaderText(null);
-                alert.setContentText("School Fees structure downloaded Successfully!");
-                alert.showAndWait();
-            } catch (SQLException e) {
-                e.printStackTrace();
+                groupedData.computeIfAbsent(category, k -> new ArrayList<>()).add(row);
             }
-        } catch (IOException e) {
+
+            // Table setup
+            float[] columnWidths = {75f, 50f, 100f, 100f, 100f, 100f, 100f};
+            Table studentTable = new Table(columnWidths).useAllAvailableWidth();
+
+            studentTable.addHeaderCell(new Cell().add(new Paragraph("Class").setFont(boldFont)));
+            studentTable.addHeaderCell(new Cell().add(new Paragraph("Section").setFont(boldFont)));
+            studentTable.addHeaderCell(new Cell().add(new Paragraph("Students").setFont(boldFont)));
+            studentTable.addHeaderCell(new Cell().add(new Paragraph("RegFee").setFont(boldFont)));
+            studentTable.addHeaderCell(new Cell().add(new Paragraph("Practicals").setFont(boldFont)));
+            studentTable.addHeaderCell(new Cell().add(new Paragraph("Internship").setFont(boldFont)));
+            studentTable.addHeaderCell(new Cell().add(new Paragraph("ActualFees").setFont(boldFont)));
+
+            int totalStudents = 0;
+            double totalRegFees = 0, totalPracFees = 0, totalInternshipFees = 0, totalActualFees = 0;
+
+            // Loop departments
+            for (String category : groupedData.keySet()) {
+                // Department header row
+                Cell deptHeader = new Cell(1, 7).add(new Paragraph("Department: " + category).setBold()).setBackgroundColor(ColorConstants.LIGHT_GRAY);
+                studentTable.addCell(deptHeader);
+
+                for (Map<String, Object> row : groupedData.get(category)) {
+                    String className = (String) row.get("className");
+                    String section = (String) row.get("section");
+                    double amountPaid = (double) row.get("amountPaid");
+
+                    int studentCount = 1; // assume 1 row = 1 student (adjust if you aggregate counts)
+                    double regFee = calculateRegFee(className, section) * studentCount;
+                    double pracFee = calculatePractical(className, section) * studentCount;
+                    double internshipFee = calculateInternship(className, section) * studentCount;
+                    double actualFees = amountPaid - (regFee + pracFee + internshipFee);
+
+                    totalStudents += studentCount;
+                    totalRegFees += regFee;
+                    totalPracFees += pracFee;
+                    totalInternshipFees += internshipFee;
+                    totalActualFees += actualFees;
+
+                    studentTable.addCell(new Cell().add(new Paragraph(className).setFont(contentFont)));
+                    studentTable.addCell(new Cell().add(new Paragraph(section).setFont(contentFont)));
+                    studentTable.addCell(new Cell().add(new Paragraph(String.valueOf(studentCount)).setFont(contentFont)));
+                    studentTable.addCell(new Cell().add(new Paragraph(currencyFormat.format(regFee)).setFont(contentFont)));
+                    studentTable.addCell(new Cell().add(new Paragraph(currencyFormat.format(pracFee)).setFont(contentFont)));
+                    studentTable.addCell(new Cell().add(new Paragraph(currencyFormat.format(internshipFee)).setFont(contentFont)));
+                    studentTable.addCell(new Cell().add(new Paragraph(currencyFormat.format(actualFees)).setFont(contentFont)));
+                }
+            }
+
+            // Totals
+            studentTable.addCell(new Cell(1, 2).add(new Paragraph("Grand Total").setFont(boldFont)));
+            studentTable.addCell(new Cell().add(new Paragraph(String.valueOf(totalStudents)).setFont(boldFont)));
+            studentTable.addCell(new Cell().add(new Paragraph(currencyFormat.format(totalRegFees)).setFont(boldFont)));
+            studentTable.addCell(new Cell().add(new Paragraph(currencyFormat.format(totalPracFees)).setFont(boldFont)));
+            studentTable.addCell(new Cell().add(new Paragraph(currencyFormat.format(totalInternshipFees)).setFont(boldFont)));
+            studentTable.addCell(new Cell().add(new Paragraph(currencyFormat.format(totalActualFees)).setFont(boldFont)));
+
+            document.add(studentTable);
+
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Information Message");
+            alert.setHeaderText(null);
+            alert.setContentText("School Fees structure downloaded Successfully!");
+            alert.showAndWait();
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (resultSet != null) resultSet.close();
+            if (prepare != null) prepare.close();
+            if (connect != null) connect.close();
+        } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            // Close database resources in finally block to ensure they are closed even if
-            // an exception occurs
-            try {
-                if (resultSet != null)
-                    resultSet.close();
-                if (prepare != null)
-                    prepare.close();
-                if (connect != null)
-                    connect.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
+}
 
     private double calculateRegFee(String className, String section) {
         if (className.equalsIgnoreCase("Form One") ||
